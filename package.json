@@ -1,0 +1,26 @@
+{
+  "name": "tree-surgeon",
+  "version": "0.0.0",
+  "description": "Tools for editing tree structures using a relational model",
+  "main": "tree.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/i-e-b/node-tree-surgeon.git"
+  },
+  "keywords": [
+    "tree",
+    "relational",
+    "edit",
+    "transform",
+    "data"
+  ],
+  "author": "ieb",
+  "license": "LICENSE",
+  "bugs": {
+    "url": "https://github.com/i-e-b/node-tree-surgeon/issues"
+  },
+  "homepage": "https://github.com/i-e-b/node-tree-surgeon"
+}
