@@ -2,16 +2,17 @@ var global, exports;
 
 var _ = require('lodash');
 
-(function (provider) {
+(function (provides) {
     
     /** decompose -- Takes a plain object and decomposed sub-objects into separate nodes
      *
      * Output structure looks like
-     *      {"Nodes" : { "Key" :{ ... }, ... },
+     *      {"Root": id,
+     *       "Nodes" : { "Key" :{ ... }, ... },
      *       "Relations": [ {"Parent":.., "Child":.., "Kind":...}, ... ]
      *      }
      * */
-    provider.decompose = function(obj) {
+    provides.decompose = function(obj) {
         var nodesToDecompose = [];
         var nodes = {};
         var relations = [];
@@ -52,8 +53,43 @@ var _ = require('lodash');
                 nodes[id] = out;
             });
 
-        return {"Nodes":nodes, "Relations":relations};
+        return {"Root":rootId, "Nodes":nodes, "Relations":relations};
     }
+
+    /** compose -- Takes a decomposed structure and returns a plain object
+     *
+     * Input structure looks like
+     *      {"Root": id,
+     *       "Nodes" : { "Key" :{ ... }, ... },
+     *       "Relations": [ {"Parent":.., "Child":.., "Kind":...}, ... ]
+     *      }
+     * */
+    provides.compose = function(obj) {
+        var parentToChild = _.groupBy(obj.Relations, "Parent");
+
+        var join = function (old, additional) {
+            if (old) {
+                return (Array.isArray(old)) ? (old.concat([additional])) : ([old, additional]);
+            } else {
+                return additional;
+            }
+        };
+
+        var build = function buildRecursive(currentNode) {
+            var output = _.clone(obj.Nodes[currentNode]);
+            var childNodes = parentToChild[currentNode];
+            if (childNodes) {
+                for (var i = 0; i < childNodes.length; i++) {
+                    var childNode = childNodes[i];
+                    output[childNode.Kind] = join(output[childNode.Kind],
+                            buildRecursive(childNode.Child));
+                }
+            }
+            return output;
+        };
+
+        return build(obj.Root);
+    };
 
     function queueWorkerSync (queue, doWork) {
         var output = [];
@@ -85,5 +121,6 @@ var _ = require('lodash');
         };
         trampoline(null, null);
     };
+
 
 })(global || exports || this);

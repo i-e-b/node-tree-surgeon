@@ -25,3 +25,5 @@ Functions given to split a POJO into this structure, and merge the structure int
 * MergeDown -- remove a relationship and one node by merging data from parent to child. Subtree remains
 * Fuse -- remove a node by merging into it's parent and child (by supplied function)
 * Render -- pass each node through a function and compose tree from the results (also, could 'render' relations to get key names and filter?)
+* Compose -- put a decomposed tree back together how it was. The composed object will contain auto-generated keys if any were created
+

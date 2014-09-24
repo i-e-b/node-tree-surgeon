@@ -3,7 +3,7 @@ var _ = require('lodash');
 
 var tree = require("../tree-surgeon.js");
 
-describe("Tree Surgeon", function() {
+describe("Tree decomposition", function() {
     
     it("should decompose an object tree into nodes and relations", function() {
         var sample = {
@@ -42,7 +42,8 @@ describe("Tree Surgeon", function() {
                 {"Parent":"1", "Child":"2", "Kind":"subtree"},
                 {"Parent":"1", "Child":"4", "Kind":"another"},
                 {"Parent":"2", "Child":"3", "Kind":"subsub"}
-            ]
+            ],
+            "Root":"1"
         };
 
         var result = tree.decompose(sample);
@@ -78,7 +79,8 @@ describe("Tree Surgeon", function() {
             "Relations":[
                 {"Parent":"1", "Child":"x", "Kind":"ArrayOfObjects"},
                 {"Parent":"1", "Child":"y", "Kind":"ArrayOfObjects"},
-            ]
+            ],
+            "Root":"1"
         };
 
         var result = tree.decompose(sample);
@@ -98,7 +100,8 @@ describe("Tree Surgeon", function() {
                     "EmptyArray":[]
                 }
             },
-            "Relations":[]
+            "Relations":[],
+            "Root":"1"
         };
         var result = tree.decompose(sample);
         expect(result).to.deep.equal(expected);
@@ -128,7 +131,8 @@ describe("Tree Surgeon", function() {
             "Relations":[
                 {"Parent":"id_0", "Child":"id_1", "Kind":"child"},
                 {"Parent":"id_1", "Child":"id_2", "Kind":"child"},
-            ]
+            ],
+            "Root":"id_0"
         };
         var result = tree.decompose(sample);
         expect(result).to.deep.equal(expected);
@@ -153,5 +157,38 @@ describe("Tree Surgeon", function() {
         var result = tree.decompose(input);
 
         expect(input).to.deep.equal(expected);
+    });
+
+
+    it("should decompose empty object with no errors", function() {
+        var sample = {};
+        var expected = {
+            "Nodes":{
+                "id_0":{
+                    "ID":"id_0"
+                }
+            },
+            "Relations":[],
+            "Root":"id_0"
+        };
+        var result = tree.decompose(sample);
+        expect(result).to.deep.equal(expected);
+    });
+
+
+    it("should decompose flat object with no errors", function() {
+        var sample = {"key":"value"};
+        var expected = {
+            "Nodes":{
+                "id_0":{
+                    "ID":"id_0",
+                    "key":"value"
+                }
+            },
+            "Relations":[],
+            "Root":"id_0"
+        };
+        var result = tree.decompose(sample);
+        expect(result).to.deep.equal(expected);
     });
 });
