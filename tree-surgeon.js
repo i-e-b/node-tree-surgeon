@@ -91,6 +91,14 @@ var _ = require('lodash');
         return build(obj.Root);
     };
 
+    /** prune -- remove relationships by kind */
+    provides.prune = function(relational, kind) {
+        _.remove(relational.Relations, function(rel) {
+            return rel.Kind == kind;
+        });
+        return relational;
+    }
+
     function queueWorkerSync (queue, doWork) {
         var output = [];
 

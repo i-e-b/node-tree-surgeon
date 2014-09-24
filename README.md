@@ -20,7 +20,9 @@ Functions given to split a POJO into this structure, and merge the structure int
 ### Operations on the relational structure:
 
 * Prune -- remove subtrees by relationship kind
+    * PruneAfter -- remove subtrees by relationship kind, but keep the immediate children
 * Chop -- remove subtrees by data predicate
+    * ChopAfter -- remove subtrees by data predicate, but keep the matched children
 * MergeUp -- remove a relationship and one node by merging data from child to parent. Subtree remains
 * MergeDown -- remove a relationship and one node by merging data from parent to child. Subtree remains
 * Fuse -- remove a node by merging into it's parent and child (by supplied function)
