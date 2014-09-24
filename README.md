@@ -7,8 +7,13 @@ Tools for editing tree structures using a relational model
 
 Trees are represented internally with two sets: (relational structure)
 
-* Relations: `[{"Parent":id, "Child":id, "Kind":any}, ...]`
+* Relations: `[{"Parent":id, "Child":id, "Kind":any, ...}, ...]`
 * Nodes: `[{"ID":id, ... }, ...]`
+
+NOTE: the `"ID"` field is selected by this logic
+* Already in data, field name in config
+* Generated automatically, field name in config
+* config field name defaults to "ID"
  
 Functions given to split a POJO into this structure, and merge the structure into a POJO.
 

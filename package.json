@@ -2,9 +2,9 @@
   "name": "tree-surgeon",
   "version": "0.0.0",
   "description": "Tools for editing tree structures using a relational model",
-  "main": "tree.js",
+  "main": "tree-surgeon.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -18,9 +18,16 @@
     "data"
   ],
   "author": "ieb",
-  "license": "LICENSE",
+  "license": "https://github.com/i-e-b/node-tree-surgeon/blob/master/LICENSE",
   "bugs": {
     "url": "https://github.com/i-e-b/node-tree-surgeon/issues"
   },
-  "homepage": "https://github.com/i-e-b/node-tree-surgeon"
+  "homepage": "https://github.com/i-e-b/node-tree-surgeon",
+  "devDependencies": {
+    "chai": "^1.9.1",
+    "mocha": "^1.21.4"
+  },
+  "dependencies": {
+    "lodash": "^2.4.1"
+  }
 }
