@@ -159,7 +159,6 @@ describe("Tree decomposition", function() {
         expect(input).to.deep.equal(expected);
     });
 
-
     it("should decompose empty object with no errors", function() {
         var sample = {};
         var expected = {
@@ -174,7 +173,6 @@ describe("Tree decomposition", function() {
         var result = tree.decompose(sample);
         expect(result).to.deep.equal(expected);
     });
-
 
     it("should decompose flat object with no errors", function() {
         var sample = {"key":"value"};

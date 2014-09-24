@@ -4,7 +4,7 @@ var _ = require('lodash');
 var tree = require("../tree-surgeon.js");
 
 describe("Tree composition from relational model", function() {
-    it("should build a plain object tree from a relational model", function() {
+    it("should build a plain object tree from a relational model, including all IDs", function() {
         var relational = {
             "Root":"1",
             "Nodes":{
@@ -48,5 +48,32 @@ describe("Tree composition from relational model", function() {
         var result = tree.compose(relational);
 
         expect(result).to.deep.equal(expected);
+    });
+
+    it("should be able to round-trip an object and get all the data back",function() {
+        var original = {
+            "ID":"a",
+            "fruits":["apple","banana","orange"],
+            "children":{
+                "ID":"b",
+                "child":[
+                    {"ID":"c", "name":"Sam", "age":20},
+                    {"ID":"d", "name":"chris", "age":30},
+                ],
+                "grandchildren":[
+                    {"ID":"e", "name":"tommy","age":5},
+                    {"ID":"f", "name":"chloe","age":8,
+                        "favorites":{
+                            "ID":"g",
+                            "toy":"spanner",
+                            "color":"green",
+                            "fish":["anchovy","carp"]
+                        }
+                    }
+                ]
+            },
+        };
+        var result = tree.compose(tree.decompose(original));
+        expect(result).to.deep.equal(original);
     });
 });
