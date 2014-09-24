@@ -3,48 +3,66 @@ var global, exports;
 var _ = require('lodash');
 
 (function (provider) {
-    provider.test = function() {
-        console.log("Skeleton loaded OK");
-    }
-
-    /** Takes a plain object and decomposed sub-objects into separate nodes
+    
+    /** decompose -- Takes a plain object and decomposed sub-objects into separate nodes
      *
      * Output structure looks like
      *      {"Nodes" : { "Key" :{ ... }, ... },
      *       "Relations": [ {"Parent":.., "Child":.., "Kind":...}, ... ]
      *      }
      * */
-    provider.decompose = function decomposeRecursive(obj) {
-        var nodesToDecompose = [obj];
+    provider.decompose = function(obj) {
+        var nodesToDecompose = [];
         var nodes = {};
         var relations = [];
         var idx = 0; // used to make unique IDs
         var newId = function(){return "id_" + (idx++);};
 
-        queueWorker(nodesToDecompose, function(){},
-            function(node, done) {
-                var out = {};
-                var id = node.ID || newId();
+        var rootId = obj.ID || newId();
+        nodesToDecompose.push([rootId, obj]);
+
+        queueWorkerSync(nodesToDecompose,
+            function(pair) {
+                var id = pair[0];
+                var node = pair[1];
+                var out = {"ID":id};
                 _.forOwn(node, function(value, key) {
                     if (_.isArray(value)) {
-                        // should be multiple node and multiple relationships
-                        throw new Error("Array subtrees not handled yet");
-                    } else if (_.isPlainObject(value)) {
+                        if (value.length > 0 && _.isPlainObject(value[0])) {
+                            // is an array of objects, treat as multiple child nodes
+                            for (var i = 0; i < value.length; i++) {
+                                var aId = value[i].ID || newId();
+                                relations.push({"Parent":id, "Child":aId, "Kind":key});
+                                nodesToDecompose.push([aId, value[i]]);
+                            }
+                            return; // else fall through to value copying
+                        }
+                    } 
+                    
+                    if (_.isPlainObject(value)) {
                         // new node to be decomposed. Add to queue, don't add to parent.
-                        value.ID = value.ID || newId(); // TODO: remove mutation.
-                        relations.push({"Parent":id, "Child":value.ID, "Kind":key});
-                        nodesToDecompose.push(value);
+                        var oId = value.ID || newId();
+                        relations.push({"Parent":id, "Child":oId, "Kind":key});
+                        nodesToDecompose.push([oId, value]);
                     } else {
                         // just some value. Add to general output
                         out[key] = value;
                     }
                 });
                 nodes[id] = out;
-                done(undefined, null); // err, result set
             });
 
         return {"Nodes":nodes, "Relations":relations};
     }
+
+    function queueWorkerSync (queue, doWork) {
+        var output = [];
+
+        while(queue.length > 0) {
+            var work = queue.shift();
+            doWork(work);
+        };
+    };
 
     function queueWorker (queue, done, doWork) {
         var output = [];
@@ -63,7 +81,7 @@ var _ = require('lodash');
             }
 
             var work = queue.shift();
-            doWork(work, trampoline);
+            process.nextTick(doWork.bind(this, work, trampoline));
         };
         trampoline(null, null);
     };
