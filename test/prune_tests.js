@@ -39,6 +39,7 @@ describe("Tree pruning", function() {
 
             expect(result.Relations).to.deep.equal(expected);
         });
+
         it("should compose into an object with the matched nodes removed", function(){
             var input = {
                 "ID":"1",
@@ -69,5 +70,16 @@ describe("Tree pruning", function() {
 
             expect(result).to.deep.equal(expected);
         });
+    });
+
+    describe("When pruning after a relationship kind", function(){
+        it("should remove all child relationships of all matching kinds");
+        it("should compose into an object with the matched nodes still present");
+        it("should compose into an object with no children on the matched nodes");
+    });
+
+    describe("When pruning all but a set of relationship kinds", function() {
+        /* like:  tree.pruneAllBut(["a","b"], relational); */
+        it("should compose into an object with only the matching subtrees remaining");
     });
 }); 
