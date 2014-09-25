@@ -75,6 +75,29 @@ describe("Chopping data out of a tree", function() {
             expect(result).to.deep.equal(expected);
         });
 
+        it("should be able to chop root node, resulting in empty object", function(){
+            var input = {
+                "thing" : {
+                    "match":"no",
+                    "goneChild":{
+                        "match":"yes"
+                    }
+                },
+                "match":"yes"
+            };
+            var filter = function(n) { return n.match == "yes"; }
+
+            var expected = {};
+
+            var result = 
+                tree.compose(
+                    tree.chop(filter,
+                        tree.decompose(input)));
+
+            expect(result).to.deep.equal(expected);
+        });
+
+
         it("should leave non-matching nodes in place, even if they have the same relationship kind", function(){
             var input = {
                 "rel" : {
@@ -159,13 +182,103 @@ describe("Chopping data out of a tree", function() {
                 ]
             };
             
-            var filter = function(n) { return n.match == "yes"; }
+            var filter = function(n) { return n.match == "yes"; };
 
             var result = tree.chopAfter(filter, input);
             expect(result).to.deep.equal(expected);
         });
-        it("should compose to a tree where matching nodes exist but have no children");
-        it("should leave non-matching nodes in place");
-        it("should chop members of an array independently");
+
+        it("should compose to a tree where matching nodes exist but have no children", function(){
+            var input = {
+                "matched_keep" : {
+                    "match":"me",
+                    "unmatched_gone": {
+                        "not":"me"
+                    }
+                }
+            };
+            var filter = function(n){return n.match == "me";};
+            var expected = {
+                "matched_keep":{
+                    "match":"me"
+                }
+            };
+
+            var result =
+                tree.compose(
+                    tree.chopAfter(filter,
+                        tree.decompose(input)));
+
+            expect(result).to.deep.equal(expected);
+        });
+
+        it("should be able to chop after root", function(){
+            var input = {
+                "match":"me",
+                "unmatched_gone" : {
+                    "unmatched_gone": {
+                        "not":"me"
+                    }
+                }
+            };
+            var filter = function(n){return n.match == "me";};
+            var expected = {
+                "match":"me"
+            };
+
+            var result =
+                tree.compose(
+                    tree.chopAfter(filter,
+                        tree.decompose(input)));
+
+            expect(result).to.deep.equal(expected);
+        });
+
+        it("should leave non-matching nodes in place", function(){
+            var invariant = {
+                "a":{
+                    "b":"c",
+                    "d":[1,2,3]
+                },
+                "x" : [
+                    {"a":1},
+                    {"b":2}
+                ]
+            };
+            var filter = function(n){return false;};
+
+            var result =
+                tree.compose(
+                    tree.chopAfter(filter,
+                        tree.decompose(invariant)));
+
+            expect(result).to.deep.equal(invariant);
+
+        });
+
+        it("should chop members of an array independently", function(){
+            var input = {
+                "arr":[
+                    {"jim":"hawkins", "alive":{"value":true}},
+                    {"john":"silver", "alive":{"value":true}},
+                    {"other":"muntineers", "killed":"or marooned", "alive":{"value":true}}
+                ]
+            };
+            var filter = function(n){return n.killed == "or marooned";};
+            var expected= {
+                "arr":[
+                    {"jim":"hawkins", "alive":{"value":true}},
+                    {"john":"silver", "alive":{"value":true}},
+                    {"other":"muntineers", "killed":"or marooned"}
+                ]
+            };
+
+            var result =
+                tree.compose(
+                    tree.chopAfter(filter,
+                        tree.decompose(input)));
+
+            expect(result).to.deep.equal(expected);
+        });
     });
 });

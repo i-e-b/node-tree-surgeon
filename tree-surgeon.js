@@ -68,6 +68,7 @@ var _ = require('lodash');
         var parentToChild = _.groupBy(obj.Relations, "Parent");
 
         var join = function (old, additional) {
+            if (_.isUndefined(additional)) return old;
             if (old) {
                 return (Array.isArray(old)) ? (old.concat([additional])) : ([old, additional]);
             } else {
@@ -76,6 +77,8 @@ var _ = require('lodash');
         };
 
         var build = function buildRecursive(currentNode) {
+            if (! obj.Nodes[currentNode]) return undefined;
+
             var output = _.clone(obj.Nodes[currentNode]);
             var childNodes = parentToChild[currentNode];
             if (childNodes) {
@@ -88,7 +91,7 @@ var _ = require('lodash');
             return output;
         };
 
-        return build(obj.Root);
+        return build(obj.Root) || {};
     };
 
     /** prune -- remove relationships by kind */
@@ -158,7 +161,6 @@ var _ = require('lodash');
             });
         });
     }
-
 
     function queueWorkerSync (queue, doWork) {
         var output = [];
