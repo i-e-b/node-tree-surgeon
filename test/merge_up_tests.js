@@ -12,18 +12,9 @@ describe("Merging nodes into parents", function() {
                     "here":"is the child"
                 }
             };
+            var result = tree.compose( tree.mergeUpByKind("mergeTarget", tree.decompose(input)));
 
-            var expected = {
-                "I":"am the parent",
-                "here":"is the child"
-            };
-
-            var result =
-                tree.compose(
-                    tree.mergeUpByKind("mergeTarget",
-                        tree.decompose(input)));
-
-            expect(result).to.deep.equal(expected);
+            expect(result.mergeTarget).to.not.exist;
         });
 
         it("should retain the grandchildren of a relationship",function(){
@@ -58,16 +49,37 @@ describe("Merging nodes into parents", function() {
 
             expect(result).to.deep.equal(expected);
         });
-        it("should add values from the child to the parent");
+
+        it("should add values from the child to the parent", function(){
+            var input = {
+                "I":"am the parent",
+                "mergeTarget" : {
+                    "here":"is the child"
+                }
+            };
+
+            var expected = {
+                "I":"am the parent",
+                "here":"is the child"
+            };
+
+            var result =
+                tree.compose(
+                    tree.mergeUpByKind("mergeTarget",
+                        tree.decompose(input)));
+
+            expect(result).to.deep.equal(expected);
+        });
+
         it("should apply merge recursively", function(){
             var input = {
                 "m":{
                     "a":1,
                     "m": {
                         "b":2,
-                            "m":{
-                                "c":3
-                            }
+                        "m":{
+                            "c":3
+                        }
                     }
                 }
             };
@@ -83,8 +95,51 @@ describe("Merging nodes into parents", function() {
             expect(result).to.deep.equal(expected);
 
         });
-        it("should join conflicting values by creating an array on the parent");
-        it("should concatenate arrays being merged");
+
+        it("should join conflicting values by creating an array on the parent", function(){
+            var input = {
+                "a":1,
+                "m":{
+                    "a":2
+                }
+            };
+            var expected = {
+                "a":[1,2]
+            };
+
+            var result =
+                tree.compose(
+                    tree.mergeUpByKind("m",
+                        tree.decompose(input)));
+
+            expect(result).to.deep.equal(expected);
+        });
+
+        it("should concatenate arrays being merged", function(){
+            var input = {
+                "a":[1,2],
+                "b":1,
+                "c":[1,2],
+                "m":{
+                    "a":[3,4],
+                    "b":[2,3],
+                    "c":3
+                }
+            };
+            var expected = {
+                "a":[1,2,3,4],
+                "b":[1,2,3],
+                "c":[1,2,3]
+            };
+
+            var result =
+                tree.compose(
+                    tree.mergeUpByKind("m",
+                        tree.decompose(input)));
+
+            expect(result).to.deep.equal(expected);
+
+        });
         it("should not apply merge up to the root node");
     });
 });

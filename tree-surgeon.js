@@ -59,15 +59,6 @@ var _ = require('lodash');
     provides.compose = function(obj) {
         var parentToChild = _.groupBy(obj.Relations, "Parent");
 
-        var join = function (old, additional) {
-            if (_.isUndefined(additional)) return old;
-            if (old) {
-                return (Array.isArray(old)) ? (old.concat([additional])) : ([old, additional]);
-            } else {
-                return additional;
-            }
-        };
-
         var build = function buildRecursive(currentNode) {
             if (! obj.Nodes[currentNode]) return undefined;
 
@@ -85,7 +76,6 @@ var _ = require('lodash');
 
         return build(obj.Root) || {};
     };
-
     /** prune -- remove relationships by kind */
     provides.prune = function(kind, relational) {
         _.remove(relational.Relations, function(rel) {
@@ -140,12 +130,16 @@ var _ = require('lodash');
         while (more) {
             more = false;
             _.forEach(relational.Relations, function(rel, idx){
-                if (rel.Kind != kind) return true; // continue
+                if (rel.Kind != kind) return true; // continue (optimisation: remove from things we will scan over?)
+                more = true; // otherwise merge this one and try again
 
                 var parentId = rel.Parent;
                 var selfId = rel.Child;
-                more = true;
-                var parId = rel.Parent;
+
+                // merge
+                _.merge(relational.Nodes[parentId], relational.Nodes[selfId], join);
+
+                // remap
                 _.remove(relational.Relations, function(chrel) {
                     if (chrel.Parent == selfId) chrel.Parent = parentId; // remap this->C to P->C
                     return chrel.Child == selfId; // delete P->this
@@ -154,6 +148,15 @@ var _ = require('lodash');
             });
         }
         return relational;
+    };
+    
+    function join (old, additional) {
+        if (_.isUndefined(additional)) return old;
+        if (old) {
+            return (_.isArray(old)) ? (old.concat(additional)) : ([old].concat(additional));
+        } else {
+            return additional;
+        }
     };
 
     function removeNodesByIds(relational, Ids) {
