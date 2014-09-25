@@ -19,39 +19,31 @@ var _ = require('lodash');
         var idx = 0; // used to make unique IDs
         var newId = function(){return "id_" + (idx++);};
 
-        var rootId = /*obj.ID || */newId();
+        var rootId = newId();
         nodesToDecompose.push([rootId, obj]);
 
-        queueWorkerSync(nodesToDecompose,
-            function(pair) {
-                var id = pair[0];
-                var node = pair[1];
-                var out = {};
-                _.forOwn(node, function(value, key) {
-                    if (_.isArray(value)) {
-                        if (value.length > 0 && _.isPlainObject(value[0])) {
-                            // is an array of objects, treat as multiple child nodes
-                            for (var i = 0; i < value.length; i++) {
-                                var aId = /*value[i].ID ||*/ newId();
-                                relations.push({"Parent":id, "Child":aId, "Kind":key});
-                                nodesToDecompose.push([aId, value[i]]);
-                            }
-                            return; // else fall through to value copying
-                        }
-                    } 
-                    
-                    if (_.isPlainObject(value)) {
-                        // new node to be decomposed. Add to queue, don't add to parent.
-                        var oId = /*value.ID ||*/ newId();
-                        relations.push({"Parent":id, "Child":oId, "Kind":key});
-                        nodesToDecompose.push([oId, value]);
-                    } else {
-                        // just some value. Add to general output
-                        out[key] = value;
-                    }
-                });
-                nodes[id] = out;
+        var add = function(id, value, kind) {
+            var aId = newId();                        
+            relations.push({"Parent":id, "Child":aId, "Kind":kind});
+            nodesToDecompose.push([aId, value]);
+        }
+
+        queueWorkerSync(nodesToDecompose, function(pair) {
+            var id = pair[0], node = pair[1];
+            nodes[id] = {};
+            _.forOwn(node, function(value, key) {
+                if (_.isArray(value) && value.length > 0 && _.isPlainObject(value[0])) {
+                    // is an array of objects, treat as multiple child nodes
+                    for (var i = 0; i < value.length; i++) { add(id, value[i], key); }
+                } else if (_.isPlainObject(value)) {
+                    // new node to be decomposed. Add to queue, don't add to parent.
+                    add(id, value, key);
+                } else {
+                    // just some value. Add to general output
+                    nodes[id][key] = value;
+                }
             });
+        });
 
         return {"Root":rootId, "Nodes":nodes, "Relations":relations};
     }
@@ -142,6 +134,28 @@ var _ = require('lodash');
         return relational;
     };
 
+    /** merge up by kind -- remove child nodes by relationship putting data into parent */
+    provides.mergeUpByKind = function(kind, relational) {
+        var more = true;
+        while (more) {
+            more = false;
+            _.forEach(relational.Relations, function(rel, idx){
+                if (rel.Kind != kind) return true; // continue
+
+                var parentId = rel.Parent;
+                var selfId = rel.Child;
+                more = true;
+                var parId = rel.Parent;
+                _.remove(relational.Relations, function(chrel) {
+                    if (chrel.Parent == selfId) chrel.Parent = parentId; // remap this->C to P->C
+                    return chrel.Child == selfId; // delete P->this
+                });
+                return false; // break, maybe restart loop
+            });
+        }
+        return relational;
+    };
+
     function removeNodesByIds(relational, Ids) {
         _.forEach(Ids, function(id){
             delete relational.Nodes[id];
@@ -192,6 +206,5 @@ var _ = require('lodash');
         };
         trampoline(null, null);
     };
-
 
 })(global || exports || this);
