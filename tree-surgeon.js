@@ -110,10 +110,32 @@ var _ = require('lodash');
         return relational;
     };
 
+    /** pruneAllBut -- remove nodes where kind is not in the given list */
     provides.pruneAllBut = function(kinds, relational) {
         _.remove(relational.Relations, function(rel) {
             return ! _.some(kinds, function(k) {return k == rel.Kind;});
         });
+        return relational;
+    };
+
+    /** chop -- remove nodes and their children if they match a filter
+     * @param filterFunc -- if this returns a truthy value, node will be removed, else node will be kept
+     */
+    provides.chop = function(filterFunc, relational) {
+        var toRemove = [];
+        relational.Nodes = _.reduce(relational.Nodes, function(newNodes, node, idx){
+            if (filterFunc(node)) {
+                toRemove.push(idx);
+            } else {
+                newNodes[idx] = node;
+            }
+            return newNodes;
+        }, {});
+
+        relational.Relations = _.remove(relational.Relations, function(rel){
+            return toRemove.indexOf(rel.Child) < 0;
+        });
+
         return relational;
     };
 
