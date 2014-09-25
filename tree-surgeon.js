@@ -110,6 +110,13 @@ var _ = require('lodash');
         return relational;
     };
 
+    provides.pruneAllBut = function(kinds, relational) {
+        _.remove(relational.Relations, function(rel) {
+            return ! _.some(kinds, function(k) {return k == rel.Kind;});
+        });
+        return relational;
+    };
+
     function queueWorkerSync (queue, doWork) {
         var output = [];
 

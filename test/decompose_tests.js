@@ -5,6 +5,8 @@ var tree = require("../tree-surgeon.js");
 
 describe("Tree decomposition", function() {
     
+    it("should handle objects which have repeated IDs"); // gah!
+
     it("should decompose an object tree into nodes and relations", function() {
         var sample = {
             "ID":"1",

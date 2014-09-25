@@ -140,7 +140,37 @@ describe("Tree pruning", function() {
     });
 
     describe("When pruning all but a set of relationship kinds", function() {
-        /* like:  tree.pruneAllBut(["a","b"], relational); */
-        it("should compose into an object with only the matching subtrees remaining");
+        it("should compose into an object with only the matching subtrees remaining", function(){
+            var input = {
+                "keep1":{
+                    "keep2":{
+                        "hello":"world"
+                    },
+                    "gone" : {
+                        "goodbye":"world"
+                    }
+                },
+                "keep2":{
+                    "keep1":{
+                        "alsoGone":{"bye":"bye"},
+                        "keep3":{} // empty
+                    }
+                },
+                "lost":{
+                    "keep1": {"goodbye":"world"} // parent removed, so this is gone
+                }
+            };
+
+            var result = tree.compose(
+                tree.pruneAllBut(["keep1", "keep2", "keep3"],
+                    tree.decompose(input)));
+
+            expect(result.keep1.keep2.hello).to.equal("world");
+            expect(result.keep2.keep1.keep3).to.exist;
+
+            expect(result.keep1.gone).to.not.exist;
+            expect(result.keep2.keep1.alsoGone).to.not.exist;
+            expect(result.lost).to.not.exist;
+        });
     });
 }); 
