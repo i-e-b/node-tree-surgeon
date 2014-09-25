@@ -8,26 +8,27 @@ Tools for editing tree structures using a relational model
 Trees are represented internally with two sets: (relational structure)
 
 * Relations: `[{"Parent":id, "Child":id, "Kind":any, ...}, ...]`
-* Nodes: `[{"ID":id, ... }, ...]`
+* Nodes: `{"id":{... your data ... }, ...]`
 
-NOTE: the `"ID"` field is selected by this logic
-* Already in data, field name in config
-* Generated automatically, field name in config
-* config field name defaults to "ID"
- 
+The `id` values are assigned internally and don't conflict with or get written to your objects.
+
 Functions given to split a POJO into this structure, and merge the structure into a POJO.
+
+### Operations on POJO structure:
+
+- [x] Decompose -- turn a normal js object tree into the relational structure
 
 ### Operations on the relational structure:
 
-* Prune -- remove subtrees by relationship kind
-    * PruneAfter -- remove subtrees by relationship kind, but keep the immediate children
-    * PruneAllBut -- remove subtrees that **don't** match a set of kinds
-* Chop -- remove subtrees by data predicate
-    * ChopAfter -- remove subtrees by data predicate, but keep the matched children
-* MergeUp -- remove a relationship and one node by merging data from child to parent. Subtree remains
-* MergeDown -- remove a relationship and one node by merging data from parent to child. Subtree remains
-* Fuse -- remove a node by merging into it's parent and child (by supplied function)
-    * FuseAway -- remove a node by connecting it's parents to it's children, losing the data in the selected nodes
-* Render -- pass each node through a function and compose tree from the results (also, could 'render' relations to get key names and filter?)
-* Compose -- put a decomposed tree back together how it was. The composed object will contain auto-generated keys if any were created
+- [x] Prune -- remove subtrees by relationship kind
+    - [x] PruneAfter -- remove subtrees by relationship kind, but keep the immediate children
+    - [x] PruneAllBut -- remove subtrees that **don't** match a set of kinds
+- [x] Chop -- remove subtrees by data predicate
+    - [x] ChopAfter -- remove subtrees by data predicate, but keep the matched children
+- [ ] MergeUp -- remove a relationship and one node by merging data from child to parent. Subtree remains
+- [ ] MergeDown -- remove a relationship and one node by merging data from parent to child. Subtree remains
+- [ ] Fuse -- remove a node by merging into it's parent and child (by supplied function)
+    - [ ] FuseAway -- remove a node by connecting it's parents to it's children, losing the data in the selected nodes
+- [ ] Render -- pass each node through a function and compose tree from the results (also, could 'render' relations to get key names and filter?)
+- [x] Compose -- put a decomposed tree back together how it was. The composed object will contain auto-generated keys if any were created
 
