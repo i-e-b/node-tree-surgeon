@@ -92,12 +92,23 @@ var _ = require('lodash');
     };
 
     /** prune -- remove relationships by kind */
-    provides.prune = function(relational, kind) {
+    provides.prune = function(kind, relational) {
         _.remove(relational.Relations, function(rel) {
             return rel.Kind == kind;
         });
         return relational;
-    }
+    };
+
+    /** pruneAfter -- remove children by matching parent relationship kind */
+    provides.pruneAfter = function(kind, relational) {
+        var parentsToRemove = _.pluck(_.where(relational.Relations, {Kind:kind}), "Child");
+        _.forEach(parentsToRemove, function(p){
+            _.remove(relational.Relations, function(v) {
+                return v.Parent == p;
+            });
+        });
+        return relational;
+    };
 
     function queueWorkerSync (queue, doWork) {
         var output = [];

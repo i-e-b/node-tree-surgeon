@@ -35,7 +35,7 @@ describe("Tree pruning", function() {
                 {"Parent":"2", "Child":"3", "Kind":"subsub"}
             ];
 
-            var result = tree.prune(relational, "subtree");
+            var result = tree.prune("subtree", relational);
 
             expect(result.Relations).to.deep.equal(expected);
         });
@@ -66,16 +66,77 @@ describe("Tree pruning", function() {
                 }
             };
 
-            var result = tree.compose(tree.prune(tree.decompose(input), "subtree"));
+            var result = tree.compose(tree.prune("subtree", tree.decompose(input)));
 
             expect(result).to.deep.equal(expected);
         });
     });
 
     describe("When pruning after a relationship kind", function(){
-        it("should remove all child relationships of all matching kinds");
-        it("should compose into an object with the matched nodes still present");
-        it("should compose into an object with no children on the matched nodes");
+        it("should remove all child relationships of all matching kinds", function(){
+            var relational = {
+                "Root":"1",
+                "Nodes":{
+                    "1":{
+                        "ID":"1", 
+                    },
+                    "2":{
+                        "ID":"2"
+                    },
+                    "3":{
+                        "ID":"3"
+                    },
+                    "4":{
+                        "ID":"4"
+                    }
+                },
+                "Relations":[
+                    {"Parent":"1", "Child":"2", "Kind":"first"},
+                    {"Parent":"2", "Child":"3", "Kind":"target"},
+                    {"Parent":"3", "Child":"4", "Kind":"eliminated"}
+                ]
+            };
+
+            var expected = [
+                {"Parent":"1", "Child":"2", "Kind":"first"},
+                {"Parent":"2", "Child":"3", "Kind":"target"}
+            ];
+
+            var result = tree.pruneAfter("target", relational);
+
+            expect(result.Relations).to.deep.equal(expected);
+        });
+
+        it("should compose into an object with the matched nodes still present", function(){
+            var input = {
+                "A": {
+                    "B":{
+                        "C":{
+                            "hello":"world"
+                        }
+                    }
+                }    
+            };
+
+            var result = tree.compose(tree.pruneAfter("B", tree.decompose(input)));
+
+            expect(result.A.B).to.exist;
+        });
+        it("should compose into an object with no children on the matched nodes", function(){
+            var input = {
+                "A": {
+                    "B":{
+                        "C":{
+                            "hello":"world"
+                        }
+                    }
+                }    
+            };
+
+            var result = tree.compose(tree.pruneAfter("B", tree.decompose(input)));
+
+            expect(result.A.B.C).to.not.exist;
+        });
     });
 
     describe("When pruning all but a set of relationship kinds", function() {
