@@ -19,20 +19,20 @@ var _ = require('lodash');
         var idx = 0; // used to make unique IDs
         var newId = function(){return "id_" + (idx++);};
 
-        var rootId = obj.ID || newId();
+        var rootId = /*obj.ID || */newId();
         nodesToDecompose.push([rootId, obj]);
 
         queueWorkerSync(nodesToDecompose,
             function(pair) {
                 var id = pair[0];
                 var node = pair[1];
-                var out = {"ID":id};
+                var out = {};
                 _.forOwn(node, function(value, key) {
                     if (_.isArray(value)) {
                         if (value.length > 0 && _.isPlainObject(value[0])) {
                             // is an array of objects, treat as multiple child nodes
                             for (var i = 0; i < value.length; i++) {
-                                var aId = value[i].ID || newId();
+                                var aId = /*value[i].ID ||*/ newId();
                                 relations.push({"Parent":id, "Child":aId, "Kind":key});
                                 nodesToDecompose.push([aId, value[i]]);
                             }
@@ -42,7 +42,7 @@ var _ = require('lodash');
                     
                     if (_.isPlainObject(value)) {
                         // new node to be decomposed. Add to queue, don't add to parent.
-                        var oId = value.ID || newId();
+                        var oId = /*value.ID ||*/ newId();
                         relations.push({"Parent":id, "Child":oId, "Kind":key});
                         nodesToDecompose.push([oId, value]);
                     } else {

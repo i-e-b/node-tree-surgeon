@@ -5,7 +5,22 @@ var tree = require("../tree-surgeon.js");
 
 describe("Tree decomposition", function() {
     
-    it("should handle objects which have repeated IDs"); // gah!
+    it("should handle objects which have repeated IDs", function(){
+        var messedUp = {
+            "ID":"1",
+            "child": {
+                "ID":"1",
+                "subchild":{
+                    "ID":"1",
+                    "hello":"world"
+                }
+            }
+        };
+
+        var result = tree.compose(tree.decompose(messedUp));
+
+        expect(result).to.deep.equal(messedUp);
+    });
 
     it("should decompose an object tree into nodes and relations", function() {
         var sample = {
@@ -27,25 +42,25 @@ describe("Tree decomposition", function() {
 
         var expected = {
             "Nodes":{
-                "1":{
+                "id_0":{
                     "ID":"1", "simple":"value"
                 },
-                "4":{ // note: breadth first search
-                    "ID":"4", "what":"child of the root"
-                },
-                "2":{
+                "id_1":{
                     "ID":"2", "node":"2"
                 },
-                "3":{
+                "id_2":{ // note: breadth first search
+                    "ID":"4", "what":"child of the root"
+                },
+                "id_3":{
                     "ID":"3", "value":"hi there"
                 }
             },
             "Relations":[
-                {"Parent":"1", "Child":"2", "Kind":"subtree"},
-                {"Parent":"1", "Child":"4", "Kind":"another"},
-                {"Parent":"2", "Child":"3", "Kind":"subsub"}
+                {"Parent":"id_0", "Child":"id_1", "Kind":"subtree"},
+                {"Parent":"id_0", "Child":"id_2", "Kind":"another"},
+                {"Parent":"id_1", "Child":"id_3", "Kind":"subsub"}
             ],
-            "Root":"1"
+            "Root":"id_0"
         };
 
         var result = tree.decompose(sample);
@@ -66,23 +81,23 @@ describe("Tree decomposition", function() {
 
         var expected = {
             "Nodes":{
-                "1":{ // non-object array still on parent
+                "id_0":{ // non-object array still on parent
                     "ID":"1", "ArrayOfValues" : [ "one", "two", "three" ]
                 },
-                "x":{
+                "id_1":{
                     "v":"one",
                     "ID":"x"
                 },
-                "y":{
+                "id_2":{
                     "v":"two",
                     "ID":"y"
                 }
             },
             "Relations":[
-                {"Parent":"1", "Child":"x", "Kind":"ArrayOfObjects"},
-                {"Parent":"1", "Child":"y", "Kind":"ArrayOfObjects"},
+                {"Parent":"id_0", "Child":"id_1", "Kind":"ArrayOfObjects"},
+                {"Parent":"id_0", "Child":"id_2", "Kind":"ArrayOfObjects"},
             ],
-            "Root":"1"
+            "Root":"id_0"
         };
 
         var result = tree.decompose(sample);
@@ -97,13 +112,13 @@ describe("Tree decomposition", function() {
         };
         var expected = {
             "Nodes":{
-                "1":{
+                "id_0":{
                     "ID":"1",
                     "EmptyArray":[]
                 }
             },
             "Relations":[],
-            "Root":"1"
+            "Root":"id_0"
         };
         var result = tree.decompose(sample);
         expect(result).to.deep.equal(expected);
@@ -119,14 +134,9 @@ describe("Tree decomposition", function() {
          };
         var expected = {
             "Nodes":{
-                "id_0":{
-                    "ID":"id_0"
-                },
-                "id_1":{
-                    "ID":"id_1"
-                },
+                "id_0":{},
+                "id_1":{},
                 "id_2":{
-                    "ID":"id_2",
                     "key":"value"
                 }
             },
@@ -165,9 +175,7 @@ describe("Tree decomposition", function() {
         var sample = {};
         var expected = {
             "Nodes":{
-                "id_0":{
-                    "ID":"id_0"
-                }
+                "id_0":{}
             },
             "Relations":[],
             "Root":"id_0"
@@ -181,7 +189,6 @@ describe("Tree decomposition", function() {
         var expected = {
             "Nodes":{
                 "id_0":{
-                    "ID":"id_0",
                     "key":"value"
                 }
             },
