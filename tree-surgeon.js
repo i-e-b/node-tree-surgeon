@@ -101,12 +101,9 @@ var _ = require('lodash');
 
     /** pruneAfter -- remove children by matching parent relationship kind */
     provides.pruneAfter = function(kind, relational) {
-        var parentsToRemove = _.pluck(_.where(relational.Relations, {Kind:kind}), "Child");
-        _.forEach(parentsToRemove, function(p){
-            _.remove(relational.Relations, function(v) {
-                return v.Parent == p;
-            });
-        });
+        // remove children of child IDs
+        var parents = _.pluck(_.where(relational.Relations, {Kind:kind}), "Child");
+        removeChildrenByParentsIds(relational, parents);
         return relational;
     };
 
@@ -123,21 +120,45 @@ var _ = require('lodash');
      */
     provides.chop = function(filterFunc, relational) {
         var toRemove = [];
-        relational.Nodes = _.reduce(relational.Nodes, function(newNodes, node, idx){
-            if (filterFunc(node)) {
-                toRemove.push(idx);
-            } else {
-                newNodes[idx] = node;
-            }
-            return newNodes;
-        }, {});
-
-        relational.Relations = _.remove(relational.Relations, function(rel){
-            return toRemove.indexOf(rel.Child) < 0;
+        _.forEach(relational.Nodes, function(node, id) {
+            if (filterFunc(node)) toRemove.push(id);
         });
-
+        removeNodesByIds(relational, toRemove);
         return relational;
     };
+
+    /** chopAfter -- remove child nodes where a parent matches a predicate
+     * @param filterFunc -- if this returns a truthy value, node will be removed, else node will be kept
+     */
+    provides.chopAfter = function(filterFunc, relational) {
+        var toRemove = [];
+        _.forEach(relational.Nodes, function(node, id) {
+            if (filterFunc(node)) toRemove.push(id);
+        });
+        removeChildrenByParentsIds(relational, toRemove);
+        return relational;
+    };
+
+    function removeNodesByIds(relational, Ids) {
+        _.forEach(Ids, function(id){
+            delete relational.Nodes[id];
+            _.remove(relational.Relations, function(v) {
+                return v.Child == id;
+            });
+        });
+    }
+
+    function removeChildrenByParentsIds(relational, parentIds) {
+        _.forEach(parentIds, function(p){
+            _.remove(relational.Relations, function(v) {
+                if (v.Parent == p) {
+                    delete relational.Nodes[v.Child];
+                    return true;
+                }
+            });
+        });
+    }
+
 
     function queueWorkerSync (queue, doWork) {
         var output = [];

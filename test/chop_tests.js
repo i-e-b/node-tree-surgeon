@@ -119,7 +119,51 @@ describe("Chopping data out of a tree", function() {
     });
 
     describe("When chopping after matching data in a tree", function(){
-        it("should remove all relationships where a matching node is a parent");
+        it("should remove all relationships where a matching node is a parent", function(){
+            var input = {
+                "Root": "id_0",
+                "Nodes": {
+                    "id_0": {},
+                    "id_1": {
+                        "match": "yes"
+                    },
+                    "id_2": {
+                        "match": "yes"
+                    },
+                    "id_3": {
+                        "match": "no"
+                    }
+                },
+                "Relations": [
+                    { "Parent": "id_0", "Child": "id_1", "Kind": "matched_keep" },
+                    { "Parent": "id_0", "Child": "id_2", "Kind": "matched_keep" },
+                    { "Parent": "id_1", "Child": "id_3", "Kind": "no_matched_gone" }
+                ]
+            };
+
+
+            var expected = {
+                "Root": "id_0",
+                "Nodes": {
+                    "id_0": {},
+                    "id_1": {
+                        "match": "yes"
+                    },
+                    "id_2": {
+                        "match": "yes"
+                    }
+                },
+                "Relations": [
+                    { "Parent": "id_0", "Child": "id_1", "Kind": "matched_keep" },
+                    { "Parent": "id_0", "Child": "id_2", "Kind": "matched_keep" }
+                ]
+            };
+            
+            var filter = function(n) { return n.match == "yes"; }
+
+            var result = tree.chopAfter(filter, input);
+            expect(result).to.deep.equal(expected);
+        });
         it("should compose to a tree where matching nodes exist but have no children");
         it("should leave non-matching nodes in place");
         it("should chop members of an array independently");
