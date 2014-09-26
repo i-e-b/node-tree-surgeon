@@ -30,7 +30,7 @@ Functions given to split a POJO into this structure, and merge the structure int
     - [x] ChopAfter -- remove subtrees by data predicate, but keep the matched children
 - MergeUp -- remove a relationship and one node by merging data from child to parent. Subtree remains
     - [x] MergeUpByKind -- select merge targets by relationship kind
-    - [ ] MergeUpByNode -- select merge targets by applying a predicate to nodes
+    - [x] MergeUpByNode -- select merge targets by applying a predicate to nodes
 - MergeDown -- remove a relationship and one node by merging data from parent to child. Subtree remains
     - [ ] MergeDownByKind -- select merge targets by relationship kind
     - [ ] MergeDownByNode -- select merge targets by applying a predicate to nodes
