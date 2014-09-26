@@ -76,6 +76,7 @@ var _ = require('lodash');
 
         return build(obj.Root) || {};
     };
+
     /** prune -- remove relationships by kind */
     provides.prune = function(kind, relational) {
         _.remove(relational.Relations, function(rel) {
@@ -147,6 +148,19 @@ var _ = require('lodash');
                 return false; // break, maybe restart loop
             });
         }
+        return relational;
+    };
+
+    /** merge up by predicate on nodes -- remove nodes that match a predicate */
+    provides.mergeUpByNode = function(predFunc, relational) {
+        var ids = [];
+        _.forEach(relational.Nodes, function(node, idx) {
+            if (predFunc(node)) ids.push(idx);
+        });
+
+        // fake:
+        _.forEach(ids, function(id) { delete relational.Nodes[id];});
+
         return relational;
     };
     

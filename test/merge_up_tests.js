@@ -145,4 +145,26 @@ describe("Merging nodes into parents", function() {
             // no-op... no relation to merge.
         });
     });
+
+    describe("When merging up by node predicate", function(){
+        it("should remove the matched node",function(){
+            var input = {
+                "I":"am the parent",
+                "mergeTarget" : {
+                    "here":"is the child",
+                    "target":"me"
+                }
+            };
+            var predicate = function(n) { return n.target == "me"; };
+            var result = tree.compose(tree.mergeUpByNode(predicate, tree.decompose(input)));
+
+            expect(result.mergeTarget).to.not.exist;
+        });
+        it("should retain the children of a matched node");
+        it("should add values of the matched node to its parent");
+        it("should apply merge recursively");
+        it("should join conflicting values by creating an array on the parent");
+        it("should concatenate arrays being merged");
+        it("should not remove root element even if it was matched");
+    });
 });
