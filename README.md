@@ -1,5 +1,8 @@
 node-tree-surgeon
 =================
+[![Build Status](https://travis-ci.org/i-e-b/node-tree-surgeon.svg?branch=master)](https://travis-ci.org/i-e-b/node-tree-surgeon)
+
+# NOT YET COMPLETE
 
 Tools for editing tree structures using a relational model
 
