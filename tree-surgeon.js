@@ -181,6 +181,33 @@ var _ = require('lodash');
 
         return relational;
     };
+
+    /** mergeDownByKind -- remove parent nodes by relationship, putting data into children */
+    provides.mergeDownByKind = function(kind, relational) {
+        var byParent = _.groupBy(relational.Relations, 'Parent');
+        var byChild = _.indexBy(relational.Relations, 'Child');
+
+        var idsToRemove = _.pluck(_.where(relational.Relations, {Kind:kind}), 'Child');
+        var flip_join = flip(join);
+
+        _.forEach(idsToRemove, function(id) {
+            var mergeRels = byParent[id];
+            var srcRel = byChild[id];
+            _.forEach(mergeRels, function(rel) {
+                rel.Parent = srcRel.Parent;
+                _.merge(relational.Nodes[rel.Child], relational.Nodes[id], flip_join); // merge node down
+            });
+            delete relational.Nodes[id];
+        });
+
+        _.remove(relational.Relations, {Kind:kind}); // remove links
+
+        return relational;
+    };
+
+    function flip(f2) { // flip the args on a 2-ary function
+        return function(a,b){return f2(b,a);};
+    }
     
     function join (old, additional) {
         if (_.isUndefined(additional)) return old;

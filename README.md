@@ -32,7 +32,7 @@ Functions given to split a POJO into this structure, and merge the structure int
     - [x] MergeUpByKind -- select merge targets by relationship kind
     - [x] MergeUpByNode -- select merge targets by applying a predicate to nodes
 - MergeDown -- remove a relationship and one node by merging data from parent to child. Subtree remains
-    - [ ] MergeDownByKind -- select merge targets by relationship kind
+    - [x] MergeDownByKind -- select merge targets by relationship kind
     - [ ] MergeDownByNode -- select merge targets by applying a predicate to nodes
 - [ ] Fuse -- remove a node by merging into it's parent and child (by supplied function)
     - [ ] FuseAway -- remove a node by connecting it's parents to it's children, losing the data in the selected nodes
