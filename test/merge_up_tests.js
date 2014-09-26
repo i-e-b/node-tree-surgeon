@@ -140,10 +140,6 @@ describe("Merging nodes into parents", function() {
             expect(result).to.deep.equal(expected);
 
         });
-
-        it("should not apply merge up to the root node", function(){
-            // no-op... no relation to merge.
-        });
     });
 
     describe("When merging up by node predicate", function(){
