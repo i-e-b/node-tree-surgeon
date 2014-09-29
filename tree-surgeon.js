@@ -205,6 +205,40 @@ var _ = require('lodash');
         return relational;
     };
 
+    /** mergeDownByNode -- remove nodes by predicate function, merging data into children */
+    provides.mergeDownByNode = function (predFunc, relational) {
+        var ids = [];
+        var flip_join = flip(join);
+        _.forEach(relational.Nodes, function(node, idx) {
+            if (idx == relational.Root) return;
+            if (predFunc(node)) ids.push(idx);
+        });
+
+        _.forEach(ids, function(nodeId) { // for each node to merge
+            var parentId = null, childRels = [];
+            _.forEach(relational.Relations, function(rel, idx) { // find rels where id is parent or child
+                if ( ! rel) return;
+                if (rel.Child == nodeId) {
+                    parentId = rel.Parent;
+                    delete relational.Relations[idx];
+                } else if (rel.Parent == nodeId) {
+                    _.merge(relational.Nodes[rel.Child], relational.Nodes[nodeId], flip_join); // merge node down
+                    childRels.push(idx);
+                }
+            });
+            _.forEach(childRels, function(idx) { // connect children to parent
+                relational.Relations[idx].Parent = parentId;
+            });
+        });
+        // delete removed nodes
+        _.forEach(ids, function(id) { delete relational.Nodes[id];});
+
+        // filter undefined nodes
+        _.remove(relational.Relations, function(r){return _.isUndefined(r);});
+
+        return relational;
+    }
+
     function flip(f2) { // flip the args on a 2-ary function
         return function(a,b){return f2(b,a);};
     }
