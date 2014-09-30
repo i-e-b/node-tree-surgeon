@@ -2,9 +2,8 @@ node-tree-surgeon
 =================
 [![Build Status](https://travis-ci.org/i-e-b/node-tree-surgeon.svg?branch=master)](https://travis-ci.org/i-e-b/node-tree-surgeon)
 
-# NOT YET COMPLETE
-
-Tools for editing tree structures using a relational model
+Tools for editing tree structures using a relational model.
+Not yet complete, but usable
 
 ### General purpose:
 
@@ -39,4 +38,10 @@ Functions given to split a POJO into this structure, and merge the structure int
 - [ ] Render -- pass each node through a function and compose tree from the results (also, could 'render' relations to get key names and filter?)
 - [ ] Harvest -- return an array of composed sub-trees (by kind, by node?)
 - [x] Compose -- put a decomposed tree back together how it was. The composed object will contain auto-generated keys if any were created
-
+- [ ] Gather -- return an array of sub-trees 
+    - [ ] GatherByKind
+    - [ ] GatherByNode
+- [ ] Graft -- insert new subtrees
+- [ ] Disconnect -- the opposite of Fuse, place a new node between a parent and child
+- [ ] Fork -- move some of the values of a node into a new or existing sibling
+- [ ] Move -- move some of the values of a node into an existing sibling, or do nothing
