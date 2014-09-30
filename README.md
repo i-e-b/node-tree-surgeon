@@ -45,3 +45,7 @@ Functions given to split a POJO into this structure, and merge the structure int
 - [ ] Disconnect -- the opposite of Fuse, place a new node between a parent and child
 - [ ] Fork -- move some of the values of a node into a new or existing sibling
 - [ ] Move -- move some of the values of a node into an existing sibling, or do nothing
+
+
+Note:
+To run istanbul on Windows, use `istanbul cover C:\Users\[username]\AppData\Roaming\npm\node_modules\mocha\bin\_mocha -- -R spec`

@@ -281,26 +281,5 @@ var _ = require('lodash');
         };
     };
 
-    function queueWorker (queue, done, doWork) {
-        var output = [];
-
-        var trampoline = function (err, result) {
-            if (err) {
-                return done(err, undefined);
-            }
-
-            if (result) {
-                output.push(result);
-            }
-
-            if (queue.length < 1) {
-                return done(undefined, output);
-            }
-
-            var work = queue.shift();
-            process.nextTick(doWork.bind(this, work, trampoline));
-        };
-        trampoline(null, null);
-    };
-
+/* istanbul ignore next */ // `this` branch doesn't get followed
 })(global || exports || this);
