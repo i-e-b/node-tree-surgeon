@@ -1,6 +1,6 @@
 {
   "name": "tree-surgeon",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Tools for editing tree structures using a relational model",
   "main": "tree-surgeon.js",
   "scripts": {
@@ -18,7 +18,12 @@
     "data"
   ],
   "author": "ieb",
-  "license": "https://github.com/i-e-b/node-tree-surgeon/blob/master/LICENSE",
+  "licenses": [
+    {
+      "type": "BSD",
+      "url": "https://github.com/i-e-b/node-tree-surgeon/blob/master/LICENSE"
+    }
+  ],
   "bugs": {
     "url": "https://github.com/i-e-b/node-tree-surgeon/issues"
   },

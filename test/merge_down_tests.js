@@ -329,5 +329,22 @@ describe("Merging nodes into children", function() {
 
             expect(result).to.deep.equal(input);
         });
+        
+        it("should delete leaf nodes if matched", function(){
+            var input = {
+                "keep" : {
+                    "target":"me"
+                }
+            };
+            var filter = function(n) {return n.target == "me";};
+
+            var expected = {};
+
+            var result = tree.compose(tree.mergeDownByNode(filter,
+                    tree.decompose(input)));
+
+            expect(result).to.deep.equal(expected);
+        });
+
     });
 });

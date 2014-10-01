@@ -163,10 +163,42 @@ describe("Fusing nodes into parents and children", function() {
                     tree.decompose(input)));
 
             expect(result).to.deep.equal(expected);
-
         });
 
-        it("should join conflicting values by creating arrays, concatenating to existing array values");
+        it("should join conflicting values by creating arrays, concatenating to existing array values", function(){
+            var input = {
+                "a":[1,2],
+                "gone":{
+                    "a":3,
+                    "target":"me",
+                    "gone":{
+                        "a":[4,5],
+                        "target":"me",
+                        "child":{
+                            "a":6
+                        }
+                    }
+                }
+            };
+            var filter = function(n){return n.target == "me";};
+            var pickForParent = function(n){return n;};
+            var pickForChild = function(n){return n;};
+            var expected = {
+                "a": [ 1, 2, 3, 3, 4, 5 ], // merging up *and* down is a bit tricky!
+                // the second 'gone' had two when it merged to parent, which had one from the first gone:
+                "target": [ "me", "me", "me" ], 
+                "child": {
+                    "a": [ 3, 4, 5, 6 ],
+                    "target": [ "me", "me" ]
+                }
+            };
+
+            var result = tree.compose(
+                tree.fuseByNode(filter, pickForParent, pickForChild,
+                    tree.decompose(input)));
+
+            expect(result).to.deep.equal(expected);
+        });
 
         it("should not remove the root node even if matched", function(){
             var input = {
@@ -184,7 +216,21 @@ describe("Fusing nodes into parents and children", function() {
             expect(result).to.deep.equal(input);
         });
 
-        it("should remove matched leaf nodes if no data is produced for children");
-        it("should keep matched leaf nodes and child data if data is produced for children");
+        it("should remove matched leaf nodes if matched", function(){
+            var input = {
+                "gone":{"target":"me"}
+            };
+            var filter = function(n){return n.target == "me";};
+            var pickNothing = function(n){return null;};
+            var pickAll = function(n){return n;};
+
+            var expected = {};
+
+            var result = tree.compose(
+                tree.fuseByNode(filter, pickNothing, pickAll,
+                    tree.decompose(input)));
+
+            expect(result).to.deep.equal(expected);
+        });
     });
 });
