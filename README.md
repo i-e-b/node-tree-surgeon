@@ -48,4 +48,7 @@ Functions given to split a POJO into this structure, and merge the structure int
 
 
 Note:
-To run istanbul on Windows, use `istanbul cover C:\Users\[username]\AppData\Roaming\npm\node_modules\mocha\bin\_mocha -- -R spec`
+* To run istanbul on Windows, use `istanbul cover C:\Users\[username]\AppData\Roaming\npm\node_modules\mocha\bin\_mocha -- -R spec`
+
+Todo:
+* Fuse seems to generalise the merges. Try replacing them with specific calls to fuse

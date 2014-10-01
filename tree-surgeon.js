@@ -239,6 +239,43 @@ var _ = require('lodash');
         return relational;
     }
 
+    /** fuseByNode -- remove a node by merging into it's parent and child (by supplied functions) */
+    provides.fuseByNode = function(nodePredFunc, pickForParentFunc, pickForChildFunc, relational){
+        var ids = [];
+        var flip_join = flip(join);
+        _.forEach(relational.Nodes, function(node, idx) {
+            if (idx == relational.Root) return;
+            if (nodePredFunc(node)) ids.push(idx);
+        });
+
+        _.forEach(ids, function(nodeId) { // for each node to merge
+            var parentId = null, childRels = [];
+            _.forEach(relational.Relations, function(rel, idx) { // find rels where id is parent or child
+                if ( ! rel) return;
+                if (rel.Child == nodeId) {
+                    parentId = rel.Parent;
+                    delete relational.Relations[idx];
+                } else if (rel.Parent == nodeId) {
+                    var forChild = pickForChildFunc(relational.Nodes[nodeId]);
+                    if (forChild) _.merge(relational.Nodes[rel.Child], forChild, flip_join); // merge node down
+                    childRels.push(idx);
+                }
+            });
+            var forParent = pickForParentFunc(relational.Nodes[nodeId]);
+            if (forParent) _.merge(relational.Nodes[parentId], forParent, join); // merge node up
+            _.forEach(childRels, function(idx) { // connect children to parent
+                relational.Relations[idx].Parent = parentId;
+            });
+        });
+        // delete removed nodes
+        _.forEach(ids, function(id) { delete relational.Nodes[id];});
+
+        // filter undefined nodes
+        _.remove(relational.Relations, function(r){return _.isUndefined(r);});
+
+        return relational;
+    }
+
     function flip(f2) { // flip the args on a 2-ary function
         return function(a,b){return f2(b,a);};
     }
