@@ -35,6 +35,8 @@ Functions given to split a POJO into this structure, and merge the structure int
     - [x] MergeDownByNode -- select merge targets by applying a predicate to nodes
 - [ ] Fuse -- remove a node by merging into it's parent and child (by supplied function)
     - [ ] FuseAway -- remove a node by connecting it's parents to it's children, losing the data in the selected nodes
+    - [x] FuseByNode -- remove a node picked by a predicate on that node
+    - [ ] FuseByKind -- remove a node picked by kind
 - [ ] Render -- pass each node through a function and compose tree from the results (also, could 'render' relations to get key names and filter?)
 - [ ] Harvest -- return an array of composed sub-trees (by kind, by node?)
 - [x] Compose -- put a decomposed tree back together how it was. The composed object will contain auto-generated keys if any were created
@@ -51,4 +53,5 @@ Note:
 * To run istanbul on Windows, use `istanbul cover C:\Users\[username]\AppData\Roaming\npm\node_modules\mocha\bin\_mocha -- -R spec`
 
 Todo:
-* Fuse seems to generalise the merges. Try replacing them with specific calls to fuse
+* extend with `kind` *and* `predicate` functions
+* some way of mutating kind when fusing/merging?
