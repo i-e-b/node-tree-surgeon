@@ -127,127 +127,62 @@ var _ = require('lodash');
 
     /** merge up by kind -- remove child nodes by relationship putting data into parent */
     provides.mergeUpByKind = function(kind, relational) {
-        var more = true;
-        while (more) {
-            more = false;
-            _.forEach(relational.Relations, function(rel, idx){
-                if (rel.Kind != kind) return true; // continue (optimisation: remove from things we will scan over?)
-                more = true; // otherwise merge this one and try again
+        var parentGetsAll = function (n){return n;}
+        var childGetsNone = function (n){return null;}
 
-                var parentId = rel.Parent;
-                var selfId = rel.Child;
-
-                // merge
-                _.merge(relational.Nodes[parentId], relational.Nodes[selfId], join);
-
-                // remap
-                _.remove(relational.Relations, function(chrel) {
-                    if (chrel.Parent == selfId) chrel.Parent = parentId; // remap this->C to P->C
-                    return chrel.Child == selfId; // delete P->this
-                });
-                return false; // break, maybe restart loop
-            });
-        }
-        return relational;
+        var ids = pickIdsByKind(kind, relational);
+        return fuseByNodeIds(ids, parentGetsAll, childGetsNone, relational);
     };
 
     /** merge up by predicate on nodes -- remove nodes that match a predicate */
     provides.mergeUpByNode = function(predFunc, relational) {
-        var ids = [];
-        _.forEach(relational.Nodes, function(node, idx) {
-            if (idx == relational.Root) return;
-            if (predFunc(node)) ids.push(idx);
-        });
+        var parentGetsAll = function (n){return n;}
+        var childGetsNone = function (n){return null;}
 
-        _.forEach(ids, function(nodeId) { // for each node to merge
-            var parentId = null, childRels = [];
-            _.forEach(relational.Relations, function(rel, idx) { // find rels where id is parent or child
-                if ( ! rel) return;
-                if (rel.Child == nodeId) {
-                    parentId = rel.Parent;
-                    delete relational.Relations[idx];
-                } else if (rel.Parent == nodeId) {childRels.push(idx);}
-            });
-            _.merge(relational.Nodes[parentId], relational.Nodes[nodeId], join); // merge node up
-            _.forEach(childRels, function(idx) { // connect children to parent
-                relational.Relations[idx].Parent = parentId;
-            });
-        });
-        // delete removed nodes
-        _.forEach(ids, function(id) { delete relational.Nodes[id];});
-
-        // filter undefined nodes
-        _.remove(relational.Relations, function(r){return _.isUndefined(r);});
-
-        return relational;
+        var ids = pickIdsByNodePredicate(predFunc, relational);
+        return fuseByNodeIds(ids, parentGetsAll, childGetsNone, relational);
     };
 
     /** mergeDownByKind -- remove parent nodes by relationship, putting data into children */
     provides.mergeDownByKind = function(kind, relational) {
-        var byParent = _.groupBy(relational.Relations, 'Parent');
-        var byChild = _.indexBy(relational.Relations, 'Child');
+        var parentGetsNone = function (n){return null;}
+        var childGetsAll = function (n){return n;}
 
-        var idsToRemove = _.pluck(_.where(relational.Relations, {Kind:kind}), 'Child');
-        var flip_join = flip(join);
-
-        _.forEach(idsToRemove, function(id) {
-            var mergeRels = byParent[id];
-            var srcRel = byChild[id];
-            _.forEach(mergeRels, function(rel) {
-                rel.Parent = srcRel.Parent;
-                _.merge(relational.Nodes[rel.Child], relational.Nodes[id], flip_join); // merge node down
-            });
-            delete relational.Nodes[id];
-        });
-
-        _.remove(relational.Relations, {Kind:kind}); // remove links
-
-        return relational;
+        var ids = pickIdsByKind(kind, relational);
+        return fuseByNodeIds(ids, parentGetsNone, childGetsAll, relational);
     };
 
     /** mergeDownByNode -- remove nodes by predicate function, merging data into children */
     provides.mergeDownByNode = function (predFunc, relational) {
-        var ids = [];
-        var flip_join = flip(join);
-        _.forEach(relational.Nodes, function(node, idx) {
-            if (idx == relational.Root) return;
-            if (predFunc(node)) ids.push(idx);
-        });
+        var parentGetsNone = function (n){return null;}
+        var childGetsAll = function (n){return n;}
 
-        _.forEach(ids, function(nodeId) { // for each node to merge
-            var parentId = null, childRels = [];
-            _.forEach(relational.Relations, function(rel, idx) { // find rels where id is parent or child
-                if ( ! rel) return;
-                if (rel.Child == nodeId) {
-                    parentId = rel.Parent;
-                    delete relational.Relations[idx];
-                } else if (rel.Parent == nodeId) {
-                    _.merge(relational.Nodes[rel.Child], relational.Nodes[nodeId], flip_join); // merge node down
-                    childRels.push(idx);
-                }
-            });
-            _.forEach(childRels, function(idx) { // connect children to parent
-                relational.Relations[idx].Parent = parentId;
-            });
-        });
-        // delete removed nodes
-        _.forEach(ids, function(id) { delete relational.Nodes[id];});
-
-        // filter undefined nodes
-        _.remove(relational.Relations, function(r){return _.isUndefined(r);});
-
-        return relational;
+        var ids = pickIdsByNodePredicate(predFunc, relational);
+        return fuseByNodeIds(ids, parentGetsNone, childGetsAll, relational);
     }
 
     /** fuseByNode -- remove a node by merging into it's parent and child (by supplied functions) */
     provides.fuseByNode = function(nodePredFunc, pickForParentFunc, pickForChildFunc, relational){
+        var ids = pickIdsByNodePredicate(nodePredFunc, relational);
+        return fuseByNodeIds(ids, pickForParentFunc, pickForChildFunc, relational);
+    }
+
+    function pickIdsByKind(kind, relational) {
+        return _.pluck(_.where(relational.Relations, {Kind:kind}), 'Child');
+    }
+
+    function pickIdsByNodePredicate(predFunc, relational) {
         var ids = [];
-        var flip_join = flip(join);
         _.forEach(relational.Nodes, function(node, idx) {
             if (idx == relational.Root) return;
-            if (nodePredFunc(node)) ids.push(idx);
+            if (predFunc(node)) ids.push(idx);
         });
+        return ids;
+    }
 
+    function fuseByNodeIds(ids, pickForParentFunc, pickForChildFunc, relational){
+        // TODO: this is now the general case for a lot of things -- tune it!
+        var flip_join = flip(join);
         _.forEach(ids, function(nodeId) { // for each node to merge
             var parentId = null, childRels = [];
             _.forEach(relational.Relations, function(rel, idx) { // find rels where id is parent or child
@@ -267,8 +202,6 @@ var _ = require('lodash');
                 relational.Relations[idx].Parent = parentId;
             });
         });
-        // delete removed nodes
-        _.forEach(ids, function(id) { delete relational.Nodes[id];});
 
         // filter undefined nodes
         _.remove(relational.Relations, function(r){return _.isUndefined(r);});
