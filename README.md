@@ -18,9 +18,13 @@ Functions given to split a POJO into this structure, and merge the structure int
 
 Names of object tree parts, as used below:
 ```javascript
-{
-    // this object is the parent
-    "Kind" : // properties (whose values are objects) become relationships. The key becomes the 'Kind'
+{ // this object is the parent, it has one property "I" = "am parent"
+
+    "I" : "am parent", // properties (whose values are not objects) remain
+                       //   on the containing object.
+
+    "Kind" : // properties (whose values are objects) become relationships.
+             // The key becomes the kind of the relation.
     {
         // this object is the child
         "Property" : "Value"
@@ -32,11 +36,12 @@ Properties with array values are treated one of two ways:
 ```javascript
 {
     "JustAProperty" : ["hello", 1,2,3], // first element is NOT an object.
-                                        // Entire array is a single value, one of the parent's properties
+                                        // Entire array is a single value,
+                                        //   one of the parent's properties
     "OneToMany" : [
-        {"child":1}, // first element is an object. All elements are
+        {"child":1}, // First element is an object. All elements are
                      //   considered children of the parent. Kind is 'OneToMany'
-        {"child":2}  // there is no way to express many-to-one, and
+        {"child":2}  // There is no way to express many-to-one, and
                      //   putting this in the relational structure is not supported.
     ]
 }
