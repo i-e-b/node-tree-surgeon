@@ -19,8 +19,19 @@ Functions given to split a POJO into this structure, and merge the structure int
 ### Operations on POJO structure:
 
 - [x] Decompose -- turn a normal js object tree into the relational structure
+- [ ] DecomposeWithIds -- same as `decompose` but use a function to pick ids. In case you want to use the relational model externally. It's up to you to ensure the ids are unique
 
 ### Operations on the relational structure:
+
+#### Output
+- [x] Compose -- put a decomposed tree back together how it was. The composed object will contain auto-generated keys if any were created
+- [ ] Render -- pass each node through a function and compose tree from the results (also, could 'render' relations to get key names and filter?)
+- [ ] Harvest -- return an array of composed sub-trees (by kind, by node?)
+- [ ] Gather -- return an array of sub-trees 
+    - [ ] GatherByKind
+    - [ ] GatherByNode
+
+#### Manipulation
 
 - [x] Prune -- remove subtrees by relationship kind
     - [x] PruneAfter -- remove subtrees by relationship kind, but keep the immediate children
@@ -37,12 +48,6 @@ Functions given to split a POJO into this structure, and merge the structure int
     - [ ] FuseAway -- remove a node by connecting it's parents to it's children, losing the data in the selected nodes
     - [x] FuseByNode -- remove a node picked by a predicate on that node
     - [ ] FuseByKind -- remove a node picked by kind
-- [ ] Render -- pass each node through a function and compose tree from the results (also, could 'render' relations to get key names and filter?)
-- [ ] Harvest -- return an array of composed sub-trees (by kind, by node?)
-- [x] Compose -- put a decomposed tree back together how it was. The composed object will contain auto-generated keys if any were created
-- [ ] Gather -- return an array of sub-trees 
-    - [ ] GatherByKind
-    - [ ] GatherByNode
 - [ ] Graft -- insert new subtrees
 - [ ] Disconnect -- the opposite of Fuse, place a new node between a parent and child
 - [ ] Fork -- move some of the values of a node into a new or existing sibling
