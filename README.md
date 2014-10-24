@@ -16,6 +16,32 @@ The `id` values are assigned internally and don't conflict with or get written t
 
 Functions given to split a POJO into this structure, and merge the structure into a POJO.
 
+Names of object tree parts, as used below:
+```javascript
+{
+    // this object is the parent
+    "Kind" : // properties (whose values are objects) become relationships. The key becomes the 'Kind'
+    {
+        // this object is the child
+        "Property" : "Value"
+    }
+}
+```
+
+Properties with array values are treated one of two ways:
+```javascript
+{
+    "JustAProperty" : ["hello", 1,2,3], // first element is NOT an object.
+                                        // Entire array is a single value, one of the parent's properties
+    "OneToMany" : [
+        {"child":1}, // first element is an object. All elements are
+                     //   considered children of the parent. Kind is 'OneToMany'
+        {"child":2}  // there is no way to express many-to-one, and
+                     //   putting this in the relational structure is not supported.
+    ]
+}
+```
+
 ### Operations on POJO structure:
 
 - [x] Decompose -- turn a normal js object tree into the relational structure
@@ -46,6 +72,8 @@ Functions given to split a POJO into this structure, and merge the structure int
     - [x] MergeDownByNode -- select merge targets by applying a predicate to nodes
 - [ ] Fuse -- remove a node by merging into it's parent and child (by supplied function)
     - [ ] FuseAway -- remove a node by connecting it's parents to it's children, losing the data in the selected nodes
+        - [ ] FuseAwayByNode
+        - [ ] FuseAwayByKind
     - [x] FuseByNode -- remove a node picked by a predicate on that node
     - [ ] FuseByKind -- remove a node picked by kind
 - [ ] Graft -- insert new subtrees
