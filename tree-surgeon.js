@@ -13,17 +13,27 @@ var _ = require('lodash');
      *      }
      * */
     provides.decompose = function(obj) {
-        var nodesToDecompose = [];
-        var nodes = {};
-        var relations = [];
         var idx = 0; // used to make unique IDs
         var newId = function(){return "id_" + (idx++);};
 
-        var rootId = newId();
+        return provides.decomposeWithIds(obj, newId);    
+    };
+
+    /** decompose using a selector for ids.
+     * @param idSelector -- function(node){return id;}
+     */
+    provides.decomposeWithIds = function(obj, idSelector) {
+        var nodesToDecompose = [];
+        var nodes = {};
+        var relations = [];
+        //var idx = 0; // used to make unique IDs
+        //var newId = function(){return "id_" + (idx++);};
+
+        var rootId = idSelector(obj);
         nodesToDecompose.push([rootId, obj]);
 
         var add = function(id, value, kind) {
-            var aId = newId();                        
+            var aId = idSelector(value);                        
             relations.push({"Parent":id, "Child":aId, "Kind":kind});
             nodesToDecompose.push([aId, value]);
         }
@@ -46,7 +56,7 @@ var _ = require('lodash');
         });
 
         return {"Root":rootId, "Nodes":nodes, "Relations":relations};
-    }
+    };
 
     /** compose -- Takes a decomposed structure and returns a plain object
      *

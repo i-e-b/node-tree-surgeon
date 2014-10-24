@@ -50,7 +50,7 @@ Properties with array values are treated one of two ways:
 ### Operations on POJO structure:
 
 - [x] Decompose -- turn a normal js object tree into the relational structure
-- [ ] DecomposeWithIds -- same as `decompose` but use a function to pick ids. In case you want to use the relational model externally. It's up to you to ensure the ids are unique
+- [x] DecomposeWithIds -- same as `decompose` but use a function to pick ids. In case you want to use the relational model externally. It's up to you to ensure the ids are unique
 
 ### Operations on the relational structure:
 
