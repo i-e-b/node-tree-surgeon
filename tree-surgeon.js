@@ -67,25 +67,42 @@ var _ = require('lodash');
      *      }
      * */
     provides.compose = function(obj) {
-        var parentToChild = _.groupBy(obj.Relations, "Parent");
+        return provides.render(null, null, obj);
+    };
 
-        var build = function buildRecursive(currentNode) {
-            if (! obj.Nodes[currentNode]) return undefined;
+    /** 
+     * render -- compose a relational structure into a plain object, changing node contents using a supplied function.
+     * If any of the render functions are null or undefined, rendered output will match `compose`
+     * @renderNodeFunc -- function that takes a node and returns the rendered node
+     * @renderKindFunc -- function that takes (kind, path) and returns kind
+     **/
+    provides.render = function(renderNodeFunc, renderKindFunc, relational) {
+        renderNodeFunc = renderNodeFunc || function(node){return node;};
+        renderKindFunc = renderKindFunc || function(kind, path){return kind;};
 
-            var output = _.clone(obj.Nodes[currentNode]);
+        var parentToChild = _.groupBy(relational.Relations, "Parent");
+
+        var build = function buildRecursive(currentNode, path) {
+            if (! relational.Nodes[currentNode]) return undefined;
+
+            var output = renderNodeFunc(_.clone(relational.Nodes[currentNode]), path);
             var childNodes = parentToChild[currentNode];
-            if (childNodes) {
+            if (output && childNodes) {
                 for (var i = 0; i < childNodes.length; i++) {
                     var childNode = childNodes[i];
-                    output[childNode.Kind] = join(output[childNode.Kind],
-                            buildRecursive(childNode.Child));
+                    var renderedKind = renderKindFunc(childNode.Kind, path);
+                    var subpath = path.concat(childNode.Kind); // path is always input path, not rendered
+                    
+                    var subtree = join(output[renderedKind],
+                            (renderedKind) ? buildRecursive(childNode.Child, subpath) : undefined); // if the kind is removed by renderer, don't build the subtree
+                    if (subtree) output[renderedKind] = subtree;
                 }
             }
             return output;
         };
 
-        return build(obj.Root) || {};
-    };
+        return build(relational.Root, []) || {};
+    }
 
     /** prune -- remove relationships by kind */
     provides.prune = function(kind, relational) {

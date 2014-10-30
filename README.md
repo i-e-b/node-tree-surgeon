@@ -49,14 +49,17 @@ Properties with array values are treated one of two ways:
 
 ### Operations on POJO structure:
 
+#### Input
+
 - [x] Decompose -- turn a normal js object tree into the relational structure
 - [x] DecomposeWithIds -- same as `decompose` but use a function to pick ids. In case you want to use the relational model externally. It's up to you to ensure the ids are unique
 
 ### Operations on the relational structure:
 
 #### Output
+
 - [x] Compose -- put a decomposed tree back together how it was. The composed object will contain auto-generated keys if any were created
-- [ ] Render -- pass each node through a function and compose tree from the results (also, could 'render' relations to get key names and filter?)
+- [x] Render -- pass each node through a function, and each kind name through a function and compose tree from the results
 - [ ] Harvest -- return an array of composed sub-trees (by kind, by node?)
 - [ ] Gather -- return an array of sub-trees 
     - [ ] GatherByKind
@@ -85,11 +88,14 @@ Properties with array values are treated one of two ways:
 - [ ] Disconnect -- the opposite of Fuse, place a new node between a parent and child
 - [ ] Fork -- move some of the values of a node into a new or existing sibling
 - [ ] Move -- move some of the values of a node into an existing sibling, or do nothing
+- [ ] FlipRelationship -- given a parent kind, a child kind, and an equality function for children; swap parents\<--\>children, grouping children by equality. 
 
 
 Note:
 * To run istanbul on Windows, use `istanbul cover C:\Users\[username]\AppData\Roaming\npm\node_modules\mocha\bin\_mocha -- -R spec`
 
 Todo:
+* bring `.d.ts` file up-to-date with available features
+* syntax should allow chaining of functions
 * extend with `kind` *and* `predicate` functions
 * some way of mutating kind when fusing/merging?
