@@ -96,6 +96,8 @@ Note:
 * To run istanbul on Windows, use `istanbul cover C:\Users\[username]\AppData\Roaming\npm\node_modules\mocha\bin\_mocha -- -R spec`
 
 Todo:
+* optimisations
+* a good way to find subtrees based on paths, and perform operations based on results
 * bring `.d.ts` file up-to-date with available features
 * syntax should allow chaining of functions
 * extend with `kind` *and* `predicate` functions
