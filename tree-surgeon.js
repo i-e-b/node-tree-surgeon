@@ -106,16 +106,25 @@ var _ = require('lodash');
 
     /** flipRelationship -- make children into parents and parents into children */
     provides.flipRelationship = function(newChildKind, newParentKind, newParentHashFunc, relational) {
-        // plan:
-        //
-        // find all childIds where kind = newChildKind --> these are the old parents; flip group is same parentId in these relations
-        // for each flip group:
-        //   find all childIds where kind = newParentKind AND parentId in 'old parents' --> these are the old children.
-        //   for each old child, apply the newParentHashFunc to get an index, and group the new children by this index.
-        //   remove all matched old parents from flip group
-        //   add the new parents, with new children
-
+        var hashFunc = newParentHashFunc || function(){return 1;}; // if no hash, all are considered equal
+        var grandparents = {};
+        var IDs = {};
         
+        // given a new child, find immediate new parents and return 1st NewParent ID
+        var pred = function(pid) {
+            return _.where(relational.Relations, {Kind:newParentKind, Parent:pid}).map(function(rel){
+                var hash = hashFunc(relational.Nodes[rel.Child]);
+                IDs[hash] = IDs[hash] || rel.Child;
+                return IDs[hash];
+            });
+        }
+
+        _.where(relational.Relations, {Kind:newChildKind}).forEach(function(rel) {
+            if (grandparents[rel.Parent]) grandparents[rel.Parent].push({id:rel.Child, map:pred(rel.Child)});
+            else grandparents[rel.Parent] = [{id:rel.Child, map:pred(rel.Child)}];
+        });
+
+        console.log(JSON.stringify(grandparents, undefined, 2));
 
         return relational;
     };
@@ -210,8 +219,14 @@ var _ = require('lodash');
         return fuseByNodeIds(ids, pickForParentFunc, pickForChildFunc, relational);
     }
 
+    // Return Child ids for a relation kind
     function pickIdsByKind(kind, relational) {
         return _.pluck(_.where(relational.Relations, {Kind:kind}), 'Child');
+    }
+
+    // return Parent ids for a relation kind
+    function parentsByKind(kind, relational) {
+        return _.pluck(_.where(relational.Relations, {Kind:kind}), 'Parent');
     }
 
     function pickIdsByNodePredicate(predFunc, relational) {

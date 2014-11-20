@@ -41,6 +41,18 @@ describe("Reversing parents and children in the tree", function() {
 
         expect(result).to.deep.equal(expected);
     });
+    it("should handle multiple potential parents somehow"); /*
+What happens with this?
+a:{
+    b:{
+        c:[
+            {...},
+            {...}
+        ]
+    }
+}
+
+                                                               */
     it("should group new children by parent equality match", function(){
         var input = {
             a : {
