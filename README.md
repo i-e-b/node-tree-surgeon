@@ -88,7 +88,7 @@ Properties with array values are treated one of two ways:
 - [ ] Disconnect -- the opposite of Fuse, place a new node between a parent and child
 - [ ] Fork -- move some of the values of a node into a new or existing sibling
 - [ ] Move -- move some of the values of a node into an existing sibling, or do nothing
-- [ ] FlipRelationship -- given a parent kind, a child kind, and an equality function for children; swap parents⇔children, grouping children by equality. 
+- [x] FlipRelationship -- given a parent kind, a child kind, and an equality function for children; swap parents⇔children, grouping children by equality. 
 - [ ] EditPath -- given a path of kinds and a func node->node, replace data at those paths
 
 

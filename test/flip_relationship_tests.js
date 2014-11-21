@@ -41,18 +41,63 @@ describe("Reversing parents and children in the tree", function() {
 
         expect(result).to.deep.equal(expected);
     });
-    it("should handle multiple potential parents somehow"); /*
-What happens with this?
-a:{
-    b:{
-        c:[
-            {...},
-            {...}
-        ]
-    }
-}
+    it("should not change structure if there is not a single matching child under a parent to be flipped", function(){
+        var input = {
+            a:{
+                b:{
+                    c:[
+                        {"I":"could be a parent"},
+                        {"Me":"too!"}
+                    ]
+                }
+            }
+        };
 
-                                                               */
+        var result = tree.compose(tree.flipRelationship("b", "c", null, tree.decompose(input)));
+
+        expect(result).to.deep.equal(input);
+    });
+    it("should not change structure unless both side of the flip are present", function(){
+        var input = {
+            a : {
+                b : [
+                    {
+                        key : 1,
+                        "I":"should stay put"
+                    },
+                    {
+                        key : 2,
+                        c : { "parent": "a" }
+                    }
+                ]
+            },
+            z : {
+                c: {"I":"should stay put"}
+            }
+        };
+        
+        var expected = {
+            a : {
+                b : {
+                    key : 1,
+                    "I":"should stay put"
+                },
+                c : {
+                    "parent":"a",
+                    b : {
+                        key : 2,
+                    }
+                }
+            },
+            z : {
+                c : {"I":"should stay put"}
+            }
+        };
+
+        var result = tree.compose(tree.flipRelationship("b", "c", null, tree.decompose(input)));
+
+        expect(result).to.deep.equal(expected);
+    });
     it("should group new children by parent equality match", function(){
         var input = {
             a : {

@@ -104,27 +104,57 @@ var _ = require('lodash');
         return build(relational.Root, []) || {};
     }
 
-    /** flipRelationship -- make children into parents and parents into children */
+    /** flipRelationship -- make children into parents and parents into children 
+     * new parents are merged based on equality of the value returned by `newParentHashFunc`
+     * if no hash function is provided, all are considered equal
+     **/
     provides.flipRelationship = function(newChildKind, newParentKind, newParentHashFunc, relational) {
         var hashFunc = newParentHashFunc || function(){return 1;}; // if no hash, all are considered equal
         var grandparents = {};
         var IDs = {};
         
-        // given a new child, find immediate new parents and return 1st NewParent ID
-        var pred = function(pid) {
-            return _.where(relational.Relations, {Kind:newParentKind, Parent:pid}).map(function(rel){
+        var groupNewParentsByHashEquality = function(oldChildren) {
+            return oldChildren.map(function(rel){
                 var hash = hashFunc(relational.Nodes[rel.Child]);
                 IDs[hash] = IDs[hash] || rel.Child;
                 return IDs[hash];
             });
         }
 
+        var toRemove = [];
+        // build the id tree for the new relationships, and keep track of the old relationships to delete
         _.where(relational.Relations, {Kind:newChildKind}).forEach(function(rel) {
-            if (grandparents[rel.Parent]) grandparents[rel.Parent].push({id:rel.Child, map:pred(rel.Child)});
-            else grandparents[rel.Parent] = [{id:rel.Child, map:pred(rel.Child)}];
+            var gParent = rel.Parent; var oldParent = rel.Child;
+            if (!grandparents[gParent]) grandparents[gParent] = {};
+
+            var oldChildren = _.where(relational.Relations, {Kind:newParentKind, Parent:oldParent});
+            var map = groupNewParentsByHashEquality(oldChildren);
+
+            if (map.length !== 1) return; // doesn't match the pattern -- must have exactly one new parent to flip out
+
+            oldChildren.forEach(function(rel) {toRemove.push(rel.Parent); toRemove.push(rel.Child);});
+
+            var newParent = map[0];
+            var newChild = oldParent;
+
+            if (grandparents[gParent][newParent]) grandparents[gParent][newParent].push(newChild);
+            else grandparents[gParent][newParent] = [newChild];
         });
 
-        console.log(JSON.stringify(grandparents, undefined, 2));
+        // delete the old structure
+        removeRelationByIds(relational, toRemove);
+
+        // build the new structure
+        Object.keys(grandparents).forEach(function(gPid){
+            var gpar = grandparents[gPid];
+            Object.keys(gpar).forEach(function(newPid){
+                var npar = gpar[newPid];
+                relational.Relations.push({Parent:gPid, Child:newPid, Kind:newParentKind});
+                for(var i = 0; i < npar.length; i++) {
+                    relational.Relations.push({Parent:newPid, Child:npar[i], Kind:newChildKind});
+                }
+            });
+        });
 
         return relational;
     };
@@ -224,11 +254,6 @@ var _ = require('lodash');
         return _.pluck(_.where(relational.Relations, {Kind:kind}), 'Child');
     }
 
-    // return Parent ids for a relation kind
-    function parentsByKind(kind, relational) {
-        return _.pluck(_.where(relational.Relations, {Kind:kind}), 'Parent');
-    }
-
     function pickIdsByNodePredicate(predFunc, relational) {
         var ids = [];
         _.forEach(relational.Nodes, function(node, idx) {
@@ -288,6 +313,15 @@ var _ = require('lodash');
             });
         });
     }
+
+    function removeRelationByIds(relational, Ids) {
+        _.forEach(Ids, function(id){
+            _.remove(relational.Relations, function(v) {
+                return v.Child == id;
+            });
+        });
+    }
+
 
     function removeChildrenByParentsIds(relational, parentIds) {
         _.forEach(parentIds, function(p){
