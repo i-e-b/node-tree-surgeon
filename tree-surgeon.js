@@ -335,8 +335,6 @@ var _ = require('lodash');
     }
 
     function queueWorkerSync (queue, doWork) {
-        var output = [];
-
         while(queue.length > 0) {
             var work = queue.shift();
             doWork(work);

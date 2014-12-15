@@ -1,0 +1,225 @@
+{
+    "_meta": {
+        "ID": "5cd730b6-705d-4db4-b0b3-50d7d0acad36",
+        "path": "Pattern_Product_Spec_Type1/Product_Spec_Type_1/Product_Component/Component/Product/Launch_Entity",
+        "name": "Component",
+        "isTechnical": false,
+        "BusinessID": "000151"
+    },
+    "Effective_Start_Date": "2014-11-21T00:00:00.000Z",
+    "Available_Start_Date": "2014-11-21T00:00:00.000Z",
+    "Effective_End_Date": null,
+    "Available_End_Date": null,
+    "Element_Guid": "5cd730b6-705d-4db4-b0b3-50d7d0acad36",
+    "Element_Type_Guid": "d9610269-ced4-4dbc-a517-93a2092ae138",
+    "Business_ID": "000151",
+    "Name": "Pattern - VPN Spec",
+    "Description": null,
+    "Category_ID": "27",
+    "Max_Cust_Portfolio_Instances": null,
+    "Min_Cust_Portfolio_Instances": null,
+    "MappingRules": {
+        "_meta": {
+            "ID": "59563885-17e5-4d6a-bb12-0ebcc17d3fa0",
+            "path": "SMapRule/SMapRuleBase/SMapBase",
+            "name": "SMapRuleBase",
+            "isTechnical": false
+        },
+        "Name": "Copy UDC Value",
+        "StartDate": null,
+        "EndDate": null,
+        "Description": null,
+        "Sequence": "1",
+        "TriggerEvents": {
+            "_meta": {
+                "ID": "5d070dca-ac17-4d6c-b007-346576c65719",
+                "path": "SMapTriggerEvent/SMapBase",
+                "name": "SMapBase",
+                "isTechnical": false
+            },
+            "Name": "DECOMPOSE",
+            "Description": null
+        },
+        "Actions": {
+            "_meta": {
+                "ID": "06e43ddd-d75a-444f-bef7-8cdfd5f47c0f",
+                "path": "SMap_CopyUDCValue/SMap_CopyConfigValue/SMap_Value/SMapAction/SMapBase",
+                "name": "SMap_CopyConfigValue",
+                "isTechnical": false
+            },
+            "Name": "Copy IP Address",
+            "Sequence": "1",
+            "Replace": "true",
+            "Target": "5cd730b6-705d-4db4-b0b3-50d7d0acad36,6a697396-37c6-4417-bf71-6c52ef7d2a52,|,d89c6a89-7d08-434a-b0a8-79ead4f586d0,e1476e2c-589e-4834-b180-1d34c6bf6b3f",
+            "TargetState": [
+                {
+                    "_meta": {
+                        "ID": "454471fb-1a74-49cf-b186-b6aa4629b7f8",
+                        "path": "SMap_OrderItemAction/SMapBase",
+                        "name": "SMapBase",
+                        "isTechnical": false
+                    },
+                    "Name": "ADD"
+                },
+                {
+                    "_meta": {
+                        "ID": "ed6c80fb-1a0e-4c04-b186-70d85bd6452c",
+                        "path": "SMap_OrderItemAction/SMapBase",
+                        "name": "SMapBase",
+                        "isTechnical": false
+                    },
+                    "Name": "DELETE"
+                },
+                {
+                    "_meta": {
+                        "ID": "f7d99993-f0b2-4440-8a41-3a3206b4000a",
+                        "path": "SMap_OrderItemAction/SMapBase",
+                        "name": "SMapBase",
+                        "isTechnical": false
+                    },
+                    "Name": "NOCHANGE"
+                },
+                {
+                    "_meta": {
+                        "ID": "1b0c072d-d36b-442b-8f71-1a4d51948142",
+                        "path": "SMap_OrderItemAction/SMapBase",
+                        "name": "SMapBase",
+                        "isTechnical": false
+                    },
+                    "Name": "UPDATE"
+                }
+            ],
+            "Source": {
+                "_meta": {
+                    "ID": "ca7f1df2-f205-4477-b87a-e2655ef7bf05",
+                    "path": "SMap_SourceElement/SMap_SourceBase",
+                    "name": "SMap_SourceBase",
+                    "isTechnical": false
+                },
+                "SourceElement": "5cd730b6-705d-4db4-b0b3-50d7d0acad36,|,739cec31-ff51-47b0-92ad-4e552d9ce566,c7666a12-5ab3-46ed-b49f-7c9c95f0f8eb",
+                "State": [
+                    {
+                        "_meta": {
+                            "ID": "454471fb-1a74-49cf-b186-b6aa4629b7f8",
+                            "path": "SMap_OrderItemAction/SMapBase",
+                            "name": "SMapBase",
+                            "isTechnical": false
+                        },
+                        "Name": "ADD"
+                    },
+                    {
+                        "_meta": {
+                            "ID": "ed6c80fb-1a0e-4c04-b186-70d85bd6452c",
+                            "path": "SMap_OrderItemAction/SMapBase",
+                            "name": "SMapBase",
+                            "isTechnical": false
+                        },
+                        "Name": "DELETE"
+                    },
+                    {
+                        "_meta": {
+                            "ID": "f7d99993-f0b2-4440-8a41-3a3206b4000a",
+                            "path": "SMap_OrderItemAction/SMapBase",
+                            "name": "SMapBase",
+                            "isTechnical": false
+                        },
+                        "Name": "NOCHANGE"
+                    },
+                    {
+                        "_meta": {
+                            "ID": "1b0c072d-d36b-442b-8f71-1a4d51948142",
+                            "path": "SMap_OrderItemAction/SMapBase",
+                            "name": "SMapBase",
+                            "isTechnical": false
+                        },
+                        "Name": "UPDATE"
+                    }
+                ]
+            }
+        }
+    },
+    "Product_To_Product": {
+        "_meta": {
+            "ID": "19075281-2297-495d-91a0-7d841c080756",
+            "path": "Product_Relation/Relation_Entity",
+            "name": "Relation_Entity",
+            "isTechnical": false
+        },
+        "Association_Start_Date": "2014-11-21T00:00:00.000Z",
+        "Association_End_Date": null,
+        "Max_Occurs": "1",
+        "Min_Occurs": "1",
+        "Default_Cardinality": null,
+        "Product": {
+            "_meta": {
+                "ID": "6a697396-37c6-4417-bf71-6c52ef7d2a52",
+                "path": "Generic_RFSS_Template/Resource_Facing_Service_Component/Service_Component/Component/Product/Launch_Entity",
+                "name": "Component",
+                "isTechnical": false,
+                "BusinessID": "000148"
+            },
+            "Effective_Start_Date": "2014-11-21T00:00:00.000Z",
+            "Available_Start_Date": "2014-11-21T00:00:00.000Z",
+            "Effective_End_Date": null,
+            "Available_End_Date": null,
+            "Element_Guid": "6a697396-37c6-4417-bf71-6c52ef7d2a52",
+            "Element_Type_Guid": "ea97e942-7675-4396-8892-2d67c1ba1bd7",
+            "Business_ID": "000148",
+            "Name": "Pattern - VPN RFSS",
+            "Description": null,
+            "Category_ID": "39",
+            "Max_Cust_Portfolio_Instances": null,
+            "Min_Cust_Portfolio_Instances": null,
+            "Technical_UserDefinedChar": {
+                "_meta": {
+                    "ID": "e1476e2c-589e-4834-b180-1d34c6bf6b3f",
+                    "path": "TechnicalUserDefinedCharacteristicValue/TUserDefinedCharacteristicValue/TDefinableCharacteristicValue",
+                    "name": "TUserDefinedCharacteristicValue",
+                    "isTechnical": false
+                },
+                "Max_Occurs": "1",
+                "Min_Occurs": "1",
+                "Name": "IP Address",
+                "Regular_Expression": null,
+                "Display_Description": null,
+                "Display_Name": "IP Address",
+                "Characteristic": {
+                    "_meta": {
+                        "ID": "07a2ef52-49e4-421f-8d58-c85a7341d287",
+                        "path": "Technical_UserDefinedChar/TSpecChar/TChar",
+                        "name": "TSpecChar",
+                        "isTechnical": false
+                    },
+                    "UID": null,
+                    "Name": "IP Address",
+                    "Description": null
+                }
+            }
+        }
+    },
+    "Commercial_UserDefinedChar": {
+        "_meta": {
+            "ID": "c7666a12-5ab3-46ed-b49f-7c9c95f0f8eb",
+            "path": "CommercialUserDefinedCharacteristicValue/TUserDefinedCharacteristicValue/TDefinableCharacteristicValue",
+            "name": "TUserDefinedCharacteristicValue",
+            "isTechnical": false
+        },
+        "Max_Occurs": "1",
+        "Min_Occurs": "1",
+        "Name": "IP Address",
+        "Regular_Expression": null,
+        "Display_Description": null,
+        "Display_Name": "IP Address",
+        "Characteristic": {
+            "_meta": {
+                "ID": "c10f688c-ff21-475d-8850-0f68957571c7",
+                "path": "Commercial_UserDefinedChar/TSpecChar/TChar",
+                "name": "TSpecChar",
+                "isTechnical": false
+            },
+            "UID": null,
+            "Name": "IP Address",
+            "Description": null
+        }
+    }
+}

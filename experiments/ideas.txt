@@ -1,0 +1,39 @@
+Idea: we store the relational structure as a giant set of paths through to property names:
+
+Actually, I want each node to be a collection of meta-data, and property name to be just part of that.
+so the path "a"."b"."c" might have additional data, like schema ids "x"."y"."z", cardinality restrictions
+
+    (0:1).(1:1).(0..) and so on.
+
+I would want to be able to query a path based on suppyling or retrieving any of that data.
+I guess each node would have some unique id, then all the meta data, like:
+    
+    {ID=x, name="a", card={m=1, mx=2}, schID=z}
+
+then I can have a set of functions on nodes, like
+    
+    getName=n->(n.name), card=min,max,n->(n.card.m=min && n.card.mx=max)
+
+then I can chain the lot together like this:
+    
+    root.where(Card(1,1)).getName();
+
+Also, some combinators would be useful...
+    
+    root.search(nameIs('target')).findPath('a.b.c');
+    src.ifThenElse(where(Card(0,1)), doFound.., doNotFound..)
+    
+Might have a use for 'tap' -- do some side effect then carry on:
+    
+    src.where(nameIs('targ')).do(storeSchema).where(nameIs('child')); // would store schema of targ, then continue with query
+
+Probably a good idea to have predicates and queries as different sets.
+
+Also, we should be able to query for sparse keys. With data like:
+
+    A       B       C       D
+    x:1     x:null  x:null  x:2
+    y:1     y:2     y:3     y:4
+
+You could have a path from A->D through y{1,2,3,4}=A,B,C,D or through x{1,2}=A,D
+
