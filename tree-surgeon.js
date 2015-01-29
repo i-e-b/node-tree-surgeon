@@ -12,20 +12,22 @@ var _ = require('lodash');
      *       "Relations": [ {"Parent":.., "Child":.., "Kind":...}, ... ]
      *      }
      * */
-    provides.decompose = function(obj) {
+    provides.decompose = function(obj, excludedKinds) {
         var idx = 0; // used to make unique IDs
         var newId = function(){return "id_" + (idx++);};
 
-        return provides.decomposeWithIds(obj, newId);    
+        return provides.decomposeWithIds(obj, newId, excludedKinds);    
     };
 
     /** decompose using a selector for ids.
      * @param idSelector -- function(node){return id;}
+     * @param excludedKinds -- array of 'kind' names that should *NOT* be decomposed
      */
-    provides.decomposeWithIds = function(obj, idSelector) {
+    provides.decomposeWithIds = function(obj, idSelector, excludedKinds) {
         var nodesToDecompose = [];
         var nodes = {};
         var relations = [];
+        var exclude = excludedKinds || [];
         //var idx = 0; // used to make unique IDs
         //var newId = function(){return "id_" + (idx++);};
 
@@ -44,10 +46,11 @@ var _ = require('lodash');
             _.forOwn(node, function(value, key) {
                 var isArr = _.isArray(value);
                 var isObj = _.isObject(value);
+                var isExcluded = exclude.indexOf(key) >= 0;
                 if (isArr && value.length > 0 && _.isObject(value[0])) {
                     // is an array of objects, treat as multiple child nodes
                     for (var i = 0; i < value.length; i++) { add(id, value[i], key); }
-                } else if (isObj && (!isArr)) {
+                } else if (isObj && (!isArr) && (!isExcluded)) {
                     // new node to be decomposed. Add to queue, don't add to parent.
                     add(id, value, key);
                 } else {

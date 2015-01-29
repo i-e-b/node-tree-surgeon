@@ -280,4 +280,50 @@ describe("Tree decomposition", function() {
             expect(result).to.deep.equal(input);
         });
     });
+
+    describe("Decomposing with excluded kinds", function(){
+        it("should treat excluded kinds as simple values in the node", function(){
+            var sample = {
+                "simple":"value",       // not changed
+                "excluded":{"complex":"value"}, // will NOT become a relation
+                "subtree" : {           // becomes a relation of "Kind":"subtree"
+                    "node":"2",         // not changed, but a different node from "simple":"value"
+                    "subsub" : {
+                        "value":"hi there"
+                    }
+                },
+                "another" : {
+                    "what":"child of the root"
+                }
+            };
+
+            var expected = {
+                "Nodes":{
+                    "id_0":{
+                        "simple":"value",
+                        "excluded":{"complex":"value"}, // complex value left in place
+                    },
+                    "id_1":{
+                        "node":"2"
+                    },
+                    "id_2":{ // note: breadth first search
+                        "what":"child of the root"
+                    },
+                    "id_3":{
+                        "value":"hi there"
+                    }
+                },
+                "Relations":[
+                    {"Parent":"id_0", "Child":"id_1", "Kind":"subtree"},
+                    {"Parent":"id_0", "Child":"id_2", "Kind":"another"},
+                    {"Parent":"id_1", "Child":"id_3", "Kind":"subsub"}
+                ],
+                "Root":"id_0"
+            };
+
+            var result = tree.decompose(sample, ["excluded"]);
+
+            expect(result).to.deep.equal(expected);
+        });
+    });
 });
