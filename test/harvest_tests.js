@@ -56,10 +56,99 @@ describe("Harvesting subtrees", function() {
             var result = tree.harvest("pick-me", keySelector, tree.decompose(sample));
 
             expect(result).to.deep.equal(expected);
+        });
+        it("should return an object whose property keys are selected from parent nodes by a function", function() {
+            var sample = {
+                "MyID":"root",
+                "pick-me" : {
+                    "root":"selector"
+                }
+            };
+
+            var expected = {
+                "root+function" : {
+                    "root":"selector"
+                }
+            };
+
+            var keySelector = function(node){return node.MyID+"+function";};
+
+            var result = tree.harvest("pick-me", keySelector, tree.decompose(sample));
+
+            expect(result).to.deep.equal(expected);
+        });
+        it("should give default keys if no selector function is provided", function(){
+            var sample = {
+                "pick-me" : {
+                    "root":"selector"
+                }
+            };
+
+            var expected = {
+                "id_1" : {
+                    "root":"selector"
+                }
+            };
+
+            var result = tree.harvest("pick-me", undefined, tree.decompose(sample));
+
+            expect(result).to.deep.equal(expected);
 
         });
-        it("should return an object whose property keys are selected from parent nodes by a function");
-        it("should handle conflicting keys by merging into arrays");
-        it("should handle overlapping subtrees"); // i.e. one selected is a child of another
+        it("should handle conflicting keys by merging into arrays", function() {
+            var sample = {
+                "1":{
+                    "pick-me" : {
+                        "1":"1"
+                    }
+                },
+                "2":{
+                    "pick-me" : {
+                        "2":"2"
+                    }
+                }
+
+            };
+
+            var expected = {
+                "same_key" : [
+                    {"1":"1"},
+                    {"2":"2"}
+                ]
+            };
+
+            var keySelector = function(node){return "same_key";};
+
+            var result = tree.harvest("pick-me", keySelector, tree.decompose(sample));
+
+            expect(result).to.deep.equal(expected);
+        });
+        it("should handle overlapping subtrees", function() {
+            var sample = {
+                "ID":"1",
+                "pick-me":{
+                    "ID":"2",
+                    "pick-me" : {
+                        "1":"1"
+                    }
+                }
+            };
+
+            var expected = {
+                "1":{
+                    "ID":"2",
+                    "pick-me" : {
+                        "1":"1"
+                    }
+                },
+                "2":{"1":"1"}
+            };
+
+            var keySelector = function(node){return node.ID;};
+
+            var result = tree.harvest("pick-me", keySelector, tree.decompose(sample));
+
+            expect(result).to.deep.equal(expected);
+        });
     });
 });

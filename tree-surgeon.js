@@ -249,7 +249,7 @@ var _ = require('lodash');
                 key = idSelector(relational.Nodes[parentId]);
             }
 
-            outp[key] = renderFromRoot(null, null, nodeId, relational); // render the sub-tree
+            outp[key] = join(outp[key], renderFromRoot(null, null, nodeId, relational)); // render the sub-tree
         });
 
         return outp;
