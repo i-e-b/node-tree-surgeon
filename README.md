@@ -90,7 +90,7 @@ Properties with array values are treated one of two ways:
 - [ ] Move -- move some of the values of a node into an existing sibling, or do nothing
 - [x] FlipRelationship -- given a parent kind, a child kind, and an equality function for children; swap parents⇔children, grouping children by equality. 
 - [ ] EditPath -- given a path of kinds and a func node->node, replace data at those paths
-- [ ] Reduce -- reduce objects to a single value from inside them, by kind or node predicate (` {a:[{x:1},{x:2}]} -> {a:[1,2]} `)
+- [x] Reduce -- reduce objects to a single value from inside them, by kind or node predicate (` {a:[{x:1},{x:2}]} -> {a:[1,2]} `)
 
 
 Note:

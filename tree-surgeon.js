@@ -261,6 +261,19 @@ var _ = require('lodash');
         return outp;
     }
 
+    /** pick values of a given property from the given kind */
+    provides.reduce = function(kind, prop, relational) {
+        var rels  =_.where(relational.Relations, {Kind:kind});
+        // for each in ids, get parent, populate with child values and chop.
+
+        _.forEach(rels, function(r){
+            relational.Nodes[r.Parent][kind] = join(relational.Nodes[r.Parent][kind], relational.Nodes[r.Child][prop]);
+        });
+
+        provides.prune(kind, relational);
+        return relational;
+    }
+
     // Return Child ids for a relation kind
     function pickIdsByKind(kind, relational) {
         return _.pluck(_.where(relational.Relations, {Kind:kind}), 'Child');
