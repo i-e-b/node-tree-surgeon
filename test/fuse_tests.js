@@ -233,4 +233,75 @@ describe("Fusing nodes into parents and children", function() {
             expect(result).to.deep.equal(expected);
         });
     });
+    describe("When fusing a node by kind", function(){
+        it("should remove the selected node, while retaining the parent and child", function(){
+            var input = {
+                "keep":{
+                    "gone":{
+                        "target":"me",
+                        "child":{}
+                    }
+                }
+            };
+            var pickNothing = function(n){return null;};
+
+            var result = tree.compose(
+                tree.fuseByKind("gone", pickNothing, pickNothing,
+                    tree.decompose(input)));
+
+            expect(result.keep).to.exist;
+            expect(result.keep.child).to.exist;
+
+        });
+        it("should be apply values to both parents and children if both predicates select the same values", function(){
+            var input = {
+                "keep":{
+                    "gone":{
+                        "target":"me",
+                        "child":{}
+                    }
+                }
+            };
+            var pickForParent = function(n){return n;}; // we can just pick the whole node -- there is no hierarchy
+            var pickForChild = function(n){return n;};
+            var expected = {
+                "keep": {
+                    "target":"me",
+                    "child": {
+                        "target":"me"
+                    }
+                }
+            };
+
+            var result = tree.compose(
+                tree.fuseByKind("gone", pickForParent, pickForChild,
+                    tree.decompose(input)));
+
+            expect(result).to.deep.equal(expected);
+        });
+        it("should be able compact arrays of objects into arrays of values", function(){
+            var input = {
+                "keep":{
+                    "grouping":[
+                        {"This":"1"},
+                        {"This":"2"},
+                        {"This":"3"}
+                    ]
+                }
+            };
+            var pickForParent = function(n){return n;};
+            var pickForChild = function(n){return null};
+            var expected = {
+                "keep":{
+                    "This":["1", "2", "3"]
+                }
+            };
+
+            var result = tree.compose(
+                tree.fuseByKind("grouping", pickForParent, pickForChild,
+                    tree.decompose(input)));
+
+            expect(result).to.deep.equal(expected);
+        });
+    });
 });

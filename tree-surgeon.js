@@ -231,6 +231,12 @@ var _ = require('lodash');
         return fuseByNodeIds(ids, pickForParentFunc, pickForChildFunc, relational);
     }
 
+    /** fuseByKind -- remove a child node by it's kind, merging data into parent and grandchildren by supplied functions run on removed node */
+    provides.fuseByKind = function(kind, pickForParentFunc, pickForChildFunc, relational) {
+        var ids = pickIdsByKind(kind, relational);
+        return fuseByNodeIds(ids, pickForParentFunc, pickForChildFunc, relational);
+    }
+
     /** harvest -- return subtrees by kinds, keyed by parent value picked by a selector */
     provides.harvest = function(kind, idSelector, relational) {
         var targetIds = pickIdsByKind(kind, relational);

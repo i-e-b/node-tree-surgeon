@@ -83,13 +83,14 @@ Properties with array values are treated one of two ways:
         - [ ] FuseAwayByNode
         - [ ] FuseAwayByKind
     - [x] FuseByNode -- remove a node picked by a predicate on that node
-    - [ ] FuseByKind -- remove a node picked by kind
+    - [x] FuseByKind -- remove a node picked by kind
 - [ ] Graft -- insert new subtrees
 - [ ] Disconnect -- the opposite of Fuse, place a new node between a parent and child
 - [ ] Fork -- move some of the values of a node into a new or existing sibling
 - [ ] Move -- move some of the values of a node into an existing sibling, or do nothing
 - [x] FlipRelationship -- given a parent kind, a child kind, and an equality function for children; swap parents⇔children, grouping children by equality. 
 - [ ] EditPath -- given a path of kinds and a func node->node, replace data at those paths
+- [ ] Reduce -- reduce objects to a single value from inside them, by kind or node predicate (` {a:[{x:1},{x:2}]} -> {a:[1,2]} `)
 
 
 Note:
