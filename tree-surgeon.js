@@ -261,6 +261,20 @@ var _ = require('lodash');
         return outp;
     }
 
+    /** harvest -- return arrays of subtrees by kinds */
+    provides.gatherByKind = function(kind, relational) {
+        var targetIds = pickIdsByKind(kind, relational);
+        var childToParent;
+
+        var outp = [];
+        _.forEach(targetIds, function(nodeId) { // for each targeted node
+            outp.push(renderFromRoot(null, null, nodeId, relational)); // render the sub-tree
+        });
+
+        return outp;
+    }
+
+
     /** pick values of a given property from the given kind */
     provides.reduce = function(kind, prop, relational) {
         var rels  =_.where(relational.Relations, {Kind:kind});

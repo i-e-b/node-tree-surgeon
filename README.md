@@ -62,7 +62,7 @@ Properties with array values are treated one of two ways:
 - [x] Render -- pass each node through a function, and each kind name through a function and compose tree from the results
 - [x] Harvest -- return an object of composed sub-trees by kind, keyed by a parent node value
 - [ ] Gather -- return an array of sub-trees 
-    - [ ] GatherByKind
+    - [x] GatherByKind
     - [ ] GatherByNode
 
 #### Manipulation
