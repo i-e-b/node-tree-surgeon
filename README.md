@@ -61,9 +61,9 @@ Properties with array values are treated one of two ways:
 - [x] Compose -- put a decomposed tree back together how it was. The composed object will contain auto-generated keys if any were created
 - [x] Render -- pass each node through a function, and each kind name through a function and compose tree from the results
 - [x] Harvest -- return an object of composed sub-trees by kind, keyed by a parent node value
-- [ ] Gather -- return an array of sub-trees 
+- [x] Gather -- return an array of sub-trees 
     - [x] GatherByKind
-    - [ ] GatherByNode
+    - [x] GatherByNode
 
 #### Manipulation
 

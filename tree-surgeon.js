@@ -261,19 +261,17 @@ var _ = require('lodash');
         return outp;
     }
 
-    /** harvest -- return arrays of subtrees by kinds */
+    /** gather -- return arrays of subtrees by kinds */
     provides.gatherByKind = function(kind, relational) {
         var targetIds = pickIdsByKind(kind, relational);
-        var childToParent;
-
-        var outp = [];
-        _.forEach(targetIds, function(nodeId) { // for each targeted node
-            outp.push(renderFromRoot(null, null, nodeId, relational)); // render the sub-tree
-        });
-
-        return outp;
+        return targetIds.map(function(id){return renderFromRoot(null, null, id, relational);});
     }
 
+    /** gather -- return arrays of subtrees by a selector predicate function */
+    provides.gatherByNode = function(predicate, relational) {
+        var targetIds = pickIdsByNodePredicateIncludeRoot(predicate, relational);
+        return targetIds.map(function(id){return renderFromRoot(null, null, id, relational);});
+    }
 
     /** pick values of a given property from the given kind */
     provides.reduce = function(kind, prop, relational) {
@@ -301,6 +299,14 @@ var _ = require('lodash');
         });
         return ids;
     }
+    function pickIdsByNodePredicateIncludeRoot(predFunc, relational) {
+        var ids = [];
+        _.forEach(relational.Nodes, function(node, idx) {
+            if (predFunc(node)) ids.push(idx);
+        });
+        return ids;
+    }
+
 
     function fuseByNodeIds(ids, pickForParentFunc, pickForChildFunc, relational){
         // TODO: this is now the general case for a lot of things -- tune it!
