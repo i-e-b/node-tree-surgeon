@@ -286,6 +286,16 @@ var _ = require('lodash');
         return relational;
     }
 
+    /** change nodes of a given kind to the return value of the `filterFunc` */
+    provides.editByKind = function(kind, filterFunc, relational) {
+        var targetIds = pickIdsByKind(kind, relational);
+        var i = targetIds.length;
+        for(;i--;){
+            relational.Nodes[targetIds[i]] = filterFunc(relational.Nodes[targetIds[i]]);
+        }
+        return relational;
+    }
+
     // Return Child ids for a relation kind
     function pickIdsByKind(kind, relational) {
         return _.pluck(_.where(relational.Relations, {Kind:kind}), 'Child');
