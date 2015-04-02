@@ -141,6 +141,18 @@ var _ = require('lodash');
         return relational;
     };
 
+    /** removeEmptyNodes -- remove node relations if node contains only null properties */
+    provides.removeEmptyNodes = function(relational) {
+        // Not yet implemented
+        // Plan: 
+        //  - Assume all to be removed.
+        //  - Add any non-empty nodes to keep list.
+        //  - Scan relations, add to keep list if child is on keep list
+        //  - repeat until no changes
+        //  - delete relations not on the keep list
+        return relational;
+    };
+
     /** prune -- remove relationships by kind */
     provides.prune = function(kind, relational) {
         _.remove(relational.Relations, function(rel) {
