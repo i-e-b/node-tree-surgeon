@@ -78,10 +78,10 @@ describe("Reversing parents and children in the tree", function() {
         
         var expected = {
             a : {
-                b : {
+                b : [{
                     key : 1,
                     "I":"should stay put"
-                },
+                }],
                 c : {
                     "parent":"a",
                     b : {

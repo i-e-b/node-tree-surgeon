@@ -76,4 +76,11 @@ describe("Tree composition from relational model", function() {
         var result = tree.compose(tree.decompose(original));
         expect(result).to.deep.equal(original);
     });
+    it("should keep arrays if source provided an array with a single value", function() {
+        var input = { "kind" : [{"hello":"world"}] };
+
+        var result = tree.compose(tree.decompose(input));
+
+        expect(result).to.deep.equal(input);
+    });
 });

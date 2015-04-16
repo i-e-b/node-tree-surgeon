@@ -56,9 +56,9 @@ describe("Tree decomposition", function() {
                     }
                 },
                 "Relations":[
-                    {"Parent":"id_0", "Child":"id_1", "Kind":"subtree"},
-                    {"Parent":"id_0", "Child":"id_2", "Kind":"another"},
-                    {"Parent":"id_1", "Child":"id_3", "Kind":"subsub"}
+                    {"Parent":"id_0", "Child":"id_1", "Kind":"subtree", "IsArray": false},
+                    {"Parent":"id_0", "Child":"id_2", "Kind":"another", "IsArray": false},
+                    {"Parent":"id_1", "Child":"id_3", "Kind":"subsub", "IsArray": false}
                 ],
                 "Root":"id_0"
             };
@@ -94,8 +94,8 @@ describe("Tree decomposition", function() {
                     }
                 },
                 "Relations":[
-                    {"Parent":"id_0", "Child":"id_1", "Kind":"ArrayOfObjects"},
-                    {"Parent":"id_0", "Child":"id_2", "Kind":"ArrayOfObjects"},
+                    {"Parent":"id_0", "Child":"id_1", "Kind":"ArrayOfObjects", "IsArray": true},
+                    {"Parent":"id_0", "Child":"id_2", "Kind":"ArrayOfObjects", "IsArray": true},
                 ],
                 "Root":"id_0"
             };
@@ -141,8 +141,8 @@ describe("Tree decomposition", function() {
                     }
                 },
                 "Relations":[
-                    {"Parent":"id_0", "Child":"id_1", "Kind":"child"},
-                    {"Parent":"id_1", "Child":"id_2", "Kind":"child"},
+                    {"Parent":"id_0", "Child":"id_1", "Kind":"child", "IsArray": false},
+                    {"Parent":"id_1", "Child":"id_2", "Kind":"child", "IsArray": false},
                 ],
                 "Root":"id_0"
             };
@@ -235,9 +235,9 @@ describe("Tree decomposition", function() {
                     }
                 },
                 "Relations":[
-                    {"Parent":"1", "Child":"2", "Kind":"subtree"},
-                    {"Parent":"1", "Child":"4", "Kind":"another"},
-                    {"Parent":"2", "Child":"3", "Kind":"subsub"}
+                    {"Parent":"1", "Child":"2", "Kind":"subtree", "IsArray": false},
+                    {"Parent":"1", "Child":"4", "Kind":"another", "IsArray": false},
+                    {"Parent":"2", "Child":"3", "Kind":"subsub", "IsArray": false}
                 ],
                 "Root":"1"
             };
@@ -314,9 +314,9 @@ describe("Tree decomposition", function() {
                     }
                 },
                 "Relations":[
-                    {"Parent":"id_0", "Child":"id_1", "Kind":"subtree"},
-                    {"Parent":"id_0", "Child":"id_2", "Kind":"another"},
-                    {"Parent":"id_1", "Child":"id_3", "Kind":"subsub"}
+                    {"Parent":"id_0", "Child":"id_1", "Kind":"subtree", "IsArray": false},
+                    {"Parent":"id_0", "Child":"id_2", "Kind":"another", "IsArray": false},
+                    {"Parent":"id_1", "Child":"id_3", "Kind":"subsub", "IsArray": false}
                 ],
                 "Root":"id_0"
             };

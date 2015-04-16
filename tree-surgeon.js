@@ -34,9 +34,9 @@ var _ = require('lodash');
         var rootId = idSelector(obj);
         nodesToDecompose.push([rootId, obj]);
 
-        var add = function(id, value, kind) {
+        var add = function(id, value, kind, isArr) {
             var aId = idSelector(value);                        
-            relations.push({"Parent":id, "Child":aId, "Kind":kind});
+            relations.push({"Parent":id, "Child":aId, "Kind":kind, "IsArray":isArr});
             nodesToDecompose.push([aId, value]);
         }
 
@@ -49,10 +49,10 @@ var _ = require('lodash');
                 var isExcluded = exclude.indexOf(key) >= 0;
                 if (isArr && value.length > 0 && _.isObject(value[0])) {
                     // is an array of objects, treat as multiple child nodes
-                    for (var i = 0; i < value.length; i++) { add(id, value[i], key); }
+                    for (var i = 0; i < value.length; i++) { add(id, value[i], key, true); }
                 } else if (isObj && (!isArr) && (!isExcluded)) {
                     // new node to be decomposed. Add to queue, don't add to parent.
-                    add(id, value, key);
+                    add(id, value, key, false);
                 } else {
                     // just some value. Add to general output
                     nodes[id][key] = value;
@@ -408,7 +408,8 @@ var _ = require('lodash');
                     
                     var subtree = join(output[renderedKind],
                             (renderedKind) ? buildRecursive(childNode.Child, subpath) : undefined); // if the kind is removed by renderer, don't build the subtree
-                    if (subtree) output[renderedKind] = subtree;
+
+                    if (subtree) output[renderedKind] = (childNode.IsArray) ? asArray(subtree) : subtree;
                 }
             }
             return output;
@@ -416,6 +417,8 @@ var _ = require('lodash');
 
         return build(rootId, []) || {};
     }
+
+    function asArray(element) {return [].concat.apply([], [element]); }
 
     function removeChildrenByParentsIds(relational, parentIds) {
         _.forEach(parentIds, function(p){
