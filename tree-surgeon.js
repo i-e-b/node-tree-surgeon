@@ -83,7 +83,7 @@ var _ = require('lodash');
      **/
     provides.render = function(renderNodeFunc, renderKindFunc, relational) {
         return renderFromRoot(renderNodeFunc, renderKindFunc, relational.Root, relational);
-    }
+    };
 
 
     /** flipRelationship -- make children into parents and parents into children 
@@ -201,6 +201,20 @@ var _ = require('lodash');
         return relational;
     };
 
+    /** chopByKind -- remove nodes, of a specified kind, and their children if they match a filter
+     * @param kind -- the type of node to consider
+     * @param filterFunc -- if this returns a truthy value, node will be removed, else node will be kept
+     */
+    provides.chopByKind = function(kind, filterFunc, relational) {
+        var toRemove = [];
+        var targetIds = pickIdsByKind(kind, relational);
+        targetIds.forEach(function(targetId) {
+            if (filterFunc(relational.Nodes[targetId])) { toRemove.push(targetId); }
+        });
+        removeNodesByIds(relational, toRemove);
+        return relational;
+    };
+
     /** merge up by kind -- remove child nodes by relationship putting data into parent */
     provides.mergeUpByKind = function(kind, relational) {
         var parentGetsAll = function (n){return n;}
@@ -235,19 +249,19 @@ var _ = require('lodash');
 
         var ids = pickIdsByNodePredicate(predFunc, relational);
         return fuseByNodeIds(ids, parentGetsNone, childGetsAll, relational);
-    }
+    };
 
     /** fuseByNode -- remove a node by merging into it's parent and child (by supplied functions) */
     provides.fuseByNode = function(nodePredFunc, pickForParentFunc, pickForChildFunc, relational){
         var ids = pickIdsByNodePredicate(nodePredFunc, relational);
         return fuseByNodeIds(ids, pickForParentFunc, pickForChildFunc, relational);
-    }
+    };
 
     /** fuseByKind -- remove a child node by it's kind, merging data into parent and grandchildren by supplied functions run on removed node */
     provides.fuseByKind = function(kind, pickForParentFunc, pickForChildFunc, relational) {
         var ids = pickIdsByKind(kind, relational);
         return fuseByNodeIds(ids, pickForParentFunc, pickForChildFunc, relational);
-    }
+    };
 
     /** harvest -- return subtrees by kinds, keyed by parent value picked by a selector */
     provides.harvest = function(kind, idSelector, relational) {
@@ -271,19 +285,19 @@ var _ = require('lodash');
         });
 
         return outp;
-    }
+    };
 
     /** gather -- return arrays of subtrees by kinds */
     provides.gatherByKind = function(kind, relational) {
         var targetIds = pickIdsByKind(kind, relational);
         return targetIds.map(function(id){return renderFromRoot(null, null, id, relational);});
-    }
+    };
 
     /** gather -- return arrays of subtrees by a selector predicate function */
     provides.gatherByNode = function(predicate, relational) {
         var targetIds = pickIdsByNodePredicateIncludeRoot(predicate, relational);
         return targetIds.map(function(id){return renderFromRoot(null, null, id, relational);});
-    }
+    };
 
     /** pick values of a given property from the given kind */
     provides.reduce = function(kind, prop, relational) {
@@ -296,7 +310,7 @@ var _ = require('lodash');
 
         provides.prune(kind, relational);
         return relational;
-    }
+    };
 
     /** change nodes of a given kind to the return value of the `filterFunc` */
     provides.editByKind = function(kind, filterFunc, relational) {
@@ -306,7 +320,7 @@ var _ = require('lodash');
             relational.Nodes[targetIds[i]] = filterFunc(relational.Nodes[targetIds[i]]);
         }
         return relational;
-    }
+    };
 
     // Return Child ids for a relation kind
     function pickIdsByKind(kind, relational) {
@@ -370,7 +384,7 @@ var _ = require('lodash');
         } else {
             return additional;
         }
-    };
+    }
 
     function removeNodesByIds(relational, Ids) {
         _.forEach(Ids, function(id){
@@ -437,8 +451,8 @@ var _ = require('lodash');
         while(queue.length > 0) {
             var work = queue.shift();
             doWork(work);
-        };
-    };
+        }
+    }
 
 /* istanbul ignore next */ // `this` branch doesn't get followed
 })(global || exports || this);
