@@ -30,3 +30,4 @@ node_modules
 # other noise
 *.swp
 *.orig
+.idea
