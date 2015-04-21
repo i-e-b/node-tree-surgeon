@@ -150,6 +150,38 @@ var _ = require('lodash');
         //  - Scan relations, add to keep list if child is on keep list
         //  - repeat until no changes
         //  - delete relations not on the keep list
+
+        var isEmpty = function (x) {
+            var n = Object.keys(x);
+            for (var i=0; i < n.length; i++) {
+                var k = n[i];
+                if (x[k] !== null && x[k] !== undefined) return false;
+            }
+            return true;
+        }
+
+        var noChildren = function(k, rel) {
+            return ! (_.some(rel.Relations, {Parent:k}));
+        }
+
+        var cycleAgain = true;
+        while (cycleAgain) {
+            cycleAgain = false;
+
+            var allNodeKeys  = Object.keys(relational.Nodes);
+            var emptyNodes = [];
+            for (var i=0; i < allNodeKeys.length; i++) {
+                var key = allNodeKeys[i];
+                if (isEmpty(relational.Nodes[key]) && noChildren(key, relational)) { emptyNodes.push(key); }
+            }
+
+            _.remove(relational.Relations, function(rel) {
+                var dead = emptyNodes.indexOf(rel.Child) !== -1;
+                if (dead) cycleAgain = true;
+                return dead;
+            });
+        }
+
         return relational;
     };
 

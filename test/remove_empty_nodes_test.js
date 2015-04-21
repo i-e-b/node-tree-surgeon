@@ -3,7 +3,7 @@ var _ = require('lodash');
 
 var tree = require("../tree-surgeon.js");
 
-xdescribe("Removing empty nodes", function() {
+describe("Removing empty nodes", function() {
     it("should remove nodes which contains only null or undefined properties", function(){
         var input = {
             "empty":{
