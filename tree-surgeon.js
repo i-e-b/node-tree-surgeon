@@ -38,7 +38,7 @@ var _ = require('lodash');
             var aId = idSelector(value);                        
             relations.push({"Parent":id, "Child":aId, "Kind":kind, "IsArray":isArr});
             nodesToDecompose.push([aId, value]);
-        }
+        };
 
         queueWorkerSync(nodesToDecompose, function(pair) {
             var id = pair[0], node = pair[1];
@@ -101,7 +101,7 @@ var _ = require('lodash');
                 IDs[hash] = IDs[hash] || rel.Child;
                 return IDs[hash];
             });
-        }
+        };
 
         var toRemove = [];
         // build the id tree for the new relationships, and keep track of the old relationships to delete
@@ -211,6 +211,8 @@ var _ = require('lodash');
 
     /** chop -- remove nodes and their children if they match a filter
      * @param filterFunc -- if this returns a truthy value, node will be removed, else node will be kept
+     * @param relational -- the source relational model to "chop" (as created by decompose)
+     * @return a reference to the updated relational model
      */
     provides.chop = function(filterFunc, relational) {
         var toRemove = [];
@@ -223,6 +225,8 @@ var _ = require('lodash');
 
     /** chopAfter -- remove child nodes where a parent matches a predicate
      * @param filterFunc -- if this returns a truthy value, node will be removed, else node will be kept
+     * @param relational -- the source relational model to "chop" (as created by decompose)
+     * @return a reference to the updated relational model
      */
     provides.chopAfter = function(filterFunc, relational) {
         var toRemove = [];
@@ -236,11 +240,28 @@ var _ = require('lodash');
     /** chopByKind -- remove nodes, of a specified kind, and their children if they match a filter
      * @param kind -- the type of node to consider
      * @param filterFunc -- if this returns a truthy value, node will be removed, else node will be kept
+     * @param relational -- the source relational model to "chop" (as created by decompose)
+     * @return a reference to the updated relational model
      */
     provides.chopByKind = function(kind, filterFunc, relational) {
         var toRemove = [];
         var targetIds = pickIdsByKind(kind, relational);
-        targetIds.forEach(function(targetId) {
+        _.forEach(targetIds, function(targetId) {
+            if (filterFunc(relational.Nodes[targetId])) { toRemove.push(targetId); }
+        });
+        removeNodesByIds(relational, toRemove);
+        return relational;
+    };
+
+    /** chopChildless -- remove nodes, where the nodes have no children (leaves), if they match a data predicate
+     * @param filterFunc -- if this returns a truthy value, node will be removed, else node will be kept
+     * @param relational -- the source relational model to "chop" (as created by decompose)
+     * @return a reference to the updated relational model
+     */
+    provides.chopChildless = function(filterFunc, relational) {
+        var toRemove = [];
+        var targetIds = pickIdsWithNoChildren(relational);
+        _.forEach(targetIds, function(targetId) {
             if (filterFunc(relational.Nodes[targetId])) { toRemove.push(targetId); }
         });
         removeNodesByIds(relational, toRemove);
@@ -249,8 +270,8 @@ var _ = require('lodash');
 
     /** merge up by kind -- remove child nodes by relationship putting data into parent */
     provides.mergeUpByKind = function(kind, relational) {
-        var parentGetsAll = function (n){return n;}
-        var childGetsNone = function (n){return null;}
+        var parentGetsAll = function (n){return n;};
+        var childGetsNone = function (n){return null;};
 
         var ids = pickIdsByKind(kind, relational);
         return fuseByNodeIds(ids, parentGetsAll, childGetsNone, relational);
@@ -258,8 +279,8 @@ var _ = require('lodash');
 
     /** merge up by predicate on nodes -- remove nodes that match a predicate */
     provides.mergeUpByNode = function(predFunc, relational) {
-        var parentGetsAll = function (n){return n;}
-        var childGetsNone = function (n){return null;}
+        var parentGetsAll = function (n){return n;};
+        var childGetsNone = function (n){return null;};
 
         var ids = pickIdsByNodePredicate(predFunc, relational);
         return fuseByNodeIds(ids, parentGetsAll, childGetsNone, relational);
@@ -267,8 +288,8 @@ var _ = require('lodash');
 
     /** mergeDownByKind -- remove parent nodes by relationship, putting data into children */
     provides.mergeDownByKind = function(kind, relational) {
-        var parentGetsNone = function (n){return null;}
-        var childGetsAll = function (n){return n;}
+        var parentGetsNone = function (n){return null;};
+        var childGetsAll = function (n){return n;};
 
         var ids = pickIdsByKind(kind, relational);
         return fuseByNodeIds(ids, parentGetsNone, childGetsAll, relational);
@@ -276,8 +297,8 @@ var _ = require('lodash');
 
     /** mergeDownByNode -- remove nodes by predicate function, merging data into children */
     provides.mergeDownByNode = function (predFunc, relational) {
-        var parentGetsNone = function (n){return null;}
-        var childGetsAll = function (n){return n;}
+        var parentGetsNone = function (n){return null;};
+        var childGetsAll = function (n){return n;};
 
         var ids = pickIdsByNodePredicate(predFunc, relational);
         return fuseByNodeIds(ids, parentGetsNone, childGetsAll, relational);
@@ -375,6 +396,11 @@ var _ = require('lodash');
         return ids;
     }
 
+    function pickIdsWithNoChildren(relational) {
+        var children = _.pluck(relational.Relations, 'Child');
+        var parents = _.pluck(relational.Relations, 'Parent');
+        return _.difference(children, parents);
+    }
 
     function fuseByNodeIds(ids, pickForParentFunc, pickForChildFunc, relational){
         // TODO: this is now the general case for a lot of things -- tune it!
@@ -478,8 +504,6 @@ var _ = require('lodash');
     }
 
     function queueWorkerSync (queue, doWork) {
-        var output = [];
-
         while(queue.length > 0) {
             var work = queue.shift();
             doWork(work);
