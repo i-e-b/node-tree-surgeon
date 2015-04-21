@@ -97,7 +97,6 @@ describe("Chopping data out of a tree", function() {
             expect(result).to.deep.equal(expected);
         });
 
-
         it("should leave non-matching nodes in place, even if they have the same relationship kind", function(){
             var input = {
                 "rel" : {
@@ -282,7 +281,7 @@ describe("Chopping data out of a tree", function() {
         });
     });
 
-    describe("When chopping matching data out of a tree", function() {
+    describe("When chopping data of a Kind out of a tree", function() {
         it("should compose to a tree with the matching nodes and their children removed", function(){
             var input = {
                 "toKeep" : {
@@ -352,6 +351,96 @@ describe("Chopping data out of a tree", function() {
             var result = tree.compose(
                             tree.chopByKind('children', filter,
                                 tree.decompose(input)));
+            expect(result).to.deep.equal(expected);
+        });
+    });
+
+    describe("When chopping Childless nodes out of a tree", function() {
+        it("should compose to a tree with the matching childless nodes removed", function() {
+            var input = {
+                "toKeep" : {
+                    "hello" : "world",
+                    "childlessChop" : {
+                        "goodbye" : "Vienna",
+                        "match" : "yes"
+                    },
+                    "child" : {
+                        "hello" : "there",
+                        "childlessKeep" : {
+                            "goodbye" : "Cruel World",
+                            "match" : "no"
+                        }
+                    }
+                },
+                "toStow":{
+                    "match" : "yes",
+                    "child" : {
+                        "hello": "again",
+                        "childlessChop" : {
+                            "goodbye" : "no just farewell",
+                            "match" : "yes"
+                        },
+                        "childlessKeep" : {
+                            "goodbye" : "no just farewell",
+                            "match" : "no"
+                        }
+                    }
+                }
+            };
+            var expected = {
+                "toKeep" : {
+                    "hello" : "world",
+                    "child" : {
+                        "hello" : "there",
+                        "childlessKeep" : {
+                            "goodbye" : "Cruel World",
+                            "match" : "no"
+                        }
+                    }
+                },
+                "toStow":{
+                    "match" : "yes",
+                    "child" : {
+                        "hello": "again",
+                        "childlessKeep" : {
+                            "goodbye" : "no just farewell",
+                            "match" : "no"
+                        }
+                    }
+                }
+            };
+
+            var filter = function(n) { return (n.match === 'yes'); };
+
+            var result =
+                tree.compose(
+                    tree.chopChildless(filter,
+                        tree.decompose(input)));
+            expect(result).to.deep.equal(expected);
+        });
+
+        it("should chop members of an array independently", function() {
+            var input = {
+                "children" : [
+                    {"hello":"world"},
+                    {"goodbye":"world", "match":"yes"},
+                    {"where":"is waldo", "match":"no"},
+                    {"sayonara":"sekai", "match":"yes" }
+                ]
+            };
+            var expected = {
+                "children" : [
+                    {"hello":"world"},
+                    {"where":"is waldo", "match":"no"}
+                ]
+            };
+
+            var filter = function(n) { return (n.match === 'yes'); };
+
+            var result =
+                tree.compose(
+                    tree.chopChildless(filter,
+                        tree.decompose(input)));
             expect(result).to.deep.equal(expected);
         });
     });
