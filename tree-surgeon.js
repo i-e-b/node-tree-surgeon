@@ -78,7 +78,7 @@ var _ = require('lodash');
     /** 
      * render -- compose a relational structure into a plain object, changing node contents using a supplied function.
      * If any of the render functions are null or undefined, rendered output will match `compose`
-     * @renderNodeFunc -- function that takes a node and returns the rendered node
+     * @renderNodeFunc -- function that takes (node, path, id) and returns the rendered node
      * @renderKindFunc -- function that takes (kind, path) and returns kind
      **/
     provides.render = function(renderNodeFunc, renderKindFunc, relational) {
@@ -210,28 +210,28 @@ var _ = require('lodash');
     };
 
     /** chop -- remove nodes and their children if they match a filter
-     * @param filterFunc -- if this returns a truthy value, node will be removed, else node will be kept
+     * @param filterFunc -- function of (node, id). If this returns a truthy value, node will be removed, else node will be kept
      * @param relational -- the source relational model to "chop" (as created by decompose)
      * @return a reference to the updated relational model
      */
     provides.chop = function(filterFunc, relational) {
         var toRemove = [];
         _.forEach(relational.Nodes, function(node, id) {
-            if (filterFunc(node)) toRemove.push(id);
+            if (filterFunc(node, id)) toRemove.push(id);
         });
         removeNodesByIds(relational, toRemove);
         return relational;
     };
 
     /** chopAfter -- remove child nodes where a parent matches a predicate
-     * @param filterFunc -- if this returns a truthy value, node will be removed, else node will be kept
+     * @param filterFunc -- function of (node, id). If this returns a truthy value, node will be removed, else node will be kept
      * @param relational -- the source relational model to "chop" (as created by decompose)
      * @return a reference to the updated relational model
      */
     provides.chopAfter = function(filterFunc, relational) {
         var toRemove = [];
         _.forEach(relational.Nodes, function(node, id) {
-            if (filterFunc(node)) toRemove.push(id);
+            if (filterFunc(node, id)) toRemove.push(id);
         });
         removeChildrenByParentsIds(relational, toRemove);
         return relational;
@@ -239,7 +239,7 @@ var _ = require('lodash');
 
     /** chopByKind -- remove nodes, of a specified kind, and their children if they match a filter
      * @param kind -- the type of node to consider
-     * @param filterFunc -- if this returns a truthy value, node will be removed, else node will be kept
+     * @param filterFunc -- function of (node, id). If this returns a truthy value, node will be removed, else node will be kept
      * @param relational -- the source relational model to "chop" (as created by decompose)
      * @return a reference to the updated relational model
      */
@@ -247,14 +247,14 @@ var _ = require('lodash');
         var toRemove = [];
         var targetIds = pickIdsByKind(kind, relational);
         _.forEach(targetIds, function(targetId) {
-            if (filterFunc(relational.Nodes[targetId])) { toRemove.push(targetId); }
+            if (filterFunc(relational.Nodes[targetId], targetId)) { toRemove.push(targetId); }
         });
         removeNodesByIds(relational, toRemove);
         return relational;
     };
 
     /** chopChildless -- remove nodes, where the nodes have no children (leaves), if they match a data predicate
-     * @param filterFunc -- if this returns a truthy value, node will be removed, else node will be kept
+     * @param filterFunc -- function of (node, id). If this returns a truthy value, node will be removed, else node will be kept
      * @param relational -- the source relational model to "chop" (as created by decompose)
      * @return a reference to the updated relational model
      */
@@ -262,7 +262,7 @@ var _ = require('lodash');
         var toRemove = [];
         var targetIds = pickIdsWithNoChildren(relational);
         _.forEach(targetIds, function(targetId) {
-            if (filterFunc(relational.Nodes[targetId])) { toRemove.push(targetId); }
+            if (filterFunc(relational.Nodes[targetId], targetId)) { toRemove.push(targetId); }
         });
         removeNodesByIds(relational, toRemove);
         return relational;
@@ -370,7 +370,8 @@ var _ = require('lodash');
         var targetIds = pickIdsByKind(kind, relational);
         var i = targetIds.length;
         for(;i--;){
-            relational.Nodes[targetIds[i]] = filterFunc(relational.Nodes[targetIds[i]]);
+            var id = targetIds[i];
+            relational.Nodes[id] = filterFunc(relational.Nodes[id], id);
         }
         return relational;
     };
@@ -414,14 +415,14 @@ var _ = require('lodash');
         var ids = [];
         _.forEach(relational.Nodes, function(node, idx) {
             if (idx == relational.Root) return;
-            if (predFunc(node)) ids.push(idx);
+            if (predFunc(node, idx)) ids.push(idx);
         });
         return ids;
     }
     function pickIdsByNodePredicateIncludeRoot(predFunc, relational) {
         var ids = [];
         _.forEach(relational.Nodes, function(node, idx) {
-            if (predFunc(node)) ids.push(idx);
+            if (predFunc(node, idx)) ids.push(idx);
         });
         return ids;
     }
@@ -443,12 +444,12 @@ var _ = require('lodash');
                     parentId = rel.Parent;
                     delete relational.Relations[idx];
                 } else if (rel.Parent == nodeId) {
-                    var forChild = pickForChildFunc(relational.Nodes[nodeId]);
+                    var forChild = pickForChildFunc(relational.Nodes[nodeId], nodeId);
                     if (forChild) _.merge(relational.Nodes[rel.Child], forChild, flip_join); // merge node down
                     childRels.push(idx);
                 }
             });
-            var forParent = pickForParentFunc(relational.Nodes[nodeId]);
+            var forParent = pickForParentFunc(relational.Nodes[nodeId], nodeId);
             if (forParent) _.merge(relational.Nodes[parentId], forParent, join); // merge node up
             _.forEach(childRels, function(idx) { // connect children to parent
                 relational.Relations[idx].Parent = parentId;
@@ -492,7 +493,7 @@ var _ = require('lodash');
     }
 
     function renderFromRoot(renderNodeFunc, renderKindFunc, rootId, relational) {
-        renderNodeFunc = renderNodeFunc || function(node){return node;};
+        renderNodeFunc = renderNodeFunc || function(node, path, id){return node;};
         renderKindFunc = renderKindFunc || function(kind, path){return kind;};
 
         var parentToChild = _.groupBy(relational.Relations, "Parent");
@@ -500,7 +501,7 @@ var _ = require('lodash');
         var build = function buildRecursive(currentNode, path) {
             if (! relational.Nodes[currentNode]) return undefined;
 
-            var output = renderNodeFunc(_.clone(relational.Nodes[currentNode]), path);
+            var output = renderNodeFunc(_.clone(relational.Nodes[currentNode]), path, currentNode);
             var childNodes = parentToChild[currentNode];
             if (output && childNodes) {
                 for (var i = 0; i < childNodes.length; i++) {
