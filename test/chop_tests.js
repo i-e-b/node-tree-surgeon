@@ -4,6 +4,49 @@ var _ = require('lodash');
 var tree = require("../tree-surgeon.js");
 
 describe("Chopping data out of a tree", function() {
+    describe("When chopping nodes by id list", function(){
+        it("should remove the nodes and their subtrees", function(){
+            var input = {
+                id:'r',
+                'gone':{
+                    id:'gone',
+                    right:'yes',
+                    'grandchild':[
+                        { id:'g1' },
+                        { id:'g2', "final":{id:'F'}},
+                        { id:'g3'}
+                    ]
+                },
+                'keep':{
+                    id:'d',
+                    right:'yes',
+                    'grandchild':[
+                        { id:'G1' },
+                        { id:'going', "final":{id:'Fx'}},
+                        { id:'G3'}
+                    ]
+                }
+            };
+            var expected = {
+                id:'r',
+                'keep':{
+                    id:'d',
+                    right:'yes',
+                    'grandchild':[
+                        { id:'G1'},
+                        { id:'G3'}
+                    ]
+                }
+            };
+
+            var relational = tree.chopNodesByIds(['going','gone'], tree.decomposeWithIds(input, function(n){return n.id;}));
+
+            var actual = tree.compose(relational);
+            expect(actual).to.deep.equal(expected);
+
+        });
+    });
+
     describe("When chopping matching data out of a tree", function() {
         it("should remove all relationships where a matching node is a child", function(){
             var input = {

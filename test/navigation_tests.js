@@ -4,6 +4,66 @@ var _ = require('lodash');
 var tree = require("../tree-surgeon.js");
 
 describe("Navigating relational structure", function(){
+    describe("When reading the path for a node by ID", function(){
+        it("should give the full path as an array", function(){
+            var input = {
+                id:'r',
+                'child':{
+                    id:'c',
+                    right:'yes',
+                    'grandchild':[
+                        { id:'g1' },
+                        { id:'g2', "final":{id:'F'}},
+                        { id:'g3'}
+                    ]
+                }
+            };
+            var relational = tree.decomposeWithIds(input, function(n){return n.id;});
+
+            var actual = tree.getPathOf('F', relational);
+            expect(actual).to.deep.equal(['child','grandchild','final']);
+        });
+        it("should give an empty array if node is not present", function(){
+            var input = {};
+            var relational = tree.decompose(input);
+
+            var actual = tree.getPathOf('z', relational);
+            expect(actual).to.deep.equal([]);
+        });
+        it("should give an empty array if root node path is given", function(){
+            var input = {
+                id:'r',
+                'child':{
+                    id:'c'
+                }
+            };
+            var relational = tree.decomposeWithIds(input, function(n){return n.id;});
+
+            var actual = tree.getPathOf('r', relational);
+            expect(actual).to.deep.equal([]);
+        });
+    });
+    describe("When getting the data for a given node by ID", function(){
+        it("should give the correct node data", function(){
+            var input = {
+                id:'r',
+                'child':{
+                    id:'c',
+                    right:'yes',
+                    'grandchild':{
+                        id:'g'
+                    }
+                }
+            };
+            var relational = tree.decomposeWithIds(input, function(n){return n.id;});
+
+            var actual = tree.getNode('c', relational);
+            expect(actual.right).to.equal('yes');
+        });
+        it("should give undefined for bad data", function(){
+            expect(tree.getNode('x', null)).to.be.undefined;
+        });
+    });
     describe("When getting the child IDs of a node by ID", function(){
         it("should give an array with all the child node IDs", function(){
             var input = {

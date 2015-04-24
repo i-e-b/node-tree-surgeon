@@ -378,12 +378,32 @@ var _ = require('lodash');
     /** Given a child ID, find its parent's ID. Returns `null` if not found */
     provides.parentIdOf = function(childId, relational) {
         return (_.first(_.where(relational.Relations, {Child:childId})) || {Parent:null}).Parent;
-    }
+    };
 
     /** Given a parent ID, return a list of all child IDs, or empty */
     provides.getChildrenOf = function(parentId, relational) {
         return _.pluck(_.where(relational.Relations, {Parent:parentId}), 'Child');
-    }
+    };
+
+    /** return the Kind strings between root and the given node as an array  */
+    provides.getPathOf = function(nodeId, relational) {
+        var result = [];
+        var rel, id = nodeId;
+        while (rel = _.first(_.where(relational.Relations, {Child: id}))) {
+            result.unshift(rel.Kind);
+            id = rel.Parent;
+        }
+        return result;
+    };
+
+    /** get node data by id */
+    provides.getNode = function(id, relational) {if (!relational) return undefined; else return relational.Nodes[id];};
+
+    /** Remove nodes and their subtrees by node ID */
+    provides.chopNodesByIds = function(ids, relational) {
+        removeNodesByIds(relational, ids);
+        return relational;
+    };
 
     // Return Child ids for a relation kind
     function pickIdsByKind(kind, relational) {
