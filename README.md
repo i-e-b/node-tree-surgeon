@@ -65,11 +65,19 @@ Properties with array values are treated one of two ways:
     - [x] GatherByKind
     - [x] GatherByNode
 
+#### Navigation
+
+- [x] getParentOf -- get parent ID from child ID, or `null` if not found
+- [x] getChildrenOf -- get an array of node IDs for the given parent ID
+- [ ] getNode -- return the node data for a given ID
+- [ ] getPathOf -- give the `Kind` path for a given node ID
+
 #### Manipulation
 
 - [x] Prune -- remove subtrees by relationship kind
     - [x] PruneAfter -- remove subtrees by relationship kind, but keep the immediate children
     - [x] PruneAllBut -- remove subtrees that **don't** match a set of kinds
+- [ ] removeNodesByIds -- remove nodes and their subtrees by their IDs
 - [x] Chop -- remove subtrees by data predicate
     - [x] ChopAfter -- remove subtrees by data predicate, but keep the matched children
     - [x] ChopByKind -- remove subtrees of a specified 'kind' by data predicate

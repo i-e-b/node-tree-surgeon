@@ -375,6 +375,16 @@ var _ = require('lodash');
         return relational;
     };
 
+    /** Given a child ID, find its parent's ID. Returns `null` if not found */
+    provides.parentIdOf = function(childId, relational) {
+        return (_.first(_.where(relational.Relations, {Child:childId})) || {Parent:null}).Parent;
+    }
+
+    /** Given a parent ID, return a list of all child IDs, or empty */
+    provides.getChildrenOf = function(parentId, relational) {
+        return _.pluck(_.where(relational.Relations, {Parent:parentId}), 'Child');
+    }
+
     // Return Child ids for a relation kind
     function pickIdsByKind(kind, relational) {
         return _.pluck(_.where(relational.Relations, {Kind:kind}), 'Child');
