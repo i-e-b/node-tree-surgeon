@@ -4,7 +4,7 @@ var _ = require('lodash');
 var tree = require("../tree-surgeon.js");
 
 describe("Tree decomposition", function() {
-    describe("Decomposing with automatic IDs", function(){    
+    describe("Decomposing with automatic IDs", function(){
         it("should handle objects which have repeated IDs", function(){
             var messedUp = {
                 "ID":"1",
@@ -325,5 +325,36 @@ describe("Tree decomposition", function() {
 
             expect(result).to.deep.equal(expected);
         });
+    });
+
+    describe("Decomposing with additional relationship metadata", function(){
+        var input = {
+            "link" : {
+                "meta":1,
+                "link":{
+                    "meta":2
+                }
+            }
+        };
+        var relationDecorator = function(){};
+        var expected = {
+                "Nodes":{
+                    "id_0":{},
+                    "id_1":{
+                        "meta":1
+                    },
+                    "id_2":{
+                        "meta":2
+                    }
+                },
+                "Relations":[
+                    {"Parent":"id_0", "Child":"id_1", "Kind":"link", "IsArray": false},
+                    {"Parent":"id_1", "Child":"id_2", "Kind":"link", "IsArray": false},
+                ],
+                "Root":"id_0"
+        };
+
+        var result = tree.decompose(input, relationDecorator);
+        expect(result).to.deep.equal(expected);
     });
 });
