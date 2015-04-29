@@ -27,21 +27,22 @@ var _ = require('lodash');
     /** decompose using a selector for ids.
      * @param idSelector -- function(node){return id;}
      * @param excludedKinds -- array of 'kind' names that should *NOT* be decomposed
+     * @param relationDecorate -- function(node){return {key:value};} adds data to relations which can be used for predicates
      */
-    provides.decomposeWithIds = function(obj, idSelector, excludedKinds) {
+    provides.decomposeWithIds = function(obj, idSelector, excludedKinds, relationDecorator) {
         var nodesToDecompose = [];
         var nodes = {};
         var relations = [];
         var exclude = excludedKinds || [];
-        //var idx = 0; // used to make unique IDs
-        //var newId = function(){return "id_" + (idx++);};
+        var decorator = relationDecorator || function(){return{};};
+        var merge = function(obj1, obj2) {for (var attrname in obj2) { obj1[attrname] = obj2[attrname]; };return obj1;};
 
         var rootId = idSelector(obj);
         nodesToDecompose.push([rootId, obj]);
 
         var add = function(id, value, kind, isArr) {
-            var aId = idSelector(value);                        
-            relations.push({"Parent":id, "Child":aId, "Kind":kind, "IsArray":isArr});
+            var aId = idSelector(value);
+            relations.push(merge(decorator(value), {"Parent":id, "Child":aId, "Kind":kind, "IsArray":isArr}));
             nodesToDecompose.push([aId, value]);
         };
 
