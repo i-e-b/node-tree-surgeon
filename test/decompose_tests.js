@@ -328,33 +328,35 @@ describe("Tree decomposition", function() {
     });
 
     describe("Decomposing with additional relationship metadata", function(){
-        var input = {
-            "link" : {
-                "meta":1,
-                "link":{
-                    "meta":2
-                }
-            }
-        };
-        var relationDecorator = function(){};
-        var expected = {
-                "Nodes":{
-                    "id_0":{},
-                    "id_1":{
-                        "meta":1
-                    },
-                    "id_2":{
+        it("should decorate relations with the additional data", function(){
+            var input = {
+                "link" : {
+                    "meta":1,
+                    "link":{
                         "meta":2
                     }
-                },
-                "Relations":[
-                    {"Parent":"id_0", "Child":"id_1", "Kind":"link", "IsArray": false},
-                    {"Parent":"id_1", "Child":"id_2", "Kind":"link", "IsArray": false},
-                ],
-                "Root":"id_0"
-        };
+                }
+            };
+            var relationDecorator = function(node){return {decV:(node.meta + 3)};};
+            var expected = {
+                    "Nodes":{
+                        "id_0":{},
+                        "id_1":{
+                            "meta":1
+                        },
+                        "id_2":{
+                            "meta":2
+                        }
+                    },
+                    "Relations":[
+                        {"Parent":"id_0", "Child":"id_1", "Kind":"link", "IsArray": false, "decV":4},
+                        {"Parent":"id_1", "Child":"id_2", "Kind":"link", "IsArray": false, "decV":5},
+                    ],
+                    "Root":"id_0"
+            };
 
-        var result = tree.decompose(input, relationDecorator);
-        expect(result).to.deep.equal(expected);
+            var result = tree.decompose(input, relationDecorator);
+            expect(result).to.deep.equal(expected);
+        });
     });
 });

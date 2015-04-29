@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 var global, exports;
 var _ = require('lodash');
 
@@ -12,11 +12,16 @@ var _ = require('lodash');
      *       "Relations": [ {"Parent":.., "Child":.., "Kind":...}, ... ]
      *      }
      * */
-    provides.decompose = function(obj, excludedKinds) {
+    provides.decompose = function(obj, excludedKinds, relationDecorator) {
         var idx = 0; // used to make unique IDs
         var newId = function(){return "id_" + (idx++);};
 
-        return provides.decomposeWithIds(obj, newId, excludedKinds);    
+        if (typeof excludedKinds === 'function') {
+            relationDecorator = excludedKinds;
+            excludedKinds = []
+        }
+
+        return provides.decomposeWithIds(obj, newId, excludedKinds, relationDecorator);
     };
 
     /** decompose using a selector for ids.
