@@ -164,11 +164,11 @@ var _ = require('lodash');
                 if (x[k] !== null && x[k] !== undefined) return false;
             }
             return true;
-        }
+        };
 
         var noChildren = function(k, rel) {
             return ! (_.some(rel.Relations, {Parent:k}));
-        }
+        };
 
         var cycleAgain = true;
         while (cycleAgain) {
@@ -379,6 +379,21 @@ var _ = require('lodash');
             var id = targetIds[i];
             relational.Nodes[id] = filterFunc(relational.Nodes[id], id);
         }
+        return relational;
+    };
+
+    /**
+     * Action the supplied function for each node of a specific kind
+     * @param kind -- the type of node to consider
+     * @param actionFunc -- function of (node, id) to execute for each matching node. Any return is ignored
+     * @param relational -- the source relational model (as created by decompose)
+     * @return a reference to the updated relational model
+     */
+    provides.forEachByKind = function(kind, actionFunc, relational) {
+        var targetIds = pickIdsByKind(kind, relational);
+        _.forEach(targetIds, function(id) {
+            actionFunc(relational.Nodes[id], id);
+        });
         return relational;
     };
 
