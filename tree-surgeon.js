@@ -164,11 +164,11 @@ var _ = require('lodash');
                 if (x[k] !== null && x[k] !== undefined) return false;
             }
             return true;
-        }
+        };
 
         var noChildren = function(k, rel) {
             return ! (_.some(rel.Relations, {Parent:k}));
-        }
+        };
 
         var cycleAgain = true;
         while (cycleAgain) {
@@ -271,6 +271,12 @@ var _ = require('lodash');
             if (filterFunc(relational.Nodes[targetId], targetId)) { toRemove.push(targetId); }
         });
         removeNodesByIds(relational, toRemove);
+        return relational;
+    };
+
+    /** Remove nodes and their subtrees by node ID */
+    provides.chopNodesByIds = function(ids, relational) {
+        removeNodesByIds(relational, ids);
         return relational;
     };
 
@@ -382,6 +388,21 @@ var _ = require('lodash');
         return relational;
     };
 
+    /**
+     * Action the supplied function for each node of a specific kind
+     * @param kind -- the type of node to consider
+     * @param actionFunc -- function of (node, id) to execute for each matching node. Any return is ignored
+     * @param relational -- the source relational model (as created by decompose)
+     * @return a reference to the updated relational model
+     */
+    provides.forEachByKind = function(kind, actionFunc, relational) {
+        var targetIds = pickIdsByKind(kind, relational);
+        _.forEach(targetIds, function(id) {
+            actionFunc(relational.Nodes[id], id);
+        });
+        return relational;
+    };
+
     /** Given a child ID, find its parent's ID. Returns `null` if not found */
     provides.parentIdOf = function(childId, relational) {
         return (_.first(_.where(relational.Relations, {Child:childId})) || {Parent:null}).Parent;
@@ -390,6 +411,19 @@ var _ = require('lodash');
     /** Given a parent ID, return a list of all child IDs, or empty */
     provides.getChildrenOf = function(parentId, relational) {
         return _.pluck(_.where(relational.Relations, {Parent:parentId}), 'Child');
+    };
+
+    /**
+     * getChildrenByKindOf
+     * Get a list of child IDs for the specified parent filtered by a specified Kind
+     * @param parentId -- the Id of the parent whose children should be checked
+     * @param kind -- the Kind of node to check for
+     * @param relational -- the source relational model (as created by decompose)
+     * @return an array of Child Id's of a specified Kind
+     */
+    provides.getChildrenByKindOf = function(parentId, kind, relational) {
+        var whereCriteria = {Parent: parentId, Kind: kind};
+        return _.pluck(_.where(relational.Relations, whereCriteria), 'Child' );
     };
 
     /** return the Kind strings between root and the given node as an array  */
@@ -405,12 +439,6 @@ var _ = require('lodash');
 
     /** get node data by id */
     provides.getNode = function(id, relational) {if (!relational) return undefined; else return relational.Nodes[id];};
-
-    /** Remove nodes and their subtrees by node ID */
-    provides.chopNodesByIds = function(ids, relational) {
-        removeNodesByIds(relational, ids);
-        return relational;
-    };
 
     // Return Child ids for a relation kind
     function pickIdsByKind(kind, relational) {

@@ -111,8 +111,73 @@ describe("Navigating relational structure", function(){
             expect(actual.length).to.equal(0);
             expect(actual).to.deep.equal([]);
         });
-
     });
+
+    describe("When getting the child IDs of children of s specific Kind given the parent ID", function() {
+        it("should give an empty array when passed an ID not in the relational structure", function(){
+            var input = {
+                "onlyChild" : {a:1}
+            };
+            var relational = tree.decompose(input);
+
+            var actual = tree.getChildrenByKindOf('ParentDoesntExist', 'nice', relational);
+
+            expect(actual.length).to.equal(0);
+            expect(actual).to.deep.equal([]);
+        });
+        it("should return an empty array if child Kind does not exists for parent", function() {
+            var input = {
+                'NotThis' : { 'name': 'no-one', 'match': 'no' },
+                'OnlyThis': { 'name': 'someone', 'match': 'yes' }
+            };
+
+            var relational = tree.decompose(input);
+            var actual = tree.getChildrenByKindOf(relational.Root, 'SomethingElse', relational);
+
+            expect(actual.length).to.equal(0);
+            expect(actual).to.deep.equal([]);
+        });
+        it("should return an array of a single child for a child object", function() {
+            var input = {
+                'NotThis' : { 'name': 'no-one', 'match': 'no' },
+                'OnlyThis': { 'name': 'someone', 'match': 'yes' }
+            };
+            var expected = ['someone'].sort();
+
+            var relational = tree.decompose(input);
+            var actualIds = tree.getChildrenByKindOf(relational.Root, 'OnlyThis', relational);
+            var actual = [];
+            actualIds.forEach(function(id) {
+                var node = tree.getNode(id, relational);
+                actual.push(node.name);
+            });
+
+            expect(actual.length).to.equal(1);
+            expect(actual.sort()).to.deep.equal(expected);
+        });
+        it("should return an array of children for an array object", function() {
+            var input = {
+                'OnlyThis': [
+                    { 'name': 'someone', 'match': 'yes' },
+                    { 'name': 'somewhere', 'match': 'yes' },
+                    { 'name': 'elsewhere', 'match': 'yes' },
+                ]
+            };
+            var expected = ['someone', 'somewhere', 'elsewhere'].sort();
+
+            var relational = tree.decompose(input);
+            var actualIds = tree.getChildrenByKindOf(relational.Root, 'OnlyThis', relational);
+            var actual = [];
+            actualIds.forEach(function(id) {
+                var node = tree.getNode(id, relational);
+                actual.push(node.name);
+            });
+
+            expect(actual.length).to.equal(3);
+            expect(actual.sort()).to.deep.equal(expected);
+        });
+    });
+
     describe("When getting the parent ID of a node by ID", function(){
         it("should give a single id where there is a parent", function(){
             var input = {
