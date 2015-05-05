@@ -274,6 +274,12 @@ var _ = require('lodash');
         return relational;
     };
 
+    /** Remove nodes and their subtrees by node ID */
+    provides.chopNodesByIds = function(ids, relational) {
+        removeNodesByIds(relational, ids);
+        return relational;
+    };
+
     /** merge up by kind -- remove child nodes by relationship putting data into parent */
     provides.mergeUpByKind = function(kind, relational) {
         var parentGetsAll = function (n){return n;};
@@ -407,6 +413,19 @@ var _ = require('lodash');
         return _.pluck(_.where(relational.Relations, {Parent:parentId}), 'Child');
     };
 
+    /**
+     * getChildrenByKindOf
+     * Get a list of child IDs for the specified parent filtered by a specified Kind
+     * @param parentId -- the Id of the parent whose children should be checked
+     * @param kind -- the Kind of node to check for
+     * @param relational -- the source relational model (as created by decompose)
+     * @return an array of Child Id's of a specified Kind
+     */
+    provides.getChildrenByKindOf = function(parentId, kind, relational) {
+        var whereCriteria = {Parent: parentId, Kind: kind};
+        return _.pluck(_.where(relational.Relations, whereCriteria), 'Child' );
+    };
+
     /** return the Kind strings between root and the given node as an array  */
     provides.getPathOf = function(nodeId, relational) {
         var result = [];
@@ -420,12 +439,6 @@ var _ = require('lodash');
 
     /** get node data by id */
     provides.getNode = function(id, relational) {if (!relational) return undefined; else return relational.Nodes[id];};
-
-    /** Remove nodes and their subtrees by node ID */
-    provides.chopNodesByIds = function(ids, relational) {
-        removeNodesByIds(relational, ids);
-        return relational;
-    };
 
     // Return Child ids for a relation kind
     function pickIdsByKind(kind, relational) {
