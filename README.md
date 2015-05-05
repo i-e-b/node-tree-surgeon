@@ -71,6 +71,7 @@ Properties with array values are treated one of two ways:
 - [x] getChildrenOf -- get an array of node IDs for the given parent ID
 - [x] getNode -- return the node data for a given ID
 - [x] getPathOf -- give the `Kind` path for a given node ID
+- [x] forEachByKind -- given a `Kind` execute the supplied function for all nodes of that kind 
 
 #### Manipulation
 
