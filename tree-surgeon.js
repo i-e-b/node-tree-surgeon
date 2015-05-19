@@ -440,9 +440,10 @@ var _ = require('lodash');
     /** get node data by id */
     provides.getNode = function(id, relational) {if (!relational) return undefined; else return relational.Nodes[id];};
 
-    // Return Child ids for a relation kind
+    // Return Child ids for a relation kind, or kind-spec
     function pickIdsByKind(kind, relational) {
-        return _.pluck(_.where(relational.Relations, {Kind:kind}), 'Child');
+        var spec = (typeof kind === "string") ? {Kind:kind} : kind;
+        return _.pluck(_.where(relational.Relations, spec), 'Child');
     }
 
     function pickIdsByNodePredicate(predFunc, relational) {

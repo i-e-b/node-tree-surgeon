@@ -398,6 +398,29 @@ describe("Chopping data out of a tree", function() {
         });
     });
 
+    describe("When chopping by meta information in a relationship", function(){
+        it("should remove only subtrees that match all parts of the filter", function(){
+            var input = {
+                "one":[{"lop":true},
+                       {"lop": false}],
+                "three":{"lop": true}
+            };
+            var relationDecorator = function(node){return { "metaValue": node.lop };};
+            var relational = tree.decompose(input, relationDecorator);
+            console.dir(relational);
+            var always = function(n){return true;};
+
+            var expected = {
+                "one":[{"lop":false}],
+                "three":{"lop":true}
+            };
+
+            var result = tree.compose(tree.chopByKind({"Kind":"one", "metaValue":true}, always, relational));
+
+            expect(result).to.deep.equal(expected);
+        });
+    });
+
     describe("When chopping Childless nodes out of a tree", function() {
         it("should compose to a tree with the matching childless nodes removed", function() {
             var input = {
