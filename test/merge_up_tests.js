@@ -96,6 +96,33 @@ describe("Merging nodes into parents", function() {
 
         });
 
+        it("should be able to use where predicate kinds", function(){
+            var input = {
+                "m":{
+                    "a":1,
+                    "m": {
+                        "b":2,
+                        "m":{
+                            "c":3
+                        }
+                    }
+                }
+            };
+            var expected = {
+                "a":1, "m":{"b":2, "c":3}
+            };
+
+            var dec = function(n){return {skip: (n.b == 2)}};
+            var result =
+                tree.compose(
+                    tree.mergeUpByKind({Kind:"m", skip:false},
+                        tree.decompose(input, dec)));
+
+            expect(result).to.deep.equal(expected);
+
+        });
+
+
         it("should join conflicting values by creating an array on the parent", function(){
             var input = {
                 "a":1,

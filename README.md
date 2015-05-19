@@ -81,11 +81,11 @@ Properties with array values are treated one of two ways:
     - [x] PruneAllBut -- remove subtrees that **don't** match a set of kinds
 - [x] Chop -- remove subtrees by data predicate
     - [x] ChopAfter -- remove subtrees by data predicate, but keep the matched children
-    - [x] ChopByKind -- remove subtrees of a specified 'kind' by data predicate
+    - [x] ChopByKind -- remove subtrees of a specified 'kind' by data predicate. Kind can be a string, or a `where` predicate on the relationship (an object with exact value matches)
     - [x] ChopChildless -- remove nodes which have no children (ie. leaves) by data predicate
     - [x] ChopNodesByIds -- remove nodes and their subtrees by their IDs
 - MergeUp -- remove a relationship and one node by merging data from child to parent. Subtree remains
-    - [x] MergeUpByKind -- select merge targets by relationship kind
+    - [x] MergeUpByKind -- select merge targets by relationship kind. Kind can be a string or a `where` predicate
     - [x] MergeUpByNode -- select merge targets by applying a predicate to nodes
 - MergeDown -- remove a relationship and one node by merging data from parent to child. Subtree remains
     - [x] MergeDownByKind -- select merge targets by relationship kind
