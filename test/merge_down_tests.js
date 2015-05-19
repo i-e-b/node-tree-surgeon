@@ -93,6 +93,39 @@ describe("Merging nodes into children", function() {
             expect(result).to.deep.equal(expected);
         });
 
+        it("should be able to use where predicate kinds", function(){
+            var input = {
+                "lose" : {
+                    "a":1,
+                    "lose" : {
+                        "b":2,
+                        "lose":{
+                            "c":3,
+                            "keep" : {
+                                "d":4
+                            }
+                        }
+                    }
+                }
+            };
+            var expected = {
+                "lose": {
+                    "b": 2,
+                    "a": 1,
+                    "keep": {
+                        "d": 4,
+                        "c": 3
+                    }
+                }
+            };
+            var dec = function(n){return {skip: (n.b == 2)};};
+            var result = tree.compose(tree.mergeDownByKind({Kind:"lose", skip:false},
+                    tree.decompose(input, dec)));
+
+            expect(result).to.deep.equal(expected);
+        });
+
+
         it("should lose any nodes and data pushed off the end of a list of merges", function(){
             var input = {
                 "lose" : {
