@@ -303,5 +303,32 @@ describe("Fusing nodes into parents and children", function() {
 
             expect(result).to.deep.equal(expected);
         });
+        it("should be able to use where predicate kinds", function(){
+            var input = {
+                "keep":{
+                    "grouping":[
+                        {"This":"1"},
+                        {"This":"2"},
+                        {"This":"3"}
+                    ]
+                }
+            };
+            var pickForParent = function(n){return n;};
+            var pickForChild = function(n){return null};
+            var expected = {
+                "keep":{
+                    "This":["1", "3"],
+                    "grouping": [{"This":"2"}]
+                }
+            };
+
+            var dec = function(n){return {NotTwo: (n.This !== "2")};};
+            var result = tree.compose(
+                tree.fuseByKind({Kind:"grouping", NotTwo:true}, pickForParent, pickForChild,
+                    tree.decompose(input, dec)));
+
+            expect(result).to.deep.equal(expected);
+        });
+
     });
 });
