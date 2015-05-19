@@ -40,6 +40,42 @@ describe("Tree pruning", function() {
             expect(result.Relations).to.deep.equal(expected);
         });
 
+        it("should be able to use where predicate kinds", function(){
+            var input = {
+                "X": {
+                    "B":{
+                        "C":{
+                            "hello":"world"
+                        }
+                    }
+                },
+                "Y": {
+                    "B":{
+                        "Skip":true,
+                        "C":{
+                            "hello":"world"
+                        }
+                    }
+                }               
+            };
+            var expected = {
+                "X": {},
+                "Y": {
+                    "B":{
+                        "Skip":true,
+                        "C":{
+                            "hello":"world"
+                        }
+                    }
+                }               
+            };
+
+            var dec = function(n){return {"Skip": (n.Skip === true)};};
+            var result = tree.compose(tree.prune({Kind:"B", Skip:false}, tree.decompose(input, dec)));
+
+            expect(result).to.deep.equal(expected);
+        });
+
         it("should compose into an object with the matched nodes removed", function(){
             var input = {
                 "ID":"1",
@@ -105,6 +141,44 @@ describe("Tree pruning", function() {
             var result = tree.pruneAfter("target", relational);
 
             expect(result.Relations).to.deep.equal(expected);
+        });
+
+        it("should be able to use where predicate kinds", function(){
+            var input = {
+                "X": {
+                    "B":{
+                        "C":{
+                            "hello":"world"
+                        }
+                    }
+                },
+                "Y": {
+                    "B":{
+                        "Skip":true,
+                        "C":{
+                            "hello":"world"
+                        }
+                    }
+                }               
+            };
+            var expected = {
+                "X": {
+                    "B":{}
+                },
+                "Y": {
+                    "B":{
+                        "Skip":true,
+                        "C":{
+                            "hello":"world"
+                        }
+                    }
+                }               
+            };
+
+            var dec = function(n){return {"Skip": (n.Skip === true)};};
+            var result = tree.compose(tree.pruneAfter({Kind:"B", Skip:false}, tree.decompose(input, dec)));
+
+            expect(result).to.deep.equal(expected);
         });
 
         it("should compose into an object with the matched nodes still present", function(){

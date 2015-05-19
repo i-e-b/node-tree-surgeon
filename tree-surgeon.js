@@ -193,16 +193,16 @@ var _ = require('lodash');
 
     /** prune -- remove relationships by kind */
     provides.prune = function(kind, relational) {
-        _.remove(relational.Relations, function(rel) {
-            return rel.Kind == kind;
-        });
+        var pred = (typeof kind === "string") ? {Kind:kind} : kind;
+       _.remove(relational.Relations, pred);
         return relational;
     };
 
     /** pruneAfter -- remove children by matching parent relationship kind */
     provides.pruneAfter = function(kind, relational) {
         // remove children of child IDs
-        var parents = _.pluck(_.where(relational.Relations, {Kind:kind}), "Child");
+        var pred = (typeof kind === "string") ? {Kind:kind} : kind;
+        var parents = _.pluck(_.where(relational.Relations, pred), "Child");
         removeChildrenByParentsIds(relational, parents);
         return relational;
     };
