@@ -69,10 +69,10 @@ Properties with array values are treated one of two ways:
 
 - [x] parentIdOf -- get parent ID from child ID, or `null` if not found
 - [x] getChildrenOf -- get an array of node IDs for the given parent ID
-- [x] getChildrenByKindOf - get an array of child node IDs for a given parent where the child is a specified type
+- [x] getChildrenByKindOf - get an array of child node IDs for a given parent where the child is a specified type. Kind can be a string, or a `where` predicate on the relationship (an object with exact value matches)
 - [x] getNode -- return the node data for a given ID
 - [x] getPathOf -- give the `Kind` path for a given node ID
-- [x] forEachByKind -- given a `Kind` execute the supplied function for all nodes of that kind 
+- [x] forEachByKind -- given a `Kind` execute the supplied function for all nodes of that kind. Kind can be a string, or a `where` predicate
 
 #### Manipulation
 

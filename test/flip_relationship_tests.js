@@ -219,7 +219,6 @@ describe("Reversing parents and children in the tree", function() {
         var equality = function(n) {return n.key;};
 
         var result = tree.compose(tree.flipRelationship({Kind:"b", skip:false}, "c", equality, tree.decompose(input, decorator)));
-        console.log(JSON.stringify(result, undefined, 2));
 
         expect(result).to.deep.equal(expected);
     });
@@ -263,7 +262,6 @@ describe("Reversing parents and children in the tree", function() {
         var equality = function(n) {return n.key;};
 
         var result = tree.compose(tree.flipRelationship("b",{Kind:"c", skip:false}, equality, tree.decompose(input, decorator)));
-        console.log(JSON.stringify(result, undefined, 2));
 
         expect(result).to.deep.equal(expected);
     });

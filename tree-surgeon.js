@@ -425,7 +425,14 @@ var _ = require('lodash');
      * @return an array of Child Id's of a specified Kind
      */
     provides.getChildrenByKindOf = function(parentId, kind, relational) {
-        var whereCriteria = {Parent: parentId, Kind: kind};
+
+        var whereCriteria;
+        if (typeof kind === "string") {
+            whereCriteria = {Parent: parentId, Kind: kind};
+        } else {
+            whereCriteria = _.clone(kind);
+            whereCriteria.Parent = parentId;
+        }
         return _.pluck(_.where(relational.Relations, whereCriteria), 'Child' );
     };
 

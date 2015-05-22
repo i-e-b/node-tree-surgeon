@@ -176,6 +176,30 @@ describe("Navigating relational structure", function(){
             expect(actual.length).to.equal(3);
             expect(actual.sort()).to.deep.equal(expected);
         });
+        it("should use a predicate to filter child items if provided", function() {
+            var input = {
+                'OnlyThis': [
+                    { 'name': 'someone', 'match': 'no' },
+                    { 'name': 'somewhere', 'match': 'yes' },
+                    { 'name': 'elsewhere', 'match': 'no' },
+                ]
+            };
+
+            var expected = ['somewhere'].sort();
+
+            var dec = function (n) {return {skip:(n.match == 'no')};};
+            var relational = tree.decompose(input, dec);
+            var actualIds = tree.getChildrenByKindOf(relational.Root, {Kind:'OnlyThis', skip:false}, relational);
+            var actual = [];
+            actualIds.forEach(function(id) {
+                var node = tree.getNode(id, relational);
+                actual.push(node.name);
+            });
+
+            expect(actual.length).to.equal(1);
+            expect(actual.sort()).to.deep.equal(expected);
+        });
+
     });
 
     describe("When getting the parent ID of a node by ID", function(){
