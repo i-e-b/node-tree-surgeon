@@ -407,7 +407,6 @@ describe("Chopping data out of a tree", function() {
             };
             var relationDecorator = function(node){return { "metaValue": node.lop };};
             var relational = tree.decompose(input, relationDecorator);
-            console.dir(relational);
             var always = function(n){return true;};
 
             var expected = {

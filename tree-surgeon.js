@@ -109,13 +109,16 @@ var _ = require('lodash');
             });
         };
 
+        var newChildSpec = (typeof newChildKind === "string") ? ({Kind:newChildKind}) : (newChildKind);
+        var newParentSpec = (typeof newParentKind === "string") ? ({Kind:newParentKind}) : (newParentKind);
+
         var toRemove = [];
         // build the id tree for the new relationships, and keep track of the old relationships to delete
-        _.where(relational.Relations, {Kind:newChildKind}).forEach(function(rel) {
+        _.where(relational.Relations, newChildSpec).forEach(function(rel) {
             var gParent = rel.Parent; var oldParent = rel.Child;
             if (!grandparents[gParent]) grandparents[gParent] = {};
 
-            var oldChildren = _.where(relational.Relations, {Kind:newParentKind, Parent:oldParent});
+            var oldChildren = _.where(relational.Relations, {Kind:newParentSpec.Kind, Parent:oldParent});
             var map = groupNewParentsByHashEquality(oldChildren);
 
             if (map.length !== 1) return; // doesn't match the pattern -- must have exactly one new parent to flip out
@@ -137,9 +140,9 @@ var _ = require('lodash');
             var gpar = grandparents[gPid];
             Object.keys(gpar).forEach(function(newPid){
                 var npar = gpar[newPid];
-                relational.Relations.push({Parent:gPid, Child:newPid, Kind:newParentKind});
+                relational.Relations.push({Parent:gPid, Child:newPid, Kind:newParentSpec.Kind});
                 for(var i = 0; i < npar.length; i++) {
-                    relational.Relations.push({Parent:newPid, Child:npar[i], Kind:newChildKind});
+                    relational.Relations.push({Parent:newPid, Child:npar[i], Kind:newChildSpec.Kind});
                 }
             });
         });

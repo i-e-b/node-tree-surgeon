@@ -159,4 +159,112 @@ describe("Reversing parents and children in the tree", function() {
 
         expect(result).to.deep.equal(expected);
     });
+
+    it("should select flip targets by where predicate kinds", function(){
+        var input = {
+            a : {
+                b : [
+                    {
+                        key : 1,
+                        c : { "parent": "a" }
+                    },
+                    {
+                        key : 2,
+                        c : { "parent": "a" }
+                    },
+                    {
+                        key : 3,
+                        c : { "parent": "a" }
+                    },
+                    {
+                        key : 4,
+                        c : { "parent": "a" }
+                    }
+                ]
+            }
+        };
+
+        var expected = {
+            "a": {
+                "b": [
+                    {
+                        "c": {
+                            "parent": "a"
+                        },
+                        "key": 3
+                    },
+                    {
+                        "c": {
+                            "parent": "a"
+                        },
+                        "key": 4
+                    }
+                ],
+                "c": {
+                    "b": [
+                        {
+                            "key": 1
+                        },
+                        {
+                            "key": 2
+                        }
+                    ],
+                    "parent": "a"
+                }
+            }
+        };
+
+
+        var decorator = function(n) {return {skip:(n.key > 2)};};
+        var equality = function(n) {return n.key;};
+
+        var result = tree.compose(tree.flipRelationship({Kind:"b", skip:false}, "c", equality, tree.decompose(input, decorator)));
+        console.log(JSON.stringify(result, undefined, 2));
+
+        expect(result).to.deep.equal(expected);
+    });
+
+    it("should ignore where predicate kinds on new parent kind", function(){
+        var input = {
+            a : {
+                b : [
+                    {
+                        key : 1,
+                        c : { "parent": "a" }
+                    },
+                    {
+                        key : 2,
+                        c : { "parent": "a" }
+                    },
+                    {
+                        key : 3,
+                        c : { "parent": "a" }
+                    },
+                    {
+                        key : 4,
+                        c : { "parent": "a" }
+                    }
+                ]
+            }
+        };
+
+        var expected = {
+            "a": {
+                "c": {
+                    "b": [
+                        { "key": 1 }, { "key": 2 }, { "key": 3 }, { "key": 4 }
+                    ],
+                    "parent": "a"
+                }
+            }
+        };
+
+        var decorator = function(n) {return {skip:true};};
+        var equality = function(n) {return n.key;};
+
+        var result = tree.compose(tree.flipRelationship("b",{Kind:"c", skip:false}, equality, tree.decompose(input, decorator)));
+        console.log(JSON.stringify(result, undefined, 2));
+
+        expect(result).to.deep.equal(expected);
+    });
 });

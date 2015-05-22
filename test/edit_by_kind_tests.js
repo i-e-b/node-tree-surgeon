@@ -24,6 +24,32 @@ describe("Iterating over defined sets", function() {
 
             expect(result).to.deep.equal(expected);
         });
+
+
+        it("should allow filtering based on relationship decoration", function(){
+            var input = {
+                "yes":[
+                    {"A":"B"},
+                    {"A":"C"},
+                    {"A":"D"}
+                ]
+            };
+            var expected = {
+                "yes":[
+                    {"A":"B"},
+                    {"A":"C", "Found":"C"},
+                    {"A":"D", "Found":"D"}
+                ]
+            };
+
+            var decorate = function(n){return {skip:(n.A == "B")};};
+            var result = tree.compose(
+                tree.editByKind({Kind:"yes", skip:false}, function(n){n["Found"] = n["A"]; return n;},
+                    tree.decompose(input, decorate)));
+
+            expect(result).to.deep.equal(expected);
+        });
+
     });
 
     describe("ForEach iteration by kind and predicate", function() {

@@ -100,10 +100,10 @@ Properties with array values are treated one of two ways:
 - [ ] Disconnect -- the opposite of Fuse, place a new node between a parent and child
 - [ ] Fork -- move some of the values of a node into a new or existing sibling
 - [ ] Move -- move some of the values of a node into an existing sibling, or do nothing
-- [x] FlipRelationship -- given a parent kind, a child kind, and an equality function for children; swap parents⇔children, grouping children by equality. 
+- [x] FlipRelationship -- given a parent kind, a child kind, and an equality function for children; swap parents⇔children, grouping children by equality. The new child kind can be a string or a `where` predicate, but the new parent kind can only be a string.
 - [ ] EditPath -- given a path of kinds and a func node→node, replace data at those paths
 - [x] Reduce -- reduce objects to a single value from inside them, by kind or node predicate (` {a:[{x:1},{x:2}]} -> {a:[1,2]} `)
-- [x] EditByKind -- given a `kind` name and an editor function, change all immediate children of that kind
+- [x] EditByKind -- given a `kind` name and an editor function, change all immediate children of that kind. Kind can be a string or a `where` predicate
 - [x] RemoveEmptyNodes -- recursively remove nodes which contain only `null` or `undefined`. This can remove entire subtrees that contain only empty children
 
 
