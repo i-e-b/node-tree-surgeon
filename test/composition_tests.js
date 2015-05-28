@@ -83,4 +83,10 @@ describe("Tree composition from relational model", function() {
 
         expect(result).to.deep.equal(input);
     });
+    it("should return an array if the original root object was an array", function(){
+        var input = [ {"a":"b"},{"c":"d"} ];
+        var result = tree.compose(tree.decompose(input));
+
+        expect(result).to.deep.equal(input);
+    });
 });

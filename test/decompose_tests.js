@@ -60,7 +60,8 @@ describe("Tree decomposition", function() {
                     {"Parent":"id_0", "Child":"id_2", "Kind":"another", "IsArray": false},
                     {"Parent":"id_1", "Child":"id_3", "Kind":"subsub", "IsArray": false}
                 ],
-                "Root":"id_0"
+                "Root":"id_0",
+                "RootArray":false
             };
 
             var result = tree.decompose(sample);
@@ -97,7 +98,8 @@ describe("Tree decomposition", function() {
                     {"Parent":"id_0", "Child":"id_1", "Kind":"ArrayOfObjects", "IsArray": true},
                     {"Parent":"id_0", "Child":"id_2", "Kind":"ArrayOfObjects", "IsArray": true},
                 ],
-                "Root":"id_0"
+                "Root":"id_0",
+                "RootArray":false
             };
 
             var result = tree.decompose(sample);
@@ -118,7 +120,8 @@ describe("Tree decomposition", function() {
                     }
                 },
                 "Relations":[],
-                "Root":"id_0"
+                "Root":"id_0",
+                "RootArray":false
             };
             var result = tree.decompose(sample);
             expect(result).to.deep.equal(expected);
@@ -144,7 +147,8 @@ describe("Tree decomposition", function() {
                     {"Parent":"id_0", "Child":"id_1", "Kind":"child", "IsArray": false},
                     {"Parent":"id_1", "Child":"id_2", "Kind":"child", "IsArray": false},
                 ],
-                "Root":"id_0"
+                "Root":"id_0",
+                "RootArray":false
             };
             var result = tree.decompose(sample);
             expect(result).to.deep.equal(expected);
@@ -178,7 +182,8 @@ describe("Tree decomposition", function() {
                     "id_0":{}
                 },
                 "Relations":[],
-                "Root":"id_0"
+                "Root":"id_0",
+                "RootArray":false
             };
             var result = tree.decompose(sample);
             expect(result).to.deep.equal(expected);
@@ -193,7 +198,8 @@ describe("Tree decomposition", function() {
                     }
                 },
                 "Relations":[],
-                "Root":"id_0"
+                "Root":"id_0",
+                "RootArray":false
             };
             var result = tree.decompose(sample);
             expect(result).to.deep.equal(expected);
@@ -239,7 +245,8 @@ describe("Tree decomposition", function() {
                     {"Parent":"1", "Child":"4", "Kind":"another", "IsArray": false},
                     {"Parent":"2", "Child":"3", "Kind":"subsub", "IsArray": false}
                 ],
-                "Root":"1"
+                "Root":"1",
+                "RootArray":false
             };
 
             var idSelector = function(n){return n.ID;};
@@ -318,7 +325,8 @@ describe("Tree decomposition", function() {
                     {"Parent":"id_0", "Child":"id_2", "Kind":"another", "IsArray": false},
                     {"Parent":"id_1", "Child":"id_3", "Kind":"subsub", "IsArray": false}
                 ],
-                "Root":"id_0"
+                "Root":"id_0",
+                "RootArray":false
             };
 
             var result = tree.decompose(sample, ["excluded"]);
@@ -352,7 +360,8 @@ describe("Tree decomposition", function() {
                         {"Parent":"id_0", "Child":"id_1", "Kind":"link", "IsArray": false, "decV":4},
                         {"Parent":"id_1", "Child":"id_2", "Kind":"link", "IsArray": false, "decV":5},
                     ],
-                    "Root":"id_0"
+                    "Root":"id_0",
+                    "RootArray":false
             };
 
             var result = tree.decompose(input, relationDecorator);

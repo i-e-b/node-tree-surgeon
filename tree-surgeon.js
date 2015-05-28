@@ -38,6 +38,7 @@ var _ = require('lodash');
         var merge = function(obj1, obj2) {for (var attrname in obj2) { obj1[attrname] = obj2[attrname]; };return obj1;};
 
         var rootId = idSelector(obj);
+        var isRootArray = Array.isArray(obj);
         nodesToDecompose.push([rootId, obj]);
 
         var add = function(id, value, kind, isArr) {
@@ -66,7 +67,7 @@ var _ = require('lodash');
             });
         });
 
-        return {"Root":rootId, "Nodes":nodes, "Relations":relations};
+        return {"Root":rootId, "Nodes":nodes, "Relations":relations, "RootArray":isRootArray};
     };
 
     /** compose -- Takes a decomposed structure and returns a plain object
@@ -563,7 +564,13 @@ var _ = require('lodash');
             return output;
         };
 
-        return build(rootId, []) || {};
+        var result = build(rootId, []) || {};
+        if (relational.RootArray) {
+            result.length = Object.keys(result).length;
+            return Array.prototype.slice.call(result);
+        } else {
+            return result;
+        }
     }
 
     function asArray(element) {return [].concat.apply([], [element]); }
