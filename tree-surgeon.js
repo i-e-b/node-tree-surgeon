@@ -46,6 +46,8 @@ var _ = require('lodash');
             relations.push(merge(decorator(value), {"Parent":id, "Child":aId, "Kind":kind, "IsArray":isArr}));
             nodesToDecompose.push([aId, value]);
         };
+        var allObjects = function(container){return container.every(function(x){return _.isObject(x);});};
+        var allArrays = function(container){return container.every(function(x){return Array.isArray(x);});};
 
         queueWorkerSync(nodesToDecompose, function(pair) {
             var id = pair[0], node = pair[1];
@@ -54,7 +56,7 @@ var _ = require('lodash');
                 var isArr = _.isArray(value);
                 var isObj = _.isObject(value);
                 var isExcluded = exclude.indexOf(key) >= 0;
-                if (isArr && value.length > 0 && _.isObject(value[0])) {
+                if (isArr && value.length > 0 && allObjects(value) && !allArrays(value)) {
                     // is an array of objects, treat as multiple child nodes
                     for (var i = 0; i < value.length; i++) { add(id, value[i], key, true); }
                 } else if (isObj && (!isArr) && (!isExcluded)) {

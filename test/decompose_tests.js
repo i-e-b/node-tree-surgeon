@@ -368,4 +368,43 @@ describe("Tree decomposition", function() {
             expect(result).to.deep.equal(expected);
         });
     });
+    describe("Decomposing complex structures", function(){
+        it("should treat bare nested arrays as simple values and not decompose them", function(){
+            var input = {
+                "link" : {
+                    "meta":1,
+                    "data":[[1,2,3]]
+                }
+            };
+            var expected = {
+                    "Nodes":{
+                        "id_0":{},
+                        "id_1":{
+                            "meta":1,
+                            "data":[[1,2,3]]
+                        }
+                    },
+                    "Relations":[
+                        {"Parent":"id_0", "Child":"id_1", "Kind":"link", "IsArray": false},
+                    ],
+                    "Root":"id_0",
+                    "RootArray":false
+            };
+
+            var result = tree.decompose(input);
+            expect(result).to.deep.equal(expected);
+        });
+        it("should correctly round-trip bare nested arrays", function(){
+            var input = {
+                "link" : {
+                    "meta":1,
+                    "data":[[1,2,3]]
+                }
+            };
+            var result = tree.compose(tree.decompose(input));
+            expect(result).to.deep.equal(input);
+        });
+
+    });
+
 });
