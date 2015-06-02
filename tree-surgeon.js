@@ -12,7 +12,7 @@ var _ = require('lodash');
      *       "Relations": [ {"Parent":.., "Child":.., "Kind":...}, ... ]
      *      }
      * */
-    provides.decompose = function(obj, excludedKinds, relationDecorator) {
+    provides.decompose = function(obj, excludedKinds, relationDecorator, useEmptyRelations) {
         var idx = 0; // used to make unique IDs
         var newId = function(){return "id_" + (idx++);};
 
@@ -21,7 +21,7 @@ var _ = require('lodash');
             excludedKinds = []
         }
 
-        return provides.decomposeWithIds(obj, newId, excludedKinds, relationDecorator);
+        return provides.decomposeWithIds(obj, newId, excludedKinds, relationDecorator, useEmptyRelations);
     };
 
     /** decompose using a selector for ids.
@@ -29,7 +29,7 @@ var _ = require('lodash');
      * @param excludedKinds -- array of 'kind' names that should *NOT* be decomposed
      * @param relationDecorate -- function(node){return {key:value};} adds data to relations which can be used for predicates
      */
-    provides.decomposeWithIds = function(obj, idSelector, excludedKinds, relationDecorator) {
+    provides.decomposeWithIds = function(obj, idSelector, excludedKinds, relationDecorator, useEmptyRelations) {
         var nodesToDecompose = [];
         var nodes = {};
         var relations = [];
@@ -44,10 +44,12 @@ var _ = require('lodash');
         var add = function(id, value, kind, isArr) {
             var aId = idSelector(value);
             relations.push(merge(decorator(value), {"Parent":id, "Child":aId, "Kind":kind, "IsArray":isArr}));
-            nodesToDecompose.push([aId, value]);
+            if (value !== null) nodesToDecompose.push([aId, value]);
+            else nodes[aId] = [];
         };
         var allObjects = function(container){return container.every(function(x){return _.isObject(x);});};
         var allArrays = function(container){return container.every(function(x){return Array.isArray(x);});};
+        var canDecompose = function(arr){return useEmptyRelations || (arr.length > 0 && allObjects(arr) && !allArrays(arr));};
 
         queueWorkerSync(nodesToDecompose, function(pair) {
             var id = pair[0], node = pair[1];
@@ -56,9 +58,14 @@ var _ = require('lodash');
                 var isArr = _.isArray(value);
                 var isObj = _.isObject(value);
                 var isExcluded = exclude.indexOf(key) >= 0 || ((value instanceof Date));
-                if ((!isExcluded) && isArr && value.length > 0 && allObjects(value) && !allArrays(value)) {
-                    // is an array of objects, treat as multiple child nodes
-                    for (var i = 0; i < value.length; i++) { add(id, value[i], key, true); }
+                if ((!isExcluded) && isArr && canDecompose(value)) {
+                    if (value.length === 0) {
+                        // an empty relation
+                        add(id, null, key, true);
+                    } else {
+                        // is an array of objects, treat as multiple child nodes
+                        for (var i = 0; i < value.length; i++) { add(id, value[i], key, true); }
+                    }
                 } else if ((!isExcluded) && isObj && (!isArr)) {
                     // new node to be decomposed. Add to queue, don't add to parent.
                     add(id, value, key, false);

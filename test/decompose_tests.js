@@ -147,6 +147,28 @@ describe("Tree decomposition", function() {
             expect(result).to.deep.equal(expected);
         });
 
+        it("should be able to use empty arrays as relations with no children", function(){
+            var input = {
+                "Empty":[]
+            };
+            var expected = {
+                "Nodes":{
+                    "id_0":{},
+                    "id_1":[]
+                },
+                "Relations":[
+                    {"Parent":"id_0", "Child":"id_1", "Kind":"Empty", "IsArray": true}
+                ],
+                "Root":"id_0",
+                "RootArray":false
+            };
+            var result = tree.decompose(input, [], null, true);
+            var recomposed = tree.compose(result);
+
+            expect(result).to.deep.equal(expected);
+            expect(recomposed).to.deep.equal(input);
+        });
+
         it("should add ID fields if none are given", function() {
             var sample = {
                 "child":{
