@@ -127,6 +127,26 @@ describe("Tree decomposition", function() {
             expect(result).to.deep.equal(expected);
         });
 
+        it("should treat dates as simple values", function() {
+            var sample = {
+                "ID":"1",
+                "ActivationDate":new Date(12345678)
+            };
+            var expected = {
+                "Nodes":{
+                    "id_0":{
+                        "ID":"1",
+                        "ActivationDate":new Date(12345678)
+                    }
+                },
+                "Relations":[],
+                "Root":"id_0",
+                "RootArray":false
+            };
+            var result = tree.decompose(sample);
+            expect(result).to.deep.equal(expected);
+        });
+
         it("should add ID fields if none are given", function() {
             var sample = {
                 "child":{

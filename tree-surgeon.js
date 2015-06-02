@@ -55,11 +55,11 @@ var _ = require('lodash');
             _.forOwn(node, function(value, key) {
                 var isArr = _.isArray(value);
                 var isObj = _.isObject(value);
-                var isExcluded = exclude.indexOf(key) >= 0;
-                if (isArr && value.length > 0 && allObjects(value) && !allArrays(value)) {
+                var isExcluded = exclude.indexOf(key) >= 0 || ((value instanceof Date));
+                if ((!isExcluded) && isArr && value.length > 0 && allObjects(value) && !allArrays(value)) {
                     // is an array of objects, treat as multiple child nodes
                     for (var i = 0; i < value.length; i++) { add(id, value[i], key, true); }
-                } else if (isObj && (!isArr) && (!isExcluded)) {
+                } else if ((!isExcluded) && isObj && (!isArr)) {
                     // new node to be decomposed. Add to queue, don't add to parent.
                     add(id, value, key, false);
                 } else {
