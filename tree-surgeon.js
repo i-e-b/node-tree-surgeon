@@ -27,7 +27,7 @@ var _ = require('lodash');
     /** decompose using a selector for ids.
      * @param idSelector -- function(node){return id;}
      * @param excludedKinds -- array of 'kind' names that should *NOT* be decomposed
-     * @param relationDecorate -- function(node){return {key:value};} adds data to relations which can be used for predicates
+     * @param relationDecorate -- function(childNode, childKind, parentNode){return {key:value};} adds data to relations which can be used for predicates
      */
     provides.decomposeWithIds = function(obj, idSelector, excludedKinds, relationDecorator, useEmptyRelations) {
         var nodesToDecompose = [];
@@ -41,11 +41,11 @@ var _ = require('lodash');
         var isRootArray = Array.isArray(obj);
         nodesToDecompose.push([rootId, obj]);
 
-        var add = function(id, value, kind, isArr) {
-            var aId = idSelector(value);
-            relations.push(merge(decorator(value), {"Parent":id, "Child":aId, "Kind":kind, "IsArray":isArr}));
-            if (value !== null) nodesToDecompose.push([aId, value]);
-            else nodes[aId] = [];
+        var add = function(parentId, childNode, kind, isArr, parentNode) {
+            var childId = idSelector(childNode);
+            relations.push(merge(decorator(childNode, kind, parentNode), {"Parent":parentId, "Child":childId, "Kind":kind, "IsArray":isArr}));
+            if (childNode !== null) nodesToDecompose.push([childId, childNode]);
+            else nodes[childId] = [];
         };
         var allObjects = function(container){return container.every(function(x){return _.isObject(x);});};
         var allArrays = function(container){return container.every(function(x){return Array.isArray(x);});};
@@ -64,11 +64,11 @@ var _ = require('lodash');
                         add(id, null, key, true);
                     } else {
                         // is an array of objects, treat as multiple child nodes
-                        for (var i = 0; i < value.length; i++) { add(id, value[i], key, true); }
+                        for (var i = 0; i < value.length; i++) { add(id, value[i], key, true, node); }
                     }
                 } else if ((!isExcluded) && isObj && (!isArr)) {
                     // new node to be decomposed. Add to queue, don't add to parent.
-                    add(id, value, key, false);
+                    add(id, value, key, false, node);
                 } else {
                     // just some value. Add to general output
                     nodes[id][key] = value;
@@ -160,6 +160,70 @@ var _ = require('lodash');
         return relational;
     };
 
+    /**
+     * Reverse relationships
+     * @param relationFilter - function(relation). A filter which identifies which relations to flip
+     * @param groupPredicate - function(relation). A function defining how the new parents should be grouped
+     * @param relational -- the source relational model to reverse Relations on (as created by decompose)
+     * @return a reference to the updated relational model
+     */
+    provides.reverseByRelation = function(relationFilter, groupPredicate, relational) {
+        var relationsToReverse = _.where(relational.Relations,relationFilter);
+        var relationGroups = _.groupBy(relationsToReverse, groupPredicate);
+
+        var nodesToRemove = [];
+        var relationsToRemove = [];
+        var newRelations = [];
+
+        Object.keys(relationGroups).forEach(function(relGroupKey) {
+            // New grandparent to child relations built for this group
+            var newGroupRelations = [];
+
+            relationGroups[relGroupKey].forEach(function(rel) {
+                // find grandparent parent relation, and therefore gp id, mark relation to delete
+                var gpRelation = _.find(relational.Relations, {Child: rel.Parent});
+                var gpId = gpRelation.Parent;
+                var oldParentKind = gpRelation.Kind;
+                relationsToRemove.push(rel.Parent);
+
+                // Create a new relation for GP->Child if doesn't already exist
+                // otherwise note the new ParentId and mark old child for deletion
+                var newParentId = rel.Child;
+                var existingRel = _.find(newGroupRelations, {Parent: gpId, Kind: rel.Kind});
+                if (existingRel !== undefined) {
+                    newParentId = existingRel.Child;
+                    nodesToRemove.push(rel.Child);
+                } else {
+                    newGroupRelations.push({Parent: gpId, Child: rel.Child, Kind: rel.Kind, IsArray: true});
+                }
+
+                // Create the new Child->Parent, if Child & ParentKind already exist,
+                // All reverse relations are considered arrays, mark old relation for deletion
+                var newChildToParentRel = {Parent: newParentId, Child: rel.Parent, Kind: oldParentKind, IsArray: true};
+                newRelations.push(newChildToParentRel);
+                relationsToRemove.push(rel.Child);
+            });
+
+            //// Push new group relations into new Relations
+            newGroupRelations.forEach(function(grpRel){
+                newRelations.push(grpRel);
+            });
+        });
+
+        // delete the old relations
+        removeRelationByIds(relational, relationsToRemove);
+
+        // build the new structure
+        newRelations.forEach(function(newRel) {
+            relational.Relations.push(newRel);
+        });
+
+        // Delete any child nodes which are now grouped
+        removeNodesByIds(relational, nodesToRemove);
+
+        return relational;
+    };
+    
     /** removeEmptyNodes -- remove node relations if node contains only null properties */
     provides.removeEmptyNodes = function(relational) {
         // Not yet implemented
