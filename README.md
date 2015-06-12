@@ -51,19 +51,19 @@ Properties with array values are treated one of two ways:
 
 #### Input
 
-- [x] Decompose -- turn a normal js object tree into the relational structure
-- [x] DecomposeWithIds -- same as `decompose` but use a function to pick ids. In case you want to use the relational model externally. It's up to you to ensure the ids are unique
+- [x] decompose -- turn a normal js object tree into the relational structure
+- [x] decomposeWithIds -- same as `decompose` but use a function to pick ids. In case you want to use the relational model externally. It's up to you to ensure the ids are unique
 
 ### Operations on the relational structure:
 
 #### Output
 
-- [x] Compose -- put a decomposed tree back together how it was. The composed object will contain auto-generated keys if any were created
-- [x] Render -- pass each node through a function, and each kind name through a function and compose tree from the results
-- [x] Harvest -- return an object of composed sub-trees by kind, keyed by a parent node value
-- [x] Gather -- return an array of sub-trees 
-    - [x] GatherByKind
-    - [x] GatherByNode
+- [x] compose -- put a decomposed tree back together how it was. The composed object will contain auto-generated keys if any were created
+- [x] render -- pass each node through a function, and each kind name through a function and compose tree from the results
+- [x] harvest -- return an object of composed sub-trees by kind, keyed by a parent node value
+- [x] gather -- return an array of sub-trees 
+    - [x] gatherByKind
+    - [x] gatherByNode
 
 #### Navigation
 
@@ -77,34 +77,35 @@ Properties with array values are treated one of two ways:
 #### Manipulation
 
 - [x] Prune -- remove subtrees by relationship kind. Kind can be a string, or a `where` predicate on the relationship (an object with exact value matches)
-    - [x] PruneAfter -- remove subtrees by relationship kind, but keep the immediate children. Kind can be a string, or a `where` predicate
-    - [x] PruneAllBut -- remove subtrees that **don't** match a set of kinds. Supports only array of string kinds.
+    - [x] pruneAfter -- remove subtrees by relationship kind, but keep the immediate children. Kind can be a string, or a `where` predicate
+    - [x] pruneAllBut -- remove subtrees that **don't** match a set of kinds. Supports only array of string kinds.
 - [x] Chop -- remove subtrees by data predicate
-    - [x] ChopAfter -- remove subtrees by data predicate, but keep the matched children
-    - [x] ChopByKind -- remove subtrees of a specified 'kind' by data predicate. Kind can be a string, or a `where` predicate
-    - [x] ChopChildless -- remove nodes which have no children (ie. leaves) by data predicate
-    - [x] ChopNodesByIds -- remove nodes and their subtrees by their IDs
+    - [x] chopAfter -- remove subtrees by data predicate, but keep the matched children
+    - [x] chopByKind -- remove subtrees of a specified 'kind' by data predicate. Kind can be a string, or a `where` predicate
+    - [x] chopChildless -- remove nodes which have no children (ie. leaves) by data predicate
+    - [x] chopNodesByIds -- remove nodes and their subtrees by their IDs
 - MergeUp -- remove a relationship and one node by merging data from child to parent. Subtree remains
-    - [x] MergeUpByKind -- select merge targets by relationship kind. Kind can be a string or a `where` predicate
-    - [x] MergeUpByNode -- select merge targets by applying a predicate to nodes
+    - [x] mergeUpByKind -- select merge targets by relationship kind. Kind can be a string or a `where` predicate
+    - [x] mergeUpByNode -- select merge targets by applying a predicate to nodes
 - MergeDown -- remove a relationship and one node by merging data from parent to child. Subtree remains
-    - [x] MergeDownByKind -- select merge targets by relationship kind. Kind can be a string or a `where` predicate
-    - [x] MergeDownByNode -- select merge targets by applying a predicate to nodes
+    - [x] mergeDownByKind -- select merge targets by relationship kind. Kind can be a string or a `where` predicate
+    - [x] mergeDownByNode -- select merge targets by applying a predicate to nodes
 - [ ] Fuse -- remove a node by merging into it's parent and child (by supplied function)
-    - [ ] FuseAway -- remove a node by connecting it's parents to it's children, losing the data in the selected nodes
-        - [ ] FuseAwayByNode
-        - [ ] FuseAwayByKind
-    - [x] FuseByNode -- remove a node picked by a predicate on that node
-    - [x] FuseByKind -- remove a node picked by kind. Kind can be a string or a `where` predicate
-    - [ ] Graft -- insert new subtrees
-- [ ] Disconnect -- the opposite of Fuse, place a new node between a parent and child
-- [ ] Fork -- move some of the values of a node into a new or existing sibling
-- [ ] Move -- move some of the values of a node into an existing sibling, or do nothing
-- [x] FlipRelationship -- given a parent kind, a child kind, and an equality function for children; swap parents⇔children, grouping children by equality. The new child kind can be a string or a `where` predicate, but the new parent kind can only be a string.
-- [ ] EditPath -- given a path of kinds and a func node→node, replace data at those paths
-- [x] Reduce -- reduce objects to a single value from inside them, by kind or node predicate (` {a:[{x:1},{x:2}]} -> {a:[1,2]} `)
-- [x] EditByKind -- given a `kind` name and an editor function, change all immediate children of that kind. Kind can be a string or a `where` predicate
-- [x] RemoveEmptyNodes -- recursively remove nodes which contain only `null` or `undefined`. This can remove entire subtrees that contain only empty children
+    - [ ] fuseAway -- remove a node by connecting it's parents to it's children, losing the data in the selected nodes
+        - [ ] fuseAwayByNode
+        - [ ] fuseAwayByKind
+    - [x] fuseByNode -- remove a node picked by a predicate on that node
+    - [x] fuseByKind -- remove a node picked by kind. Kind can be a string or a `where` predicate
+    - [ ] graft -- insert new subtrees
+- [ ] disconnect -- the opposite of Fuse, place a new node between a parent and child
+- [ ] fork -- move some of the values of a node into a new or existing sibling
+- [ ] move -- move some of the values of a node into an existing sibling, or do nothing
+- [x] flipRelationship -- given a parent kind, a child kind, and an equality function for children; swap parents⇔children, grouping children by equality. The new child kind can be a string or a `where` predicate, but the new parent kind can only be a string.
+- [x] reverseByRelation -- 
+- [ ] editPath -- given a path of kinds and a func node→node, replace data at those paths
+- [x] reduce -- reduce objects to a single value from inside them, by kind or node predicate (` {a:[{x:1},{x:2}]} -> {a:[1,2]} `)
+- [x] editByKind -- given a `kind` name and an editor function, change all immediate children of that kind. Kind can be a string or a `where` predicate
+- [x] removeEmptyNodes -- recursively remove nodes which contain only `null` or `undefined`. This can remove entire subtrees that contain only empty children
 
 
 Note:
