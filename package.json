@@ -1,6 +1,6 @@
 {
   "name": "tree-surgeon",
-  "version": "0.0.25",
+  "version": "0.0.26",
   "description": "Tools for editing tree structures using a relational model",
   "main": "tree-surgeon.js",
   "scripts": {
@@ -33,7 +33,8 @@
     "coveralls": "^2.11.2",
     "istanbul": "^0.3.2",
     "mocha": "^1.21.4",
-    "mocha-lcov-reporter": "0.0.1"
+    "mocha-lcov-reporter": "0.0.1",
+    "metaret":"*"
   },
   "dependencies": {
     "lodash": "^2.4.1"
