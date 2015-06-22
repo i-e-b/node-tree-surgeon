@@ -51,30 +51,33 @@ var _ = require('lodash');
         var allArrays = function(container){return container.every(function(x){return Array.isArray(x);});};
         var canDecompose = function(arr){return useEmptyRelations || (arr.length > 0 && allObjects(arr) && !allArrays(arr));};
 
-        queueWorkerSync(nodesToDecompose, function(pair) {
+        var flatten = function(nodes, node, id, value, key){
+            var isArr = _.isArray(value);
+            var isObj = _.isObject(value);
+            var isExcluded = exclude.indexOf(key) >= 0 || ((value instanceof Date));
+            if ((!isExcluded) && isArr && canDecompose(value)) {
+                if (value.length === 0) {
+                    // an empty relation
+                    add(id, null, key, true);
+                } else {
+                    // is an array of objects, treat as multiple child nodes
+                    for (var i = 0; i < value.length; i++) { add(id, value[i], key, true, node); }
+                }
+            } else if ((!isExcluded) && isObj && (!isArr)) {
+                // new node to be decomposed. Add to queue, don't add to parent.
+                add(id, value, key, false, node);
+            } else {
+                // just some value. Add to general output
+                nodes[id][key] = value;
+            }
+        };
+        var pairSplitter = function(pair){
             var id = pair[0], node = pair[1];
             nodes[id] = {};
-            _.forOwn(node, function(value, key) {
-                var isArr = _.isArray(value);
-                var isObj = _.isObject(value);
-                var isExcluded = exclude.indexOf(key) >= 0 || ((value instanceof Date));
-                if ((!isExcluded) && isArr && canDecompose(value)) {
-                    if (value.length === 0) {
-                        // an empty relation
-                        add(id, null, key, true);
-                    } else {
-                        // is an array of objects, treat as multiple child nodes
-                        for (var i = 0; i < value.length; i++) { add(id, value[i], key, true, node); }
-                    }
-                } else if ((!isExcluded) && isObj && (!isArr)) {
-                    // new node to be decomposed. Add to queue, don't add to parent.
-                    add(id, value, key, false, node);
-                } else {
-                    // just some value. Add to general output
-                    nodes[id][key] = value;
-                }
-            });
-        });
+            var f = flatten.bind(this, nodes, node, id);
+            _.forOwn(node, f);
+        };
+        queueWorkerSync(nodesToDecompose, pairSplitter);
 
         return {"Root":rootId, "Nodes":nodes, "Relations":relations, "RootArray":isRootArray};
     };
@@ -611,33 +614,59 @@ var _ = require('lodash');
         });
     }
 
+    function buildRecursive(currentNode, path, relational, parentToChild, renderNodeFunc, renderKindFunc) {
+        if (! relational.Nodes[currentNode]) return undefined;
+
+        var output = renderNodeFunc(_.clone(relational.Nodes[currentNode]), path, currentNode);
+        var childNodes = parentToChild[currentNode];
+        if (output && childNodes) {
+            for (var i = 0; i < childNodes.length; i++) {
+                var childNode = childNodes[i];
+                var renderedKind = renderKindFunc(childNode.Kind, path);
+                var subpath = path.concat(childNode.Kind); // path is always input path, not rendered
+
+                var subtree = join(output[renderedKind],
+                    (renderedKind) ? buildRecursive(childNode.Child, subpath, relational, parentToChild, renderNodeFunc, renderKindFunc) : undefined); // if the kind is removed by renderer, don't build the subtree
+
+                if (subtree) output[renderedKind] = (childNode.IsArray) ? asArray(subtree) : subtree;
+            }
+        }
+        return output;
+    };
+    function buildRecursiveFast(currentNode, path, relational, parentToChild) {
+        if (! relational.Nodes[currentNode]) return undefined;
+
+        var output = _.clone(relational.Nodes[currentNode]);
+        var childNodes = parentToChild[currentNode];
+        if (output && childNodes) {
+            for (var i = 0; i < childNodes.length; i++) {
+                var childNode = childNodes[i];
+                var renderedKind = childNode.Kind;
+                var subpath = path.concat(childNode.Kind); // path is always input path, not rendered
+
+                var subtree = join(output[renderedKind],
+                    (renderedKind) ? buildRecursiveFast(childNode.Child, subpath, relational, parentToChild) : undefined); // if the kind is removed by renderer, don't build the subtree
+
+                if (subtree) output[renderedKind] = (childNode.IsArray) ? asArray(subtree) : subtree;
+            }
+        }
+        return output;
+    };
+
+    function emptyRenderNodeFunc (node, path, id){return node;}
+    function emptyRenderKindFunc (kind, path){return kind;}
     function renderFromRoot(renderNodeFunc, renderKindFunc, rootId, relational) {
-        renderNodeFunc = renderNodeFunc || function(node, path, id){return node;};
-        renderKindFunc = renderKindFunc || function(kind, path){return kind;};
+        var builder = buildRecursive;
+        if ( (!renderNodeFunc) && (!renderKindFunc) ) {
+            builder = buildRecursiveFast;
+        } else {
+            renderNodeFunc = renderNodeFunc || emptyRenderNodeFunc;
+            renderKindFunc = renderKindFunc || emptyRenderKindFunc;
+        }
 
         var parentToChild = _.groupBy(relational.Relations, "Parent");
-
-        var build = function buildRecursive(currentNode, path) {
-            if (! relational.Nodes[currentNode]) return undefined;
-
-            var output = renderNodeFunc(_.clone(relational.Nodes[currentNode]), path, currentNode);
-            var childNodes = parentToChild[currentNode];
-            if (output && childNodes) {
-                for (var i = 0; i < childNodes.length; i++) {
-                    var childNode = childNodes[i];
-                    var renderedKind = renderKindFunc(childNode.Kind, path);
-                    var subpath = path.concat(childNode.Kind); // path is always input path, not rendered
-                    
-                    var subtree = join(output[renderedKind],
-                            (renderedKind) ? buildRecursive(childNode.Child, subpath) : undefined); // if the kind is removed by renderer, don't build the subtree
-
-                    if (subtree) output[renderedKind] = (childNode.IsArray) ? asArray(subtree) : subtree;
-                }
-            }
-            return output;
-        };
-
-        var result = build(rootId, []) || {};
+        
+        var result = builder(rootId, [], relational, parentToChild, renderNodeFunc, renderKindFunc) || {};
         if (relational.RootArray) {
             result.length = Object.keys(result).length;
             return Array.prototype.slice.call(result);
