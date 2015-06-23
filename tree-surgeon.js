@@ -131,18 +131,21 @@ var _ = require('lodash');
         var grandparents = {};
         var IDs = {};
         
+        var mergeHash = function(rel){
+            var hash = hashFunc(relational.Nodes[rel.Child]);
+            IDs[hash] = IDs[hash] || rel.Child;
+            return IDs[hash];
+        };
         var groupNewParentsByHashEquality = function(oldChildren) {
-            return oldChildren.map(function(rel){
-                var hash = hashFunc(relational.Nodes[rel.Child]);
-                IDs[hash] = IDs[hash] || rel.Child;
-                return IDs[hash];
-            });
+            return oldChildren.map(mergeHash);
         };
 
         var newChildSpec = (typeof newChildKind === "string") ? ({Kind:newChildKind}) : (newChildKind);
         var newParentSpec = (typeof newParentKind === "string") ? ({Kind:newParentKind}) : (newParentKind);
 
         var toRemove = [];
+        var removeRel = function(rel) {toRemove.push(rel.Parent); toRemove.push(rel.Child);};
+        
         // build the id tree for the new relationships, and keep track of the old relationships to delete
         _.where(relational.Relations, newChildSpec).forEach(function(rel) {
             var gParent = rel.Parent; var oldParent = rel.Child;
@@ -153,7 +156,7 @@ var _ = require('lodash');
 
             if (map.length !== 1) return; // doesn't match the pattern -- must have exactly one new parent to flip out
 
-            oldChildren.forEach(function(rel) {toRemove.push(rel.Parent); toRemove.push(rel.Child);});
+            oldChildren.forEach(removeRel);
 
             var newParent = map[0];
             var newChild = oldParent;
@@ -166,16 +169,21 @@ var _ = require('lodash');
         removeRelationByIds(relational, toRemove);
 
         // build the new structure
-        Object.keys(grandparents).forEach(function(gPid){
+        var gpKeys = Object.keys(grandparents);
+        for (var gpi = 0; gpi < gpKeys.length; gpi++) {
+            var gPid = gpKeys[gpi];
             var gpar = grandparents[gPid];
-            Object.keys(gpar).forEach(function(newPid){
+            var newPids = Object.keys(gpar);
+
+            for (var npi = 0; npi < newPids.length; npi++) {
+                var newPid = newPids[npi];
                 var npar = gpar[newPid];
                 relational.Relations.push({Parent:gPid, Child:newPid, Kind:newParentSpec.Kind});
                 for(var i = 0; i < npar.length; i++) {
                     relational.Relations.push({Parent:newPid, Child:npar[i], Kind:newChildSpec.Kind});
                 }
-            });
-        });
+            }
+        }
 
         return relational;
     };
@@ -195,11 +203,15 @@ var _ = require('lodash');
         var relationsToRemove = [];
         var newRelations = [];
 
-        Object.keys(relationGroups).forEach(function(relGroupKey) {
+        var relKeys = Object.keys(relationGroups);
+        for (var ki = 0; ki < relKeys.length; ki++) {
+            var relGroupKey = relKeys[ki];
             // New grandparent to child relations built for this group
             var newGroupRelations = [];
 
-            relationGroups[relGroupKey].forEach(function(rel) {
+            var rgrps = relationGroups[relGroupKey];
+            for (var ri = 0; ri < rgrps.length; ri++) {
+                var rel = rgrps[ri];
                 // find grandparent parent relation, and therefore gp id, mark relation to delete
                 var gpRelation = _.find(relational.Relations, {Child: rel.Parent});
                 var gpId = gpRelation.Parent;
@@ -222,21 +234,18 @@ var _ = require('lodash');
                 var newChildToParentRel = {Parent: newParentId, Child: rel.Parent, Kind: oldParentKind, IsArray: true};
                 newRelations.push(newChildToParentRel);
                 relationsToRemove.push(rel.Child);
-            });
+            };
 
-            //// Push new group relations into new Relations
-            newGroupRelations.forEach(function(grpRel){
-                newRelations.push(grpRel);
-            });
-        });
+            // Push new group relations into new Relations
+            newRelations = newRelations.concat(newGroupRelations);
+
+        };
 
         // delete the old relations
         removeRelationByIds(relational, relationsToRemove);
 
         // build the new structure
-        newRelations.forEach(function(newRel) {
-            relational.Relations.push(newRel);
-        });
+        relational.Relations = relational.Relations.concat(newRelations);
 
         // Delete any child nodes which are now grouped
         removeNodesByIds(relational, nodesToRemove);
@@ -268,6 +277,12 @@ var _ = require('lodash');
         };
 
         var cycleAgain = true;
+        var remover = function(rel) {
+            var dead = emptyNodes.indexOf(rel.Child) !== -1;
+            if (dead) cycleAgain = true;
+            return dead;
+        };
+
         while (cycleAgain) {
             cycleAgain = false;
 
@@ -276,11 +291,7 @@ var _ = require('lodash');
                 if (isEmpty(relational.Nodes[i]) && noChildren(i, relational)) { emptyNodes.push(i); }
             }
 
-            _.remove(relational.Relations, function(rel) {
-                var dead = emptyNodes.indexOf(rel.Child) !== -1;
-                if (dead) cycleAgain = true;
-                return dead;
-            });
+            _.remove(relational.Relations, remover);
         }
 
         return relational;
@@ -304,8 +315,9 @@ var _ = require('lodash');
 
     /** pruneAllBut -- remove nodes where kind is not in the given list */
     provides.pruneAllBut = function(kinds, relational) {
+        var sel = function(rel, k) {return k == rel.Kind;};
         _.remove(relational.Relations, function(rel) {
-            return ! _.some(kinds, function(k) {return k == rel.Kind;});
+            return ! _.some(kinds, sel.bind(this,rel));
         });
         return relational;
     };
@@ -604,9 +616,9 @@ var _ = require('lodash');
     }
     
     function join (old, additional) {
-        if (_.isUndefined(additional)) return old;
+        if (additional === null || additional === undefined) return old;
         if (old) {
-            return (_.isArray(old)) ? (old.concat(additional)) : ([old].concat(additional));
+            return (Array.isArray(old)) ? (old.concat(additional)) : ([old].concat(additional));
         } else {
             return additional;
         }
@@ -614,22 +626,25 @@ var _ = require('lodash');
     
     function merge (obj1, obj2) {for (var attrname in obj2) { obj1[attrname] = obj2[attrname]; };return obj1;};
 
-
     function removeNodesByIds(relational, Ids) {
-        _.forEach(Ids, function(id){
-            delete relational.Nodes[id];
-            _.remove(relational.Relations, function(v) {
-                return v.Child == id;
-            });
-        });
+        var newRelations = [];
+        var oldRels = relational.Relations;
+        for (var i = 0; i < oldRels.length; i++){
+            if (Ids.indexOf(oldRels[i].Child) === -1) newRelations.push(oldRels[i]);
+        }
+        for (var i = 0; i < Ids.length; i++){
+            delete relational.Nodes[Ids[i]];
+        }
+        relational.Relations = newRelations;
     }
 
     function removeRelationByIds(relational, Ids) {
-        _.forEach(Ids, function(id){
-            _.remove(relational.Relations, function(v) {
-                return v.Child == id;
-            });
-        });
+        var newRelations = [];
+        var oldRels = relational.Relations;
+        for (var i = 0; i < oldRels.length; i++){
+            if (Ids.indexOf(oldRels[i].Child) === -1) newRelations.push(oldRels[i]);
+        }
+        relational.Relations = newRelations;
     }
 
     function buildRecursive(currentNode, path, relational, parentToChild, renderNodeFunc, renderKindFunc) {
@@ -657,8 +672,6 @@ var _ = require('lodash');
     };
     function buildRecursiveFast(currentNode, path, relational, parentToChild) {
         if (! relational.Nodes[currentNode]) return undefined;
-
-        // var output = _.clone(relational.Nodes[currentNode]);
 
         var output = relational.Nodes[currentNode];
 
