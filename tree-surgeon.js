@@ -43,7 +43,8 @@ var _ = require('lodash');
             var id = pair[0], node = pair[1];
             nodes[id] = {};
 
-            var keys = (node == null || node == undefined || (type == 'object' && type == 'function')) ? [] : Object.keys(node);
+            var nodeType = typeof node;
+            var keys = (node == null || node == undefined || (nodeType !== 'object' && nodeType !== 'function')) ? [] : Object.keys(node);
             var kc = keys.length;
             for (var ki = 0; ki < kc; ki++){
                 var key = keys[ki];
