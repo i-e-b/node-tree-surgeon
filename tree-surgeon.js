@@ -37,12 +37,13 @@ var _ = require('lodash');
             return !!o && (type == 'object' || type == 'function');
         };
 
+        // This code has been unrolled and made ugly for speed. Be very careful working on it!
         while(nodesToDecompose.length > 0) {
             var pair = nodesToDecompose.shift();
             var id = pair[0], node = pair[1];
             nodes[id] = {};
 
-            var keys = (node == null || node == undefined) ? [] : Object.getOwnPropertyNames(node);
+            var keys = (node == null || node == undefined || (type == 'object' && type == 'function')) ? [] : Object.keys(node);
             var kc = keys.length;
             for (var ki = 0; ki < kc; ki++){
                 var key = keys[ki];
