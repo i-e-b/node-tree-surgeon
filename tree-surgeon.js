@@ -37,62 +37,60 @@ var _ = require('lodash');
             return !!o && (type == 'object' || type == 'function');
         };
 
-        var flatten = function(nodes, node, id, value, key){
-            var isArr      = Array.isArray(value);
-            var type       = typeof value;
-            var isObj      = !!value && (type == 'object' || type == 'function');
-            var isExcluded = exclude.indexOf(key) >= 0 || ((value instanceof Date));
-
-            if ((!isExcluded) && isArr && (useEmptyRelations || (value.length > 0 && value.every(isNonArrayObject)))) {
-                if (value.length === 0) {
-                    // an empty relation
-                    var childId = idx++;
-                    if (decorator) {
-                        relations.push(merge(decorator(null, key, undefined), {"Parent":id, "Child":childId, "Kind":key, "IsArray":true}));
-                    } else {
-                        relations.push({"Parent":id, "Child":childId, "Kind":key, "IsArray":true});
-                    }
-                    nodes[childId] = [];
-                } else {
-                    // is an array of objects, treat as multiple child nodes
-                    for (var i = 0; i < value.length; i++) {
-                        var childNode = value[i];
-                        var childId = idx++;
-                        if (decorator) {
-                            relations.push(merge(decorator(childNode, key, node), {"Parent":id, "Child":childId, "Kind":key, "IsArray":true}));
-                        } else {
-                            relations.push({"Parent":id, "Child":childId, "Kind":key, "IsArray":true});
-                        }
-
-                        if (childNode !== null) nodesToDecompose.push([childId, childNode]);
-                        else nodes[childId] = [];
-                    }
-                }
-            } else if ((!isExcluded) && isObj && (!isArr)) {
-                // new node to be decomposed. Add to queue, don't add to parent.
-                var childId = idx++;
-                if (decorator) {
-                    relations.push(merge(decorator(value, key, node), {"Parent":id, "Child":childId, "Kind":key, "IsArray":false}));
-                } else {
-                    relations.push({"Parent":id, "Child":childId, "Kind":key, "IsArray":false});
-                }
-
-                if (value !== null) nodesToDecompose.push([childId, value]);
-                else nodes[childId] = [];
-            } else {
-                // just some value. Add to general output
-                nodes[id][key] = value;
-            }
-        };
         while(nodesToDecompose.length > 0) {
             var pair = nodesToDecompose.shift();
             var id = pair[0], node = pair[1];
             nodes[id] = {};
-            var f = flatten.bind(this, nodes, node, id);
             var keys = Object.getOwnPropertyNames(node);
             var kc = keys.length;
             for (var ki = 0; ki < kc; ki++){
-                flatten(nodes, node, id, node[keys[ki]], keys[ki]);
+                var key = keys[ki];
+                var value = node[key];
+                var isArr      = Array.isArray(value);
+                var type       = typeof value;
+                var isObj      = !!value && (type == 'object' || type == 'function');
+                var isExcluded = exclude.indexOf(key) >= 0 || ((value instanceof Date));
+
+                if ((!isExcluded) && isArr && (useEmptyRelations || (value.length > 0 && value.every(isNonArrayObject)))) {
+                    if (value.length === 0) {
+                        // an empty relation
+                        var childId = idx++;
+                        if (decorator) {
+                            relations.push(merge(decorator(null, key, undefined), {"Parent":id, "Child":childId, "Kind":key, "IsArray":true}));
+                        } else {
+                            relations.push({"Parent":id, "Child":childId, "Kind":key, "IsArray":true});
+                        }
+                        nodes[childId] = [];
+                    } else {
+                        // is an array of objects, treat as multiple child nodes
+                        for (var i = 0; i < value.length; i++) {
+                            var childNode = value[i];
+                            var childId = idx++;
+                            if (decorator) {
+                                relations.push(merge(decorator(childNode, key, node), {"Parent":id, "Child":childId, "Kind":key, "IsArray":true}));
+                            } else {
+                                relations.push({"Parent":id, "Child":childId, "Kind":key, "IsArray":true});
+                            }
+
+                            if (childNode !== null) nodesToDecompose.push([childId, childNode]);
+                            else nodes[childId] = [];
+                        }
+                    }
+                } else if ((!isExcluded) && isObj && (!isArr)) {
+                    // new node to be decomposed. Add to queue, don't add to parent.
+                    var childId = idx++;
+                    if (decorator) {
+                        relations.push(merge(decorator(value, key, node), {"Parent":id, "Child":childId, "Kind":key, "IsArray":false}));
+                    } else {
+                        relations.push({"Parent":id, "Child":childId, "Kind":key, "IsArray":false});
+                    }
+
+                    if (value !== null) nodesToDecompose.push([childId, value]);
+                    else nodes[childId] = [];
+                } else {
+                    // just some value. Add to general output
+                    nodes[id][key] = value;
+                }
             }
         }
 
