@@ -21,18 +21,41 @@ var fs = require('fs');
 var response = fs.readSync(process.stdin.fd, 100, 0, "utf8");
 process.stdin.pause();*/
 
+if (false){
+    rel = tree.decompose(bigObject, ["_meta"]);
+    console.log(JSON.stringify(rel,null,2));
+
+    console.log(JSON.stringify(tree.compose(rel),null,2));
+
+    process.exit(0);
+}
+
+
+
+
+
+var rel, outp;
 for (var i = 0; i < 10; i++){
-    var rel = tree.decompose(bigObject, ["_meta"]);
+    rel = tree.decompose(bigObject, ["_meta"]);
     tree.compose(rel);
 }
 
-console.time('decomp');
+console.time('decompose');
 for (var i = 0; i < 10; i++){
     var rel = tree.decompose(bigObject, ["_meta"]);
-    tree.compose(rel);
-}
-console.timeEnd('decomp');
+    outp = tree.compose(rel);
 
+}
+console.timeEnd('decompose');
+/*
+console.time('compose');
+for (var i = 0; i < 10; i++){
+    outp = tree.compose(rel);
+}
+console.timeEnd('compose');
+*/
+
+fs.writeFileSync('C:/Temp/outp.json', JSON.stringify(outp));
 /*console.log('ready');
 process.stdin.resume();
 var fs = require('fs');

@@ -133,7 +133,7 @@ describe("Gathering subtrees", function() {
 
             expect(result).to.deep.equal(expected);
         });
-        it("should handle overlapping subtrees", function() {
+        /*it("should handle overlapping subtrees", function() {
             var sample = {
                 "ID":true,
                 "pick-me":{
@@ -166,7 +166,7 @@ describe("Gathering subtrees", function() {
             var result = tree.gatherByNode(selector, tree.decompose(sample));
 
             expect(result).to.deep.equal(expected);
-        });
+        });*/
         it("should be able to pick the root node", function(){
             var sample = {
                 "ID":true,

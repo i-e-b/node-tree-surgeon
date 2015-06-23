@@ -25,8 +25,7 @@ var _ = require('lodash');
         var relations = [];
         var exclude = excludedKinds || [];
         var decorator = relationDecorator;
-        var merge = function(obj1, obj2) {for (var attrname in obj2) { obj1[attrname] = obj2[attrname]; };return obj1;};
-
+        
         var rootId = idx++;
         var isRootArray = Array.isArray(obj);
         if (obj !== null && obj !== undefined) nodesToDecompose.push([rootId, obj]);
@@ -612,6 +611,9 @@ var _ = require('lodash');
             return additional;
         }
     }
+    
+    function merge (obj1, obj2) {for (var attrname in obj2) { obj1[attrname] = obj2[attrname]; };return obj1;};
+
 
     function removeNodesByIds(relational, Ids) {
         _.forEach(Ids, function(id){
@@ -633,7 +635,11 @@ var _ = require('lodash');
     function buildRecursive(currentNode, path, relational, parentToChild, renderNodeFunc, renderKindFunc) {
         if (! relational.Nodes[currentNode]) return undefined;
 
-        var output = renderNodeFunc(_.clone(relational.Nodes[currentNode]), path, currentNode);
+        var src = relational.Nodes[currentNode];
+        var output = {};
+        for (var k in src) output[k] = src[k];
+        var output = renderNodeFunc(relational.Nodes[currentNode], path, currentNode);
+
         var childNodes = parentToChild[currentNode];
         if (output && childNodes) {
             for (var i = 0; i < childNodes.length; i++) {
@@ -652,7 +658,10 @@ var _ = require('lodash');
     function buildRecursiveFast(currentNode, path, relational, parentToChild) {
         if (! relational.Nodes[currentNode]) return undefined;
 
-        var output = _.clone(relational.Nodes[currentNode]);
+        // var output = _.clone(relational.Nodes[currentNode]);
+
+        var output = relational.Nodes[currentNode];
+
         var childNodes = parentToChild[currentNode];
         if (output && childNodes) {
             for (var i = 0; i < childNodes.length; i++) {
@@ -662,7 +671,7 @@ var _ = require('lodash');
 
                 var subtree = join(output[renderedKind],
                     (renderedKind) ? buildRecursiveFast(childNode.Child, subpath, relational, parentToChild) : undefined); // if the kind is removed by renderer, don't build the subtree
-
+                if (!Array.isArray(relational.Nodes[currentNode]))
                 if (subtree) output[renderedKind] = (childNode.IsArray) ? asArray(subtree) : subtree;
             }
         }

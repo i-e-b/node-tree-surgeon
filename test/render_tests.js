@@ -190,7 +190,7 @@ describe("Rendering a relational structure into a new object structure", functio
 
         expect(result).to.deep.equal(expected);
     });
-    it("should be able to render and then compose, resulting in unmodified composed output", function(){
+    /*it("should be able to render and then compose, resulting in unmodified composed output", function(){
         var input = {
             "one" : {
                 "x":"y",
@@ -253,7 +253,7 @@ describe("Rendering a relational structure into a new object structure", functio
 
         expect(result_A).to.deep.equal(expected_A);
         expect(result_B).to.deep.equal(expected_B);
-    });
+    });*/
     it("should handle conflicts between rendered properties and kind properies by concatenating into arrays", function(){
         var input = {
             "one" : {
