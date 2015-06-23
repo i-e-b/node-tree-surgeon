@@ -21,6 +21,11 @@ var fs = require('fs');
 var response = fs.readSync(process.stdin.fd, 100, 0, "utf8");
 process.stdin.pause();*/
 
+for (var i = 0; i < 10; i++){
+    var rel = tree.decompose(bigObject, ["_meta"]);
+    tree.compose(rel);
+}
+
 console.time('decomp');
 for (var i = 0; i < 10; i++){
     var rel = tree.decompose(bigObject, ["_meta"]);
