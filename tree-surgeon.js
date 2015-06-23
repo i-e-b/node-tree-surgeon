@@ -29,7 +29,7 @@ var _ = require('lodash');
 
         var rootId = idx++;
         var isRootArray = Array.isArray(obj);
-        nodesToDecompose.push([rootId, obj]);
+        if (obj !== null && obj !== undefined) nodesToDecompose.push([rootId, obj]);
 
         var isNonArrayObject = function(o){
             if (Array.isArray(o)) return false;
@@ -41,7 +41,8 @@ var _ = require('lodash');
             var pair = nodesToDecompose.shift();
             var id = pair[0], node = pair[1];
             nodes[id] = {};
-            var keys = Object.getOwnPropertyNames(node);
+
+            var keys = (node == null || node == undefined) ? [] : Object.getOwnPropertyNames(node);
             var kc = keys.length;
             for (var ki = 0; ki < kc; ki++){
                 var key = keys[ki];
