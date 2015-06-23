@@ -85,7 +85,7 @@ describe("Harvesting subtrees", function() {
             };
 
             var expected = {
-                "id_1" : {
+                "1" : {
                     "root":"selector"
                 }
             };

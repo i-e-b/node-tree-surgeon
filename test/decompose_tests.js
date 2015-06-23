@@ -41,26 +41,26 @@ describe("Tree decomposition", function() {
             };
 
             var expected = {
-                "Nodes":{
-                    "id_0":{
+                "Nodes":[
+                    {
                         "ID":"1", "simple":"value"
                     },
-                    "id_1":{
+                    {
                         "ID":"2", "node":"2"
                     },
-                    "id_2":{ // note: breadth first search
+                    { // note: breadth first search
                         "ID":"4", "what":"child of the root"
                     },
-                    "id_3":{
+                    {
                         "ID":"3", "value":"hi there"
                     }
-                },
-                "Relations":[
-                    {"Parent":"id_0", "Child":"id_1", "Kind":"subtree", "IsArray": false},
-                    {"Parent":"id_0", "Child":"id_2", "Kind":"another", "IsArray": false},
-                    {"Parent":"id_1", "Child":"id_3", "Kind":"subsub", "IsArray": false}
                 ],
-                "Root":"id_0",
+                "Relations":[
+                    {"Parent":0, "Child":1, "Kind":"subtree", "IsArray": false},
+                    {"Parent":0, "Child":2, "Kind":"another", "IsArray": false},
+                    {"Parent":1, "Child":3, "Kind":"subsub", "IsArray": false}
+                ],
+                "Root":0,
                 "RootArray":false
             };
 
@@ -81,24 +81,24 @@ describe("Tree decomposition", function() {
             };
 
             var expected = {
-                "Nodes":{
-                    "id_0":{ // non-object array still on parent
+                "Nodes":[
+                    { // non-object array still on parent
                         "ID":"1", "ArrayOfValues" : [ "one", "two", "three" ]
                     },
-                    "id_1":{
+                    {
                         "v":"one",
                         "ID":"x"
                     },
-                    "id_2":{
+                    {
                         "v":"two",
                         "ID":"y"
                     }
-                },
-                "Relations":[
-                    {"Parent":"id_0", "Child":"id_1", "Kind":"ArrayOfObjects", "IsArray": true},
-                    {"Parent":"id_0", "Child":"id_2", "Kind":"ArrayOfObjects", "IsArray": true},
                 ],
-                "Root":"id_0",
+                "Relations":[
+                    {"Parent":0, "Child":1, "Kind":"ArrayOfObjects", "IsArray": true},
+                    {"Parent":0, "Child":2, "Kind":"ArrayOfObjects", "IsArray": true},
+                ],
+                "Root":0,
                 "RootArray":false
             };
 
@@ -113,14 +113,14 @@ describe("Tree decomposition", function() {
                 "EmptyArray":[]
             };
             var expected = {
-                "Nodes":{
-                    "id_0":{
+                "Nodes":[
+                    {
                         "ID":"1",
                         "EmptyArray":[]
                     }
-                },
+                ],
                 "Relations":[],
-                "Root":"id_0",
+                "Root":0,
                 "RootArray":false
             };
             var result = tree.decompose(sample);
@@ -133,14 +133,14 @@ describe("Tree decomposition", function() {
                 "ActivationDate":new Date(12345678)
             };
             var expected = {
-                "Nodes":{
-                    "id_0":{
+                "Nodes":[
+                    {
                         "ID":"1",
                         "ActivationDate":new Date(12345678)
                     }
-                },
+                ],
                 "Relations":[],
-                "Root":"id_0",
+                "Root":0,
                 "RootArray":false
             };
             var result = tree.decompose(sample);
@@ -152,14 +152,14 @@ describe("Tree decomposition", function() {
                 "Empty":[]
             };
             var expected = {
-                "Nodes":{
-                    "id_0":{},
-                    "id_1":[]
-                },
-                "Relations":[
-                    {"Parent":"id_0", "Child":"id_1", "Kind":"Empty", "IsArray": true}
+                "Nodes":[
+                    {},
+                    []
                 ],
-                "Root":"id_0",
+                "Relations":[
+                    {"Parent":0, "Child":1, "Kind":"Empty", "IsArray": true}
+                ],
+                "Root":0,
                 "RootArray":false
             };
             var result = tree.decompose(input, [], null, true);
@@ -178,18 +178,18 @@ describe("Tree decomposition", function() {
                 }
             };
             var expected = {
-                "Nodes":{
-                    "id_0":{},
-                    "id_1":{},
-                    "id_2":{
+                "Nodes":[
+                    {},
+                    {},
+                    {
                         "key":"value"
                     }
-                },
-                "Relations":[
-                    {"Parent":"id_0", "Child":"id_1", "Kind":"child", "IsArray": false},
-                    {"Parent":"id_1", "Child":"id_2", "Kind":"child", "IsArray": false},
                 ],
-                "Root":"id_0",
+                "Relations":[
+                    {"Parent":0, "Child":1, "Kind":"child", "IsArray": false},
+                    {"Parent":1, "Child":2, "Kind":"child", "IsArray": false},
+                ],
+                "Root":0,
                 "RootArray":false
             };
             var result = tree.decompose(sample);
@@ -220,11 +220,11 @@ describe("Tree decomposition", function() {
         it("should decompose empty object with no errors", function() {
             var sample = {};
             var expected = {
-                "Nodes":{
-                    "id_0":{}
-                },
+                "Nodes":[
+                    {}
+                ],
                 "Relations":[],
-                "Root":"id_0",
+                "Root":0,
                 "RootArray":false
             };
             var result = tree.decompose(sample);
@@ -234,99 +234,17 @@ describe("Tree decomposition", function() {
         it("should decompose flat object with no errors", function() {
             var sample = {"key":"value"};
             var expected = {
-                "Nodes":{
-                    "id_0":{
+                "Nodes":[
+                    {
                         "key":"value"
                     }
-                },
+                ],
                 "Relations":[],
-                "Root":"id_0",
+                "Root":0,
                 "RootArray":false
             };
             var result = tree.decompose(sample);
             expect(result).to.deep.equal(expected);
-        });
-    });
-
-    describe("Decomposing with supplied IDs", function(){
-        it("should decompose an object tree into nodes and relations with selected IDs", function() {
-            var sample = {
-                "ID":"1",
-                "simple":"value",       // not changed
-                "subtree" : {           // becomes a relation of "Kind":"subtree"
-                    "ID":"2",
-                    "node":"2",         // not changed, but a different node from "simple":"value"
-                    "subsub" : {
-                        "ID":"3",
-                        "value":"hi there"
-                    }
-                },
-                "another" : {
-                    "ID":"4",
-                    "what":"child of the root"
-                }
-            };
-
-            var expected = {
-                "Nodes":{
-                    "1":{
-                        "ID":"1", "simple":"value"
-                    },
-                    "2":{
-                        "ID":"2", "node":"2"
-                    },
-                    "4":{ // note: breadth first search
-                        "ID":"4", "what":"child of the root"
-                    },
-                    "3":{
-                        "ID":"3", "value":"hi there"
-                    }
-                },
-                "Relations":[
-                    {"Parent":"1", "Child":"2", "Kind":"subtree", "IsArray": false},
-                    {"Parent":"1", "Child":"4", "Kind":"another", "IsArray": false},
-                    {"Parent":"2", "Child":"3", "Kind":"subsub", "IsArray": false}
-                ],
-                "Root":"1",
-                "RootArray":false
-            };
-
-            var idSelector = function(n){return n.ID;};
-
-            var result = tree.decomposeWithIds(sample, idSelector);
-
-            expect(result).to.deep.equal(expected);
-        });
-
-        it("should recompose the object as it was originally input", function() {
-            var input = {
-                "ID":"1",
-                "simple":"value",       // not changed
-                "subtree" : {           // becomes a relation of "Kind":"subtree"
-                    "ID":"2",
-                    "node":"2",         // not changed, but a different node from "simple":"value"
-                    "subsub" : {
-                        "ID":"3",
-                        "value":"hi there"
-                    }
-                },
-                "another" : {
-                    "ID":"4",
-                    "what":"child of the root"
-                },
-                "ArrayOfObjects":[
-                    {v:"one", "ID":"x"}, {v:"two", "ID":"y"}
-                ],
-                "ArrayOfValues" : [
-                    "one", "two", "three"
-                ]
-            };
-
-            var idSelector = function(n){return n.ID;};
-
-            var result = tree.compose(tree.decomposeWithIds(input, idSelector));
-
-            expect(result).to.deep.equal(input);
         });
     });
 
@@ -347,27 +265,27 @@ describe("Tree decomposition", function() {
             };
 
             var expected = {
-                "Nodes":{
-                    "id_0":{
+                "Nodes":[
+                    {
                         "simple":"value",
                         "excluded":{"complex":"value"}, // complex value left in place
                     },
-                    "id_1":{
+                    {
                         "node":"2"
                     },
-                    "id_2":{ // note: breadth first search
+                    { // note: breadth first search
                         "what":"child of the root"
                     },
-                    "id_3":{
+                    {
                         "value":"hi there"
                     }
-                },
-                "Relations":[
-                    {"Parent":"id_0", "Child":"id_1", "Kind":"subtree", "IsArray": false},
-                    {"Parent":"id_0", "Child":"id_2", "Kind":"another", "IsArray": false},
-                    {"Parent":"id_1", "Child":"id_3", "Kind":"subsub", "IsArray": false}
                 ],
-                "Root":"id_0",
+                "Relations":[
+                    {"Parent":0, "Child":1, "Kind":"subtree", "IsArray": false},
+                    {"Parent":0, "Child":2, "Kind":"another", "IsArray": false},
+                    {"Parent":1, "Child":3, "Kind":"subsub", "IsArray": false}
+                ],
+                "Root":0,
                 "RootArray":false
             };
 
@@ -389,20 +307,20 @@ describe("Tree decomposition", function() {
             };
             var relationDecorator = function(node){return {decV:(node.meta + 3)};};
             var expected = {
-                    "Nodes":{
-                        "id_0":{},
-                        "id_1":{
+                    "Nodes":[
+                        {},
+                        {
                             "meta":1
                         },
-                        "id_2":{
+                        {
                             "meta":2
                         }
-                    },
-                    "Relations":[
-                        {"Parent":"id_0", "Child":"id_1", "Kind":"link", "IsArray": false, "decV":4},
-                        {"Parent":"id_1", "Child":"id_2", "Kind":"link", "IsArray": false, "decV":5},
                     ],
-                    "Root":"id_0",
+                    "Relations":[
+                        {"Parent":0, "Child":1, "Kind":"link", "IsArray": false, "decV":4},
+                        {"Parent":1, "Child":2, "Kind":"link", "IsArray": false, "decV":5},
+                    ],
+                    "Root":0,
                     "RootArray":false
             };
 
@@ -419,17 +337,17 @@ describe("Tree decomposition", function() {
                 }
             };
             var expected = {
-                    "Nodes":{
-                        "id_0":{},
-                        "id_1":{
+                    "Nodes":[
+                        {},
+                        {
                             "meta":1,
                             "data":[[1,2,3]]
                         }
-                    },
-                    "Relations":[
-                        {"Parent":"id_0", "Child":"id_1", "Kind":"link", "IsArray": false},
                     ],
-                    "Root":"id_0",
+                    "Relations":[
+                        {"Parent":0, "Child":1, "Kind":"link", "IsArray": false},
+                    ],
+                    "Root":0,
                     "RootArray":false
             };
 

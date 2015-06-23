@@ -39,7 +39,7 @@ describe("Chopping data out of a tree", function() {
                 }
             };
 
-            var relational = tree.chopNodesByIds(['going','gone'], tree.decomposeWithIds(input, function(n){return n.id;}));
+            var relational = tree.chopNodesByIds([1,7], tree.decompose(input));
 
             var actual = tree.compose(relational);
             expect(actual).to.deep.equal(expected);
@@ -50,37 +50,37 @@ describe("Chopping data out of a tree", function() {
     describe("When chopping matching data out of a tree", function() {
         it("should remove all relationships where a matching node is a child", function(){
             var input = {
-                "Root": "id_0",
-                "Nodes": {
-                        "id_0": {},
-                    "id_1": {
+                "Root": 0,
+                "Nodes": [
+                    {},
+                    {
                         "match": "no"
                     },
-                    "id_2": {
+                    {
                         "match": "yes"
                     },
-                    "id_3": {
+                    {
                         "match": "yes"
                     }
-                },
+                ],
                 "Relations": [
-                    { "Parent": "id_0", "Child": "id_1", "Kind": "keep" },
-                    { "Parent": "id_0", "Child": "id_2", "Kind": "gone" },
-                    { "Parent": "id_1", "Child": "id_3", "Kind": "goneChild" }
+                    { "Parent": 0, "Child": 1, "Kind": "keep" },
+                    { "Parent": 0, "Child": 2, "Kind": "gone" },
+                    { "Parent": 1, "Child": 3, "Kind": "goneChild" }
                 ]
             };
 
 
             var expected = {
-                "Root": "id_0",
-                "Nodes": {
-                    "id_0": {},
-                    "id_1": {
+                "Root": 0,
+                "Nodes": [
+                    {},
+                    {
                         "match": "no"
                     }
-                },
+                ],
                 "Relations": [
-                    { "Parent": "id_0", "Child": "id_1", "Kind": "keep" }
+                    { "Parent": 0, "Child": 1, "Kind": "keep" }
                 ]
             }
             var filter = function(n) { return n.match == "yes"; }
@@ -186,41 +186,41 @@ describe("Chopping data out of a tree", function() {
     describe("When chopping after matching data in a tree", function(){
         it("should remove all relationships where a matching node is a parent", function(){
             var input = {
-                "Root": "id_0",
-                "Nodes": {
-                    "id_0": {},
-                    "id_1": {
+                "Root": 0,
+                "Nodes": [
+                    {},
+                    {
                         "match": "yes"
                     },
-                    "id_2": {
+                    {
                         "match": "yes"
                     },
-                    "id_3": {
+                    {
                         "match": "no"
                     }
-                },
+                ],
                 "Relations": [
-                    { "Parent": "id_0", "Child": "id_1", "Kind": "matched_keep" },
-                    { "Parent": "id_0", "Child": "id_2", "Kind": "matched_keep" },
-                    { "Parent": "id_1", "Child": "id_3", "Kind": "no_matched_gone" }
+                    { "Parent": 0, "Child": 1, "Kind": "matched_keep" },
+                    { "Parent": 0, "Child": 2, "Kind": "matched_keep" },
+                    { "Parent": 1, "Child": 3, "Kind": "no_matched_gone" }
                 ]
             };
 
 
             var expected = {
-                "Root": "id_0",
-                "Nodes": {
-                    "id_0": {},
-                    "id_1": {
+                "Root": 0,
+                "Nodes": [
+                    {},
+                    {
                         "match": "yes"
                     },
-                    "id_2": {
+                    {
                         "match": "yes"
                     }
-                },
+                ],
                 "Relations": [
-                    { "Parent": "id_0", "Child": "id_1", "Kind": "matched_keep" },
-                    { "Parent": "id_0", "Child": "id_2", "Kind": "matched_keep" }
+                    { "Parent": 0, "Child": 1, "Kind": "matched_keep" },
+                    { "Parent": 0, "Child": 2, "Kind": "matched_keep" }
                 ]
             };
             

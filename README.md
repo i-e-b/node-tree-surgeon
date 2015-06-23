@@ -10,9 +10,7 @@ Not yet complete, but usable
 Trees are represented internally with two sets: (relational structure)
 
 * Relations: `[{"Parent":id, "Child":id, "Kind":any, ...}, ...]`
-* Nodes: `{"id":{... your data ... }, ...]`
-
-The `id` values are assigned internally and don't conflict with or get written to your objects.
+* Nodes: `[{... your data ... }, ...]`
 
 Functions given to split a POJO into this structure, and merge the structure into a POJO.
 
@@ -52,7 +50,6 @@ Properties with array values are treated one of two ways:
 #### Input
 
 - [x] decompose -- turn a normal js object tree into the relational structure
-- [x] decomposeWithIds -- same as `decompose` but use a function to pick ids. In case you want to use the relational model externally. It's up to you to ensure the ids are unique
 
 ### Operations on the relational structure:
 

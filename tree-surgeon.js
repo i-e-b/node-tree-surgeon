@@ -14,30 +14,20 @@ var _ = require('lodash');
      * */
     provides.decompose = function(obj, excludedKinds, relationDecorator, useEmptyRelations) {
         var idx = 0; // used to make unique IDs
-        var newId = function(){return "id_" + (idx++);};
 
         if (typeof excludedKinds === 'function') {
             relationDecorator = excludedKinds;
             excludedKinds = []
         }
-
-        return provides.decomposeWithIds(obj, newId, excludedKinds, relationDecorator, useEmptyRelations);
-    };
-
-    /** decompose using a selector for ids.
-     * @param idSelector -- function(node){return id;}
-     * @param excludedKinds -- array of 'kind' names that should *NOT* be decomposed
-     * @param relationDecorate -- function(childNode, childKind, parentNode){return {key:value};} adds data to relations which can be used for predicates
-     */
-    provides.decomposeWithIds = function(obj, idSelector, excludedKinds, relationDecorator, useEmptyRelations) {
+        
         var nodesToDecompose = [];
-        var nodes = {};
+        var nodes = [];
         var relations = [];
         var exclude = excludedKinds || [];
         var decorator = relationDecorator;
         var merge = function(obj1, obj2) {for (var attrname in obj2) { obj1[attrname] = obj2[attrname]; };return obj1;};
 
-        var rootId = idSelector(obj);
+        var rootId = idx++;
         var isRootArray = Array.isArray(obj);
         nodesToDecompose.push([rootId, obj]);
 
@@ -56,7 +46,7 @@ var _ = require('lodash');
             if ((!isExcluded) && isArr && (useEmptyRelations || (value.length > 0 && value.every(isNonArrayObject)))) {
                 if (value.length === 0) {
                     // an empty relation
-                    var childId = idSelector(null);
+                    var childId = idx++;
                     if (decorator) {
                         relations.push(merge(decorator(null, key, undefined), {"Parent":id, "Child":childId, "Kind":key, "IsArray":true}));
                     } else {
@@ -67,7 +57,7 @@ var _ = require('lodash');
                     // is an array of objects, treat as multiple child nodes
                     for (var i = 0; i < value.length; i++) {
                         var childNode = value[i];
-                        var childId = idSelector(childNode);
+                        var childId = idx++;
                         if (decorator) {
                             relations.push(merge(decorator(childNode, key, node), {"Parent":id, "Child":childId, "Kind":key, "IsArray":true}));
                         } else {
@@ -80,7 +70,7 @@ var _ = require('lodash');
                 }
             } else if ((!isExcluded) && isObj && (!isArr)) {
                 // new node to be decomposed. Add to queue, don't add to parent.
-                var childId = idSelector(value);
+                var childId = idx++;
                 if (decorator) {
                     relations.push(merge(decorator(value, key, node), {"Parent":id, "Child":childId, "Kind":key, "IsArray":false}));
                 } else {
@@ -281,11 +271,9 @@ var _ = require('lodash');
         while (cycleAgain) {
             cycleAgain = false;
 
-            var allNodeKeys  = Object.keys(relational.Nodes);
             var emptyNodes = [];
-            for (var i=0; i < allNodeKeys.length; i++) {
-                var key = allNodeKeys[i];
-                if (isEmpty(relational.Nodes[key]) && noChildren(key, relational)) { emptyNodes.push(key); }
+            for (var i=0; i < relational.Nodes.length; i++) {
+                if (isEmpty(relational.Nodes[i]) && noChildren(i, relational)) { emptyNodes.push(i); }
             }
 
             _.remove(relational.Relations, function(rel) {

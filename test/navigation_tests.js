@@ -18,9 +18,9 @@ describe("Navigating relational structure", function(){
                     ]
                 }
             };
-            var relational = tree.decomposeWithIds(input, function(n){return n.id;});
+            var relational = tree.decompose(input);
 
-            var actual = tree.getPathOf('F', relational);
+            var actual = tree.getPathOf(5, relational);
             expect(actual).to.deep.equal(['child','grandchild','final']);
         });
         it("should give an empty array if node is not present", function(){
@@ -37,9 +37,9 @@ describe("Navigating relational structure", function(){
                     id:'c'
                 }
             };
-            var relational = tree.decomposeWithIds(input, function(n){return n.id;});
+            var relational = tree.decompose(input);
 
-            var actual = tree.getPathOf('r', relational);
+            var actual = tree.getPathOf(0, relational);
             expect(actual).to.deep.equal([]);
         });
     });
@@ -55,9 +55,9 @@ describe("Navigating relational structure", function(){
                     }
                 }
             };
-            var relational = tree.decomposeWithIds(input, function(n){return n.id;});
+            var relational = tree.decompose(input);
 
-            var actual = tree.getNode('c', relational);
+            var actual = tree.getNode(1, relational);
             expect(actual.right).to.equal('yes');
         });
         it("should give undefined for bad data", function(){
@@ -76,7 +76,7 @@ describe("Navigating relational structure", function(){
             var actual = tree.getChildrenOf(relational.Root, relational);
 
             expect(actual.length).to.equal(4);
-            expect(actual).to.deep.equal(["id_1","id_2","id_3","id_4"]);
+            expect(actual).to.deep.equal([1,2,3,4]);
         });
         it("should give an array with a single item when only one child", function(){
             var input = {
@@ -87,7 +87,7 @@ describe("Navigating relational structure", function(){
             var actual = tree.getChildrenOf(relational.Root, relational);
 
             expect(actual.length).to.equal(1);
-            expect(actual).to.deep.equal(["id_1"]);
+            expect(actual).to.deep.equal([1]);
         });
         it("should give an empty array when passed a leaf node ID", function(){
             var input = {
@@ -210,9 +210,7 @@ describe("Navigating relational structure", function(){
                 }
             };
             var relational = tree.decompose(input);
-            var childId = Object.keys(relational.Nodes).filter(function(k){return k !== relational.Root;})[0];
-
-            var actual = tree.parentIdOf(childId, relational);
+            var actual = tree.parentIdOf(1, relational);
 
             expect(actual).to.equal(relational.Root);
         });
