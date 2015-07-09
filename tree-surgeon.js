@@ -627,15 +627,10 @@ var _ = require('lodash');
     function merge (obj1, obj2) {for (var attrname in obj2) { obj1[attrname] = obj2[attrname]; };return obj1;};
 
     function removeNodesByIds(relational, Ids) {
-        var newRelations = [];
-        var oldRels = relational.Relations;
-        for (var i = 0; i < oldRels.length; i++){
-            if (Ids.indexOf(oldRels[i].Child) === -1) newRelations.push(oldRels[i]);
-        }
+        relational.Relations = relational.Relations.filter(function(rel){return (Ids.indexOf(rel.Child) === -1);});
         for (var i = 0; i < Ids.length; i++){
             delete relational.Nodes[Ids[i]];
         }
-        relational.Relations = newRelations;
     }
 
     function removeRelationByIds(relational, Ids) {
