@@ -73,6 +73,7 @@ Properties with array values are treated one of two ways:
 
 #### Manipulation
 
+- [ ] Normalise -- removes any relationships or nodes that are not reachable from the root, but keeps node and relation indexes consistent.
 - [x] Prune -- remove subtrees by relationship kind. Kind can be a string, or a `where` predicate on the relationship (an object with exact value matches)
     - [x] pruneAfter -- remove subtrees by relationship kind, but keep the immediate children. Kind can be a string, or a `where` predicate
     - [x] pruneAllBut -- remove subtrees that **don't** match a set of kinds. Supports only array of string kinds.

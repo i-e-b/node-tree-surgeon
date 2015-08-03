@@ -554,6 +554,39 @@ var _ = require('lodash');
     /** get node data by id */
     provides.getNode = function(id, relational) {if (!relational) return undefined; else return relational.Nodes[id];};
 
+    provides.normalise = function(relational) {
+        // reachable array, walk tree then cleanup.
+        var reachable = new Array(relational.Nodes.length);
+        var edge = [relational.Root];
+
+        reachable[relational.Root] = true;
+        var parentToChild = _.groupBy(relational.Relations, "Parent");
+
+        // walk the tree copying reachability down
+        while (edge.length > 0) {
+            var parent = edge.pop();
+            var rels = parentToChild[parent];
+            if (rels) for (var i = 0; i < rels.length; i++) {
+                reachable[rels[i].Child] = reachable[parent];
+                edge.unshift(rels[i].Child);
+            }
+        }
+
+        // remove unreachable nodes
+        for (var i = 0; i < reachable.length; i++) {
+            if (reachable[i]) continue;
+            delete relational.Nodes[i];
+        }
+
+        // remove unreachable relations
+        for (var i = 0; i < relational.Relations.length; i++) {
+            if (reachable[relational.Relations[i].Parent]) continue;
+            delete relational.Relations[i];
+        }
+
+        return relational;
+    };
+
     // Return Child ids for a relation kind, or kind-spec
     function pickIdsByKind(kind, relational) {
         var spec = (typeof kind === "string") ? {Kind:kind} : kind;
