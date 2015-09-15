@@ -88,7 +88,7 @@ describe("Chaining of calls", function() {
         expect(result).to.deep.equal(expected);
 
     });
-it("should be able to call remove-empty-nodes from decomposed object", function(){
+    it("should be able to call remove-empty-nodes from decomposed object", function(){
         var input = {
             "empty":{
                 "value":null,
@@ -108,6 +108,42 @@ it("should be able to call remove-empty-nodes from decomposed object", function(
         };
 
         var result = tree.decompose(input).removeEmptyNodes().compose();
+
+        expect(result).to.deep.equal(expected);
+    });
+    it("should be able to call prune with decorators from decomposed object", function(){
+        var input = {
+            "X": {
+                "B":{
+                    "C":{
+                        "hello":"world"
+                    }
+                }
+            },
+            "Y": {
+                "B":{
+                    "Skip":true,
+                    "C":{
+                        "hello":"world"
+                    }
+                }
+            }               
+        };
+        var expected = {
+            "X": {},
+            "Y": {
+                "B":{
+                    "Skip":true,
+                    "C":{
+                        "hello":"world"
+                    }
+                }
+            }               
+        };
+
+        var dec = function(n){return {"Skip": (n.Skip === true)};};
+
+        var result = tree.decompose(input,dec).prune({Kind:"B", Skip:false}).compose();
 
         expect(result).to.deep.equal(expected);
     });

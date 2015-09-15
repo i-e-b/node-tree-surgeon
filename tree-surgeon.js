@@ -3,7 +3,8 @@ var global, exports;
 var _ = require('lodash');
 
 // Some helpers for chained API.
-function rebind2(f,end){return (function(a1, a2){return f(a1, a2, this);}).bind(end);}
+function rebind1(f,end){return (function(a1)        {return f(a1, this);        }).bind(end);}
+function rebind2(f,end){return (function(a1, a2)    {return f(a1, a2, this);    }).bind(end);}
 function rebind3(f,end){return (function(a1, a2, a3){return f(a1, a2, a3, this);}).bind(end);}
 
 
@@ -16,6 +17,9 @@ function rebind3(f,end){return (function(a1, a2, a3){return f(a1, a2, a3, this);
         this.flipRelationship = rebind3(provides.flipRelationship, this);
         this.reverseByRelation = rebind2(provides.reverseByRelation, this);
         this.removeEmptyNodes = provides.removeEmptyNodes.bind(this, this);
+        this.prune = rebind1(provides.prune, this);
+        this.pruneAfter = rebind1(provides.pruneAfter, this);
+        this.pruneAllBut = rebind1(provides.pruneAllBut, this);
     };
 
     /** decompose -- Takes a plain object and decomposed sub-objects into separate nodes
