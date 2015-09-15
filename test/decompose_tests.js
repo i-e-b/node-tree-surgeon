@@ -3,6 +3,12 @@ var _ = require('lodash');
 
 var tree = require("../tree-surgeon.js");
 
+// clean up objects to make testing easier
+function noFunctions(obj){
+    for (var m in obj) if (typeof obj[m] == "function") { delete obj[m]; }
+    return obj;
+}
+
 describe("Tree decomposition", function() {
     describe("Decomposing with automatic IDs", function(){
         it("should handle objects which have repeated IDs", function(){
@@ -66,7 +72,7 @@ describe("Tree decomposition", function() {
 
             var result = tree.decompose(sample);
 
-            expect(result).to.deep.equal(expected);
+            expect(noFunctions(result)).to.deep.equal(expected);
         });
 
         it("should decompose arrays of objects as multiple child nodes, while leaving arrays of other values in parent node", function() {
@@ -104,7 +110,7 @@ describe("Tree decomposition", function() {
 
             var result = tree.decompose(sample);
 
-            expect(result).to.deep.equal(expected);
+            expect(noFunctions(result)).to.deep.equal(expected);
         });
 
         it("should treat empty array as plain values", function() {
@@ -124,7 +130,7 @@ describe("Tree decomposition", function() {
                 "RootArray":false
             };
             var result = tree.decompose(sample);
-            expect(result).to.deep.equal(expected);
+            expect(noFunctions(result)).to.deep.equal(expected);
         });
 
         it("should treat dates as simple values", function() {
@@ -144,7 +150,7 @@ describe("Tree decomposition", function() {
                 "RootArray":false
             };
             var result = tree.decompose(sample);
-            expect(result).to.deep.equal(expected);
+            expect(noFunctions(result)).to.deep.equal(expected);
         });
 
         it("should be able to use empty arrays as relations with no children", function(){
@@ -166,7 +172,7 @@ describe("Tree decomposition", function() {
             var recomposed = tree.compose(result);
 
             //expect(result).to.deep.equal(expected);
-            expect(recomposed).to.deep.equal(input);
+            expect(noFunctions(recomposed)).to.deep.equal(input);
         });
 
         it("should add ID fields if none are given", function() {
@@ -193,7 +199,7 @@ describe("Tree decomposition", function() {
                 "RootArray":false
             };
             var result = tree.decompose(sample);
-            expect(result).to.deep.equal(expected);
+            expect(noFunctions(result)).to.deep.equal(expected);
 
         });
 
@@ -228,7 +234,7 @@ describe("Tree decomposition", function() {
                 "RootArray":false
             };
             var result = tree.decompose(sample);
-            expect(result).to.deep.equal(expected);
+            expect(noFunctions(result)).to.deep.equal(expected);
         });
 
         it("should decompose flat object with no errors", function() {
@@ -244,7 +250,7 @@ describe("Tree decomposition", function() {
                 "RootArray":false
             };
             var result = tree.decompose(sample);
-            expect(result).to.deep.equal(expected);
+            expect(noFunctions(result)).to.deep.equal(expected);
         });
     });
 
@@ -291,7 +297,7 @@ describe("Tree decomposition", function() {
 
             var result = tree.decompose(sample, ["excluded"]);
 
-            expect(result).to.deep.equal(expected);
+            expect(noFunctions(result)).to.deep.equal(expected);
         });
     });
 
@@ -325,7 +331,7 @@ describe("Tree decomposition", function() {
             };
 
             var result = tree.decompose(input, relationDecorator);
-            expect(result).to.deep.equal(expected);
+            expect(noFunctions(result)).to.deep.equal(expected);
         });
     });
     describe("Decomposing complex structures", function(){
@@ -352,7 +358,7 @@ describe("Tree decomposition", function() {
             };
 
             var result = tree.decompose(input);
-            expect(result).to.deep.equal(expected);
+            expect(noFunctions(result)).to.deep.equal(expected);
         });
         it("should correctly round-trip bare nested arrays", function(){
             var input = {
@@ -362,7 +368,7 @@ describe("Tree decomposition", function() {
                 }
             };
             var result = tree.compose(tree.decompose(input));
-            expect(result).to.deep.equal(input);
+            expect(noFunctions(result)).to.deep.equal(input);
         });
 
     });

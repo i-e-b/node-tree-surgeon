@@ -3,7 +3,11 @@ var global, exports;
 var _ = require('lodash');
 
 (function (provides) {
-    
+    var CallBoundObject = function CallBoundObject(){
+        // this might be worth measuring for speed?
+        this.compose = provides.compose.bind(this, this);
+    };
+
     /** decompose -- Takes a plain object and decomposed sub-objects into separate nodes
      *
      * Output structure looks like
@@ -96,7 +100,10 @@ var _ = require('lodash');
             }
         }
 
-        return {"Root":rootId, "Nodes":nodes, "Relations":relations, "RootArray":isRootArray};
+        var ret = new CallBoundObject();
+        ret.Root = rootId; ret.Nodes = nodes; ret.Relations = relations; ret.RootArray = isRootArray;
+        return ret;
+        //return BindCalls({"Root":rootId, "Nodes":nodes, "Relations":relations, "RootArray":isRootArray});
     };
 
     /** compose -- Takes a decomposed structure and returns a plain object
