@@ -25,7 +25,9 @@ describe("Reducing collections to values", function() {
         var result = tree.compose(
             tree.reduce("values", "Value",
                 tree.decompose(input)));
+        var composed = tree.decompose(input).reduce("values", "Value").compose();
 
         expect(result).to.deep.equal(expected);
+        expect(composed).to.deep.equal(expected);
     });
 });

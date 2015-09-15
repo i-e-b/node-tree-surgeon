@@ -177,8 +177,10 @@ describe("Tree pruning", function() {
 
             var dec = function(n){return {"Skip": (n.Skip === true)};};
             var result = tree.compose(tree.pruneAfter({Kind:"B", Skip:false}, tree.decompose(input, dec)));
+            var composed = tree.decompose(input, dec).pruneAfter({Kind:"B", Skip:false}).compose();
 
             expect(result).to.deep.equal(expected);
+            expect(composed).to.deep.equal(expected);
         });
 
         it("should compose into an object with the matched nodes still present", function(){
@@ -239,12 +241,16 @@ describe("Tree pruning", function() {
                 tree.pruneAllBut(["keep1", "keep2", "keep3"],
                     tree.decompose(input)));
 
+            var composed = tree.decompose(input).pruneAllBut(["keep1", "keep2", "keep3"]).compose();
+
             expect(result.keep1.keep2.hello).to.equal("world");
             expect(result.keep2.keep1.keep3).to.exist;
 
             expect(result.keep1.gone).to.not.exist;
             expect(result.keep2.keep1.alsoGone).to.not.exist;
             expect(result.lost).to.not.exist;
+
+            expect(composed).to.deep.equal(result);
         });
     });
 }); 

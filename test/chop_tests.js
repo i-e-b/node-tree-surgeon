@@ -40,10 +40,12 @@ describe("Chopping data out of a tree", function() {
             };
 
             var relational = tree.chopNodesByIds([1,7], tree.decompose(input));
-
             var actual = tree.compose(relational);
-            expect(actual).to.deep.equal(expected);
 
+            var composed = tree.decompose(input).chopNodesByIds([1,7]).compose();
+
+            expect(actual).to.deep.equal(expected);
+            expect(composed).to.deep.equal(expected);
         });
     });
 
@@ -114,8 +116,10 @@ describe("Chopping data out of a tree", function() {
                 tree.compose(
                     tree.chop(filter,
                         tree.decompose(input)));
+            var composed = tree.decompose(input).chop(filter).compose();
 
             expect(result).to.deep.equal(expected);
+            expect(composed).to.deep.equal(expected);
         });
 
         it("should be able to chop root node, resulting in empty object", function(){
@@ -250,8 +254,10 @@ describe("Chopping data out of a tree", function() {
                 tree.compose(
                     tree.chopAfter(filter,
                         tree.decompose(input)));
+            var composed = tree.decompose(input).chopAfter(filter).compose();
 
             expect(result).to.deep.equal(expected);
+            expect(composed).to.deep.equal(expected);
         });
 
         it("should be able to chop after root", function(){
@@ -371,7 +377,10 @@ describe("Chopping data out of a tree", function() {
                 tree.compose(
                     tree.chopByKind('toChop', filter,
                         tree.decompose(input)));
+            var composed = tree.decompose(input).chopByKind('toChop', filter).compose();
+
             expect(result).to.deep.equal(expected);
+            expect(composed).to.deep.equal(expected);
         });
 
         it("should chop members of an array independently", function(){
@@ -481,7 +490,11 @@ describe("Chopping data out of a tree", function() {
                 tree.compose(
                     tree.chopChildless(filter,
                         tree.decompose(input)));
+
+            var composed = tree.decompose(input).chopChildless(filter).compose();
+
             expect(result).to.deep.equal(expected);
+            expect(composed).to.deep.equal(expected);
         });
 
         it("should chop members of an array independently", function() {

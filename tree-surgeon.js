@@ -2,8 +2,48 @@
 var global, exports;
 var _ = require('lodash');
 
+// Some helpers for chained API.
+function rebind1(f,end){return (function(a1)        {return f(a1, this);        }).bind(end);}
+function rebind2(f,end){return (function(a1, a2)    {return f(a1, a2, this);    }).bind(end);}
+function rebind3(f,end){return (function(a1, a2, a3){return f(a1, a2, a3, this);}).bind(end);}
+
+
 (function (provides) {
-    
+    var CallBoundObject = function CallBoundObject(){
+        // this might be worth measuring for speed difference
+        this.compose = provides.compose.bind(this, this);
+        this.render = rebind2(provides.render, this);
+        this.flipRelationship = rebind3(provides.flipRelationship, this);
+        this.reverseByRelation = rebind2(provides.reverseByRelation, this);
+        this.removeEmptyNodes = provides.removeEmptyNodes.bind(this, this);
+        this.prune = rebind1(provides.prune, this);
+        this.pruneAfter = rebind1(provides.pruneAfter, this);
+        this.pruneAllBut = rebind1(provides.pruneAllBut, this);
+        this.chopNodesByIds = rebind1(provides.chopNodesByIds, this);
+        this.chop = rebind1(provides.chop, this);
+        this.chopAfter = rebind1(provides.chopAfter, this);
+        this.chopChildless = rebind1(provides.chopChildless, this);
+        this.chopByKind = rebind2(provides.chopByKind, this);
+        this.mergeUpByKind = rebind1(provides.mergeUpByKind, this);
+        this.mergeUpByNode = rebind1(provides.mergeUpByNode, this);
+        this.mergeDownByKind = rebind1(provides.mergeDownByKind, this);
+        this.mergeDownByNode = rebind1(provides.mergeDownByNode, this);
+        this.fuseByNode = rebind3(provides.fuseByNode, this);
+        this.fuseByKind = rebind3(provides.fuseByKind, this);
+        this.harvest = rebind2(provides.harvest, this);
+        this.gatherByKind = rebind1(provides.gatherByKind, this);
+        this.gatherByNode = rebind1(provides.gatherByNode, this);
+        this.reduce = rebind2(provides.reduce, this);
+        this.editByKind = rebind2(provides.editByKind, this);
+        this.forEachByKind = rebind2(provides.forEachByKind, this);
+        this.getPathOf = rebind1(provides.getPathOf, this);
+        this.getNode = rebind1(provides.getNode, this);
+        this.getChildrenOf = rebind1(provides.getChildrenOf, this);
+        this.getChildrenByKindOf = rebind2(provides.getChildrenByKindOf, this);
+        this.parentIdOf = rebind1(provides.parentIdOf, this);
+        this.normalise = provides.normalise.bind(this, this);
+    };
+
     /** decompose -- Takes a plain object and decomposed sub-objects into separate nodes
      *
      * Output structure looks like
@@ -96,7 +136,9 @@ var _ = require('lodash');
             }
         }
 
-        return {"Root":rootId, "Nodes":nodes, "Relations":relations, "RootArray":isRootArray};
+        var ret = new CallBoundObject();
+        ret.Root = rootId; ret.Nodes = nodes; ret.Relations = relations; ret.RootArray = isRootArray;
+        return ret;
     };
 
     /** compose -- Takes a decomposed structure and returns a plain object
@@ -255,14 +297,6 @@ var _ = require('lodash');
     
     /** removeEmptyNodes -- remove node relations if node contains only null properties */
     provides.removeEmptyNodes = function(relational) {
-        // Not yet implemented
-        // Plan: 
-        //  - Assume all to be removed.
-        //  - Add any non-empty nodes to keep list.
-        //  - Scan relations, add to keep list if child is on keep list
-        //  - repeat until no changes
-        //  - delete relations not on the keep list
-
         var isEmpty = function (x) {
             var n = Object.keys(x);
             for (var i=0; i < n.length; i++) {

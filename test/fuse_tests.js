@@ -138,7 +138,10 @@ describe("Fusing nodes into parents and children", function() {
                 tree.fuseByNode(filter, pickForParent, pickForChild,
                     tree.decompose(input)));
 
+            var composed = tree.decompose(input).fuseByNode(filter, pickForParent, pickForChild).compose();
+
             expect(result).to.deep.equal(expected);
+            expect(composed).to.deep.equal(expected);
         });
 
         it("should apply the merge recursively, but not to nodes which received predicated values", function(){
@@ -277,7 +280,10 @@ describe("Fusing nodes into parents and children", function() {
                 tree.fuseByKind("gone", pickForParent, pickForChild,
                     tree.decompose(input)));
 
+            var composed = tree.decompose(input).fuseByKind("gone", pickForParent, pickForChild).compose();
+
             expect(result).to.deep.equal(expected);
+            expect(composed).to.deep.equal(expected);
         });
         it("should be able compact arrays of objects into arrays of values", function(){
             var input = {

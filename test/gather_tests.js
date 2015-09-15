@@ -52,8 +52,10 @@ describe("Gathering subtrees", function() {
             ];
 
             var result = tree.gatherByKind("pick-me", tree.decompose(sample));
+            var composed = tree.decompose(sample).gatherByKind("pick-me")
 
             expect(result).to.deep.equal(expected);
+            expect(composed).to.deep.equal(expected);
         });
         it("should handle overlapping subtrees", function() {
             var sample = {
@@ -129,9 +131,12 @@ describe("Gathering subtrees", function() {
             ];
 
             var selector = function(node) { return (node.hello == "world") || (node.root == "selector");};
+            
             var result = tree.gatherByNode(selector, tree.decompose(sample));
+            var composed = tree.decompose(sample).gatherByNode(selector);
 
             expect(result).to.deep.equal(expected);
+            expect(composed).to.deep.equal(expected);
         });
         /*it("should handle overlapping subtrees", function() {
             var sample = {
