@@ -13,8 +13,10 @@ describe("Merging nodes into parents", function() {
                 }
             };
             var result = tree.compose( tree.mergeUpByKind("mergeTarget", tree.decompose(input)));
+            var composed = tree.decompose(input).mergeUpByKind("mergeTarget").compose();
 
             expect(result.mergeTarget).to.not.exist;
+            expect(composed).to.deep.equal(result);
         });
 
         it("should retain the grandchildren of a relationship",function(){
@@ -180,8 +182,10 @@ describe("Merging nodes into parents", function() {
             };
             var predicate = function(n) { return n.target == "me"; };
             var result = tree.compose(tree.mergeUpByNode(predicate, tree.decompose(input)));
+            var composed = tree.decompose(input).mergeUpByNode(predicate).compose();
 
             expect(result.mergeTarget).to.not.exist;
+            expect(composed).to.deep.equal(result);
         });
 
         it("should retain the children of a matched node",function(){

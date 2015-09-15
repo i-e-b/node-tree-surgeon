@@ -61,7 +61,10 @@ describe("Merging nodes into children", function() {
             var result = tree.compose(tree.mergeDownByKind("lose",
                     tree.decompose(input)));
 
+            var composed = tree.decompose(input).mergeDownByKind("lose").compose();
+
             expect(result).to.deep.equal(expected);
+            expect(composed).to.deep.equal(expected);
         });
 
         it("should apply the merge recursively", function(){
@@ -263,7 +266,10 @@ describe("Merging nodes into children", function() {
             var result = tree.compose(tree.mergeDownByNode(filter,
                     tree.decompose(input)));
 
+            var composed = tree.decompose(input).mergeDownByNode(filter).compose();
+
             expect(result).to.deep.equal(expected);
+            expect(composed).to.deep.equal(expected);
         });
 
         it("should apply the merge recursively, but not to children who received predicated values", function(){
