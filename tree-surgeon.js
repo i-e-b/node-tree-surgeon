@@ -10,9 +10,8 @@ function rebind3(f,end){return (function(a1, a2, a3){return f(a1, a2, a3, this);
 
 (function (provides) {
     var CallBoundObject = function CallBoundObject(){
-        // this might be worth measuring for speed?
+        // this might be worth measuring for speed difference
         this.compose = provides.compose.bind(this, this);
-        this.editByKind = rebind2(provides.editByKind, this);
         this.render = rebind2(provides.render, this);
         this.flipRelationship = rebind3(provides.flipRelationship, this);
         this.reverseByRelation = rebind2(provides.reverseByRelation, this);
@@ -34,6 +33,15 @@ function rebind3(f,end){return (function(a1, a2, a3){return f(a1, a2, a3, this);
         this.harvest = rebind2(provides.harvest, this);
         this.gatherByKind = rebind1(provides.gatherByKind, this);
         this.gatherByNode = rebind1(provides.gatherByNode, this);
+        this.reduce = rebind2(provides.reduce, this);
+        this.editByKind = rebind2(provides.editByKind, this);
+        this.forEachByKind = rebind2(provides.forEachByKind, this);
+        this.getPathOf = rebind1(provides.getPathOf, this);
+        this.getNode = rebind1(provides.getNode, this);
+        this.getChildrenOf = rebind1(provides.getChildrenOf, this);
+        this.getChildrenByKindOf = rebind2(provides.getChildrenByKindOf, this);
+        this.parentIdOf = rebind1(provides.parentIdOf, this);
+        this.normalise = provides.normalise.bind(this, this);
     };
 
     /** decompose -- Takes a plain object and decomposed sub-objects into separate nodes

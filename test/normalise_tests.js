@@ -80,9 +80,10 @@ describe("Normalising relational structure", function() {
             };
 
             var actual = tree.normalise(tree.chopNodesByIds([1,7], tree.decompose(input)));
+            var composed = tree.decompose(input).chopNodesByIds([1,7]).normalise();
 
             expect(noFunctions(actual)).to.deep.equal(expected);
-
+            expect(noFunctions(composed)).to.deep.equal(expected);
         });
     });
 });

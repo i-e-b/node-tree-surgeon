@@ -148,6 +148,61 @@ describe("Chaining of calls", function() {
         expect(result).to.deep.equal(expected);
     });
 
+    it("should be able to iterate from the decomposed object", function(){
+        var input = {
+            'yes': {'name': 'First', 'keep': 'yes'},
+            'no': {'name': 'Second', 'keep': 'yes'},
+            'firstChildren': {
+                'yes': {'name': 'Third', 'keep': 'yes'},
+                'no': {'name': 'Forth', 'keep': 'yes'}
+            },
+            'secondChildren': {
+                'yes': {'name': 'Fifth', 'keep': 'no'},
+                'no': {'name': 'Sixth', 'keep': 'no'}
+            },
+            'cousins': {
+                // Test array children
+                'yes': [
+                    {'name': 'Seventh', 'keep': 'yes'},
+                    {'name': 'Eighth', 'keep': 'no'},
+                    {'name': 'Ninth', 'keep': 'yes'}
+                ]
+            }
+        };
+        var expected = {
+            'yes': {'name': 'First', 'keep': 'yes'},
+            'no': {'name': 'Second', 'keep': 'yes'},
+            'firstChildren': {
+                'yes': {'name': 'Third__WOOP', 'keep': 'yes'},
+                'no': {'name': 'Forth', 'keep': 'yes'}
+            },
+            'secondChildren': {
+                'yes': {'name': 'Fifth', 'keep': 'no'},
+                'no': {'name': 'Sixth', 'keep': 'no'}
+            },
+            'cousins': {
+                // Test array children
+                'yes': [
+                    {'name': 'Seventh', 'keep': 'yes'},
+                    {'name': 'Eighth', 'keep': 'no'},
+                    {'name': 'Ninth__WOOP', 'keep': 'yes'}
+                ]
+            }
+        };
+
+        var predicate = function (n, id) {
+            if (n.keep === 'yes') {
+                n.name += "__WOOP";
+            }
+        };
+
+        var decorator = function(n){return {skip:(n.name == "First" || n.name == "Seventh")};};
+        
+        var result = tree.decompose(input, decorator).forEachByKind({Kind:'yes', skip:false}, predicate).compose();
+
+        expect(result).to.deep.equal(expected);
+
+    });
     it("should be able flip-by-kind from decomposed object", function(){
         var input = {
             a : {
