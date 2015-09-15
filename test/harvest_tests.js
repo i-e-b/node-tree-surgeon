@@ -54,8 +54,10 @@ describe("Harvesting subtrees", function() {
             var keySelector = function(node){return node.MyID;};
 
             var result = tree.harvest("pick-me", keySelector, tree.decompose(sample));
+            var composed = tree.decompose(sample).harvest("pick-me", keySelector);
 
             expect(result).to.deep.equal(expected);
+            expect(composed).to.deep.equal(expected);
         });
         it("should return an object whose property keys are selected from parent nodes by a function", function() {
             var sample = {

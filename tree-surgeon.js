@@ -31,6 +31,9 @@ function rebind3(f,end){return (function(a1, a2, a3){return f(a1, a2, a3, this);
         this.mergeDownByNode = rebind1(provides.mergeDownByNode, this);
         this.fuseByNode = rebind3(provides.fuseByNode, this);
         this.fuseByKind = rebind3(provides.fuseByKind, this);
+        this.harvest = rebind2(provides.harvest, this);
+        this.gatherByKind = rebind1(provides.gatherByKind, this);
+        this.gatherByNode = rebind1(provides.gatherByNode, this);
     };
 
     /** decompose -- Takes a plain object and decomposed sub-objects into separate nodes
