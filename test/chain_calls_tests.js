@@ -88,4 +88,89 @@ describe("Chaining of calls", function() {
         expect(result).to.deep.equal(expected);
 
     });
+it("should be able to call remove-empty-nodes from decomposed object", function(){
+        var input = {
+            "empty":{
+                "value":null,
+                "another":null,
+                "third":undefined
+            },
+            "notEmpty":{
+                "empty":null,
+                "notEmpty": 1
+            }
+        };
+        var expected = {
+            "notEmpty":{
+                "empty":null,
+                "notEmpty": 1
+            }
+        };
+
+        var result = tree.decompose(input).removeEmptyNodes().compose();
+
+        expect(result).to.deep.equal(expected);
+    });
+
+    it("should be able flip-by-kind from decomposed object", function(){
+        var input = {
+            a : {
+                b : [
+                    {
+                        key : 1,
+                        c : { "parent": "a" }
+                    },
+                    {
+                        key : 2,
+                        c : { "parent": "a" }
+                    },
+                    {
+                        key : 3,
+                        c : { "parent": "b" }
+                    },
+                    {
+                        key : 4,
+                        c : { "parent": "b" }
+                    }
+                ]
+            }
+        };
+
+        var expected = {
+            a : {
+                c : 
+                [
+                    {
+                        "parent":"a",
+                        b :
+                        [
+                            {
+                                key : 1,
+                            },
+                            {
+                                key : 2,
+                            }
+                        ]
+                    },
+                    {
+                        "parent":"b",
+                        b :
+                        [
+                            {
+                                key : 3,
+                            },
+                            {
+                                key : 4,
+                            }
+                        ]
+                    },
+                ]
+            }
+        };
+
+        var selector = function(n) {return n.parent;};
+        var result = tree.decompose(input).flipRelationship("b","c",selector).compose();
+
+        expect(result).to.deep.equal(expected);
+    });
 });

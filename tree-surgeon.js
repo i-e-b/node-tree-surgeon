@@ -4,6 +4,7 @@ var _ = require('lodash');
 
 // Some helpers for chained API.
 function rebind2(f,end){return (function(a1, a2){return f(a1, a2, this);}).bind(end);}
+function rebind3(f,end){return (function(a1, a2, a3){return f(a1, a2, a3, this);}).bind(end);}
 
 
 (function (provides) {
@@ -12,6 +13,9 @@ function rebind2(f,end){return (function(a1, a2){return f(a1, a2, this);}).bind(
         this.compose = provides.compose.bind(this, this);
         this.editByKind = rebind2(provides.editByKind, this);
         this.render = rebind2(provides.render, this);
+        this.flipRelationship = rebind3(provides.flipRelationship, this);
+        this.reverseByRelation = rebind2(provides.reverseByRelation, this);
+        this.removeEmptyNodes = provides.removeEmptyNodes.bind(this, this);
     };
 
     /** decompose -- Takes a plain object and decomposed sub-objects into separate nodes
@@ -267,14 +271,6 @@ function rebind2(f,end){return (function(a1, a2){return f(a1, a2, this);}).bind(
     
     /** removeEmptyNodes -- remove node relations if node contains only null properties */
     provides.removeEmptyNodes = function(relational) {
-        // Not yet implemented
-        // Plan: 
-        //  - Assume all to be removed.
-        //  - Add any non-empty nodes to keep list.
-        //  - Scan relations, add to keep list if child is on keep list
-        //  - repeat until no changes
-        //  - delete relations not on the keep list
-
         var isEmpty = function (x) {
             var n = Object.keys(x);
             for (var i=0; i < n.length; i++) {

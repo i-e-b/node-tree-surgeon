@@ -96,7 +96,11 @@ describe("Reversing a relation, child should end up parent in a tree", function(
         relational = tree.reverseByRelation(filterFunc, groupByFunc, relational)
         var result = tree.compose(relational);
 
-        expect(result).to.deep.equal(expected);
+
+        var compositionResult = tree.decompose(input, decoratorFunc).reverseByRelation(filterFunc, groupByFunc).compose();
+
+        expect(result).to.deep.equal(expected);            // correct result
+        expect(compositionResult).to.deep.equal(result);   // composed version is the same
     });
     //it("should not change structure if there is not a single matching child under a parent to be flipped", function(){
     //    var input = {
