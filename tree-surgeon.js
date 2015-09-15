@@ -20,6 +20,11 @@ function rebind3(f,end){return (function(a1, a2, a3){return f(a1, a2, a3, this);
         this.prune = rebind1(provides.prune, this);
         this.pruneAfter = rebind1(provides.pruneAfter, this);
         this.pruneAllBut = rebind1(provides.pruneAllBut, this);
+        this.chopNodesByIds = rebind1(provides.chopNodesByIds, this);
+        this.chop = rebind1(provides.chop, this);
+        this.chopAfter = rebind1(provides.chopAfter, this);
+        this.chopChildless = rebind1(provides.chopChildless, this);
+        this.chopByKind = rebind2(provides.chopByKind, this);
     };
 
     /** decompose -- Takes a plain object and decomposed sub-objects into separate nodes
