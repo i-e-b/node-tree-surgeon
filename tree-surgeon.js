@@ -2,10 +2,16 @@
 var global, exports;
 var _ = require('lodash');
 
+// Some helpers for chained API.
+function rebind2(f,end){return (function(a1, a2){return f(a1, a2, this);}).bind(end);}
+
+
 (function (provides) {
     var CallBoundObject = function CallBoundObject(){
         // this might be worth measuring for speed?
         this.compose = provides.compose.bind(this, this);
+        this.editByKind = rebind2(provides.editByKind, this);
+        this.render = rebind2(provides.render, this);
     };
 
     /** decompose -- Takes a plain object and decomposed sub-objects into separate nodes
@@ -103,7 +109,6 @@ var _ = require('lodash');
         var ret = new CallBoundObject();
         ret.Root = rootId; ret.Nodes = nodes; ret.Relations = relations; ret.RootArray = isRootArray;
         return ret;
-        //return BindCalls({"Root":rootId, "Nodes":nodes, "Relations":relations, "RootArray":isRootArray});
     };
 
     /** compose -- Takes a decomposed structure and returns a plain object
