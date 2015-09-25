@@ -3,9 +3,10 @@ var global, exports;
 var _ = require('lodash');
 
 // Some helpers for chained API.
-function rebind1(f,end){return (function(a1)        {return f(a1, this);        }).bind(end);}
-function rebind2(f,end){return (function(a1, a2)    {return f(a1, a2, this);    }).bind(end);}
-function rebind3(f,end){return (function(a1, a2, a3){return f(a1, a2, a3, this);}).bind(end);}
+function rebind1(f,end){return (function(a1)                {return f(a1, this);                }).bind(end);}
+function rebind2(f,end){return (function(a1, a2)            {return f(a1, a2, this);            }).bind(end);}
+function rebind3(f,end){return (function(a1, a2, a3)        {return f(a1, a2, a3, this);        }).bind(end);}
+function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3, a4, a5, this);}).bind(end);}
 
 
 (function (provides) {
@@ -24,6 +25,7 @@ function rebind3(f,end){return (function(a1, a2, a3){return f(a1, a2, a3, this);
         this.chopAfter = rebind1(provides.chopAfter, this);
         this.chopChildless = rebind1(provides.chopChildless, this);
         this.chopByKind = rebind2(provides.chopByKind, this);
+        this.chopNodesByData = rebind5(provides.chopNodesByData, this);
         this.mergeUpByKind = rebind1(provides.mergeUpByKind, this);
         this.mergeUpByNode = rebind1(provides.mergeUpByNode, this);
         this.mergeDownByKind = rebind1(provides.mergeDownByKind, this);
@@ -420,6 +422,12 @@ function rebind3(f,end){return (function(a1, a2, a3){return f(a1, a2, a3, this);
         removeNodesByIds(relational, ids);
         return relational;
     };
+
+    /** remove nodes of kind 'victim' from 'target', where 'target' has a sibling 'data' for which selectorFunc returns true.
+     * Nodes are not removed if victimFunc returns falsy */
+    provides.chopNodesByData = function(selectorKind, targetKind, victimKind, selectorFunc, victimFunc, relational){
+        return relational;
+    }; 
 
     /** merge up by kind -- remove child nodes by relationship putting data into parent */
     provides.mergeUpByKind = function(kind, relational) {
