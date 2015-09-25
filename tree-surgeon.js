@@ -425,7 +425,32 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
 
     /** remove nodes of kind 'victim' from 'target', where 'target' has a sibling 'data' for which selectorFunc returns true.
      * Nodes are not removed if victimFunc returns falsy */
-    provides.chopNodesByData = function(selectorKind, targetKind, victimKind, selectorFunc, victimFunc, relational){
+    provides.chopNodesByData = function(dataKind, targetKind, victimKind, selectorFunc, victimFunc, relational){
+        // clean up kind specs:
+        var dataSpec = (typeof dataKind === "string") ? {Kind:dataKind} : dataKind;
+        var targSpec = (typeof targetKind === "string") ? {Kind:targetKind} : targetKind;
+        var victSpec = (typeof victimKind === "string") ? {Kind:victimKind} : victimKind;
+
+        // find the relations that apply:
+        var dataRels = _.where(relational.Relations, dataSpec);
+        var targRels = _.where(relational.Relations, targSpec);
+        var victRels = _.where(relational.Relations, victSpec);
+
+        // some debug 
+        console.log(JSON.stringify(dataRels,null,2));
+        console.log("--------------------------------------------------");
+        console.log(JSON.stringify(targRels,null,2));
+        console.log("--------------------------------------------------");
+        console.log(JSON.stringify(victRels,null,2));
+
+        // group targRels and dataRels where they have the same "Parent" id.
+        // any that can't be grouped are rejected.
+        // reject any where `selectorFunc(dataNode)` returns falsy values.
+        // any that are not rejected, run `victimFunc(parentNode, victimNode)` and delete any that return truthy values.
+
+
+        provides.chopNodesByIds(victRels.map(function(r){return r.Child}).slice(0,2), relational);
+
         return relational;
     }; 
 
