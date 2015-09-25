@@ -433,23 +433,35 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
 
         // find the relations that apply:
         var dataRels = _.where(relational.Relations, dataSpec);
-        var targRels = _.where(relational.Relations, targSpec);
+        var targRels = _.groupBy(_.where(relational.Relations, targSpec), 'Parent');
         var victRels = _.where(relational.Relations, victSpec);
 
+        // group targRels and dataRels where they have the same "Parent" id.
+        // reject any that can't be grouped.
+        // reject any where `selectorFunc(dataNode)` returns falsy values.
+        var toProc = dataRels.map(function(d){
+            if (!targRels[d.Parent]) return undefined;
+            if (!selectorFunc(relational.Nodes[d.Child])) return undefined;
+            return {data:d, targets:targRels[d.Parent]};
+        }).filter(function(e){return e !== undefined});
+
+        // get victim/parent pairs from remaining data/target pairs
+        // TODO
+        // ...
+
+        // any that are not rejected, run `victimFunc(parentNode, victimNode)` and delete any that return truthy values.
+        toProc.forEach(function(pair){ // todo- change to for loop
+            var parentNode = relational.Nodes[pair.data.Parent];
+            //...
+        });
+
         // some debug 
-        console.log(JSON.stringify(dataRels,null,2));
-        console.log("--------------------------------------------------");
-        console.log(JSON.stringify(targRels,null,2));
+        console.log(JSON.stringify(toProc,null,2));
         console.log("--------------------------------------------------");
         console.log(JSON.stringify(victRels,null,2));
 
-        // group targRels and dataRels where they have the same "Parent" id.
-        // any that can't be grouped are rejected.
-        // reject any where `selectorFunc(dataNode)` returns falsy values.
-        // any that are not rejected, run `victimFunc(parentNode, victimNode)` and delete any that return truthy values.
 
-
-        provides.chopNodesByIds(victRels.map(function(r){return r.Child}).slice(0,2), relational);
+        removeNodesByIds(relational,victRels.map(function(r){return r.Child}).slice(0,2));
 
         return relational;
     }; 
