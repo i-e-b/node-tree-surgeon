@@ -432,9 +432,10 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
         var victSpec = (typeof victimKind === "string") ? {Kind:victimKind} : victimKind;
 
         // find the relations that apply:
+        // TODO: scan the relations nce and pull out what we need.
         var dataRels = _.where(relational.Relations, dataSpec);
         var targRels = _.groupBy(_.where(relational.Relations, targSpec), 'Parent');
-        var victRels = _.where(relational.Relations, victSpec);
+        var victRels = _.groupBy(_.where(relational.Relations, victSpec), 'Parent');
 
         // group targRels and dataRels where they have the same "Parent" id.
         // reject any that can't be grouped.
@@ -442,26 +443,27 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
         var toProc = dataRels.map(function(d){
             if (!targRels[d.Parent]) return undefined;
             if (!selectorFunc(relational.Nodes[d.Child])) return undefined;
-            return {data:d, targets:targRels[d.Parent]};
+            
+            // get the 'victims' to go with each parent
+            var victimList = [].concat.apply([], targRels[d.Parent].map(function(t){return victRels[t.Child];}));
+            return {data:d, victims: victimList};
         }).filter(function(e){return e !== undefined});
 
-        // get victim/parent pairs from remaining data/target pairs
-        // TODO
-        // ...
-
         // any that are not rejected, run `victimFunc(parentNode, victimNode)` and delete any that return truthy values.
-        toProc.forEach(function(pair){ // todo- change to for loop
+        var toChop = [];
+        for (var i = 0; i < toProc.length; i++) {
+            var pair = toProc[i];
             var parentNode = relational.Nodes[pair.data.Parent];
-            //...
-        });
 
-        // some debug 
-        console.log(JSON.stringify(toProc,null,2));
-        console.log("--------------------------------------------------");
-        console.log(JSON.stringify(victRels,null,2));
+            for (var j = 0; j < pair.victims.length; j++) {
+                var childIndex = pair.victims[j].Child;
+                var childNode = relational.Nodes[childIndex];
+                if (victimFunc(parentNode, childNode)) {toChop.push(childIndex);}
+            }
+        }
 
-
-        removeNodesByIds(relational,victRels.map(function(r){return r.Child}).slice(0,2));
+        // take out the results
+        removeNodesByIds(relational,toChop);
 
         return relational;
     }; 

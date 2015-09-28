@@ -51,5 +51,46 @@ describe("Chopping data out of a tree", function() {
             expect(actual).to.deep.equal(expected);
 
         });
+        it("should only remove nodes if the victim function returns a true value", function(){
+         var input = {
+                "a":{
+                    "par":{
+                        "match":1,
+                        "targ":{
+                            "victim":[
+                                {"a":1, "match":2},
+                                {"a":2, "match":1}
+                            ],
+                            "other":{"a":1}
+                        },
+                        "data":{
+                            "max":0
+                        }
+                    }
+                }
+            };
+
+            var expected = {
+                "a":{ "par":{
+                        "match":1,
+                        "targ":{
+                            "victim":[
+                                {"a":1, "match":2}
+                            ],
+                            "other":{"a":1}
+                        },
+                        "data":{ "max":0 }
+                    }
+                }
+            };
+
+            var comparator = function(parent, victim){ return parent.match == victim.match };
+            var selector = function(dataNode){return dataNode.max == 0;}; 
+            
+            var actual = tree.decompose(input).chopNodesByData("data", "targ", "victim", selector, comparator).compose();
+
+            expect(actual).to.deep.equal(expected);
+
+        });
     });
 });
