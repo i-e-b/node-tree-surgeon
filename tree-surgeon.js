@@ -26,6 +26,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
         this.chopChildless = rebind1(provides.chopChildless, this);
         this.chopByKind = rebind2(provides.chopByKind, this);
         this.chopNodesByData = rebind5(provides.chopNodesByData, this);
+        this.chopPathsByData = rebind5(provides.chopPathsByData, this);
         this.mergeUpByKind = rebind1(provides.mergeUpByKind, this);
         this.mergeUpByNode = rebind1(provides.mergeUpByNode, this);
         this.mergeDownByKind = rebind1(provides.mergeDownByKind, this);
@@ -440,8 +441,19 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
     }
 
     /** remove nodes of kind 'victim' from 'target', where 'target' has a sibling 'data' for which selectorFunc returns true.
-     * Nodes are not removed if victimFunc returns falsy */
+     * Nodes are not removed if victimFunc returns falsy.*/
     provides.chopNodesByData = function(dataKind, targetKind, victimKind, selectorFunc, victimFunc, relational){
+        return chopNodesAndPathsByData(false, dataKind, targetKind, victimKind, selectorFunc, victimFunc, relational);
+    }
+
+    /** remove nodes of kind 'victim' from 'target', where 'target' has a sibling 'data' for which selectorFunc returns true.
+     * Nodes are not removed if victimFunc returns falsy.
+     * This is like `chopNodesByData`, but where victim nodes are removed, the target nodes are also removed. */
+    provides.chopPathsByData = function(dataKind, targetKind, victimKind, selectorFunc, victimFunc, relational){
+        return chopNodesAndPathsByData(true, dataKind, targetKind, victimKind, selectorFunc, victimFunc, relational);
+    }
+
+    function chopNodesAndPathsByData(deletePaths, dataKind, targetKind, victimKind, selectorFunc, victimFunc, relational){
         // find the relations that apply:
         var dataMatch = matchFunc((typeof dataKind === "string") ? {Kind:dataKind} : dataKind);
         var targMatch = matchFunc((typeof targetKind === "string") ? {Kind:targetKind} : targetKind);
@@ -481,8 +493,9 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
 
             for (var j = 0; j < pair.victims.length; j++) {
                 var childIndex = pair.victims[j].Child;
+                var parentIndex = pair.victims[j].Parent;
                 var childNode = relational.Nodes[childIndex];
-                if (victimFunc(parentNode, childNode)) {toChop.push(childIndex);}
+                if (victimFunc(parentNode, childNode)) {toChop.push((deletePaths) ? (parentIndex) : (childIndex));}
             }
         }
 
