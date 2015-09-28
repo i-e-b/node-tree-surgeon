@@ -423,19 +423,43 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
         return relational;
     };
 
+    // takes a query object (like the 'kind' matches) and returns a matching function.
+    function matchFunc(query){
+        var props = Object.keys(query);
+
+        return function(object) {
+            var result = false;
+            var length = props.length;
+
+            while (length--) {
+                var key = props[length];
+                if (!(result = (object[key] == query[key]))) { break; }
+            }
+            return result;
+        };
+    }
+
     /** remove nodes of kind 'victim' from 'target', where 'target' has a sibling 'data' for which selectorFunc returns true.
      * Nodes are not removed if victimFunc returns falsy */
     provides.chopNodesByData = function(dataKind, targetKind, victimKind, selectorFunc, victimFunc, relational){
-        // clean up kind specs:
-        var dataSpec = (typeof dataKind === "string") ? {Kind:dataKind} : dataKind;
-        var targSpec = (typeof targetKind === "string") ? {Kind:targetKind} : targetKind;
-        var victSpec = (typeof victimKind === "string") ? {Kind:victimKind} : victimKind;
-
         // find the relations that apply:
-        // TODO: scan the relations nce and pull out what we need.
-        var dataRels = _.where(relational.Relations, dataSpec);
-        var targRels = _.groupBy(_.where(relational.Relations, targSpec), 'Parent');
-        var victRels = _.groupBy(_.where(relational.Relations, victSpec), 'Parent');
+        var dataMatch = matchFunc((typeof dataKind === "string") ? {Kind:dataKind} : dataKind);
+        var targMatch = matchFunc((typeof targetKind === "string") ? {Kind:targetKind} : targetKind);
+        var victMatch = matchFunc((typeof victimKind === "string") ? {Kind:victimKind} : victimKind);
+
+        var dataRels = [], targRels = {}, victRels = {};
+        for (var n = 0; n < relational.Relations.length; n++) {
+            var rel = relational.Relations[n];
+            if (dataMatch(rel)) {dataRels.push(rel);}
+            else if(targMatch(rel)){
+                targRels[rel.Parent] = (targRels[rel.Parent] || []);
+                targRels[rel.Parent].push(rel);
+            }
+            else if(victMatch(rel)){
+                victRels[rel.Parent] = (victRels[rel.Parent] || []);
+                victRels[rel.Parent].push(rel);
+            }
+        }
 
         // group targRels and dataRels where they have the same "Parent" id.
         // reject any that can't be grouped.
@@ -778,7 +802,8 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
             }
         }
         return output;
-    };
+    }
+
     function buildRecursiveFast(currentNode, path, relational, parentToChild) {
         if (! relational.Nodes[currentNode]) return undefined;
 
@@ -798,7 +823,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
             }
         }
         return output;
-    };
+    }
 
     function emptyRenderNodeFunc (node, path, id){return node;}
     function emptyRenderKindFunc (kind, path){return kind;}
