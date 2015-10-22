@@ -45,6 +45,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
         this.getChildrenByKindOf = rebind2(provides.getChildrenByKindOf, this);
         this.parentIdOf = rebind1(provides.parentIdOf, this);
         this.normalise = provides.normalise.bind(this, this);
+        this.reverseTree = rebind1(provides.reverseTree, this);
     };
 
     /** decompose -- Takes a plain object and decomposed sub-objects into separate nodes
@@ -166,6 +167,25 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
         return renderFromRoot(renderNodeFunc, renderKindFunc, relational.Root, relational);
     };
 
+    /** reverseTree -- flip child to parent on a kind */
+    provides.reverseTree = function(kind, relational) {
+        // Need to trace unbroken chains of the same kind,
+        // then flow those backwards.
+        // Need to deal with the case where subtrees merge.
+
+        // the below is wrong.
+        relational.Relations.forEach(function(r){
+            if (r.Kind !== kind) return;
+            var tmp = r.Parent;
+            r.Parent = r.Child;
+            r.Child = tmp;
+        });
+        // quick hack to show the reversal
+        relational.Relations[0].Child = 4;
+
+        console.log(JSON.stringify(relational, null, 2));
+        return relational;
+    }
 
     /** flipRelationship -- make children into parents and parents into children 
      * new parents are merged based on equality of the value returned by `newParentHashFunc`
