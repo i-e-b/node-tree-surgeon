@@ -4,7 +4,7 @@ var _ = require('lodash');
 var tree = require("../tree-surgeon.js");
 
 describe("Gathering subtrees", function() {
-    describe("When getting subtrees by kind", function(){    
+    describe("When getting subtrees by kind", function(){
         it("should return an array of the composed subtrees", function(){
             var sample = {
                 "one": {
@@ -131,14 +131,14 @@ describe("Gathering subtrees", function() {
             ];
 
             var selector = function(node) { return (node.hello == "world") || (node.root == "selector");};
-            
+
             var result = tree.gatherByNode(selector, tree.decompose(sample));
             var composed = tree.decompose(sample).gatherByNode(selector);
 
             expect(result).to.deep.equal(expected);
             expect(composed).to.deep.equal(expected);
         });
-        /*it("should handle overlapping subtrees", function() {
+        it("does not handle overlapping subtrees elegantly", function() {
             var sample = {
                 "ID":true,
                 "pick-me":{
@@ -154,16 +154,18 @@ describe("Gathering subtrees", function() {
                     "ID": true,
                     "pick-me": {
                         "ID": true,
-                        "pick-me": {
-                            "1": "1"
-                        }
+                        "pick-me": [
+                            { "1": "1" },
+                            { "1": "1" }
+                        ]
                     }
                 },
                 {
                     "ID": true,
-                    "pick-me": {
-                        "1": "1"
-                    }
+                    "pick-me": [
+                        { "1": "1" },
+                        { "1": "1" }
+                    ]
                 }
             ];
 
@@ -171,17 +173,17 @@ describe("Gathering subtrees", function() {
             var result = tree.gatherByNode(selector, tree.decompose(sample));
 
             expect(result).to.deep.equal(expected);
-        });*/
+        });
         it("should be able to pick the root node", function(){
             var sample = {
                 "ID":true,
-                "hello":"world"    
+                "hello":"world"
             };
 
             var expected = [
                 {
                     "ID":true,
-                    "hello":"world"    
+                    "hello":"world"
                 }
             ];
 

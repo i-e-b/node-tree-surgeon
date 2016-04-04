@@ -189,7 +189,7 @@ describe("Fusing nodes into parents and children", function() {
             var expected = {
                 "a": [ 1, 2, 3, 3, 4, 5 ], // merging up *and* down is a bit tricky!
                 // the second 'gone' had two when it merged to parent, which had one from the first gone:
-                "target": [ "me", "me", "me" ], 
+                "target": [ "me", "me", "me" ],
                 "child": {
                     "a": [ 3, 4, 5, 6 ],
                     "target": [ "me", "me" ]

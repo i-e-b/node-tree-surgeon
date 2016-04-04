@@ -9,7 +9,7 @@ describe("Tree composition from relational model", function() {
             "Root":"1",
             "Nodes":{
                 "1":{
-                    "ID":"1", 
+                    "ID":"1",
                     "simple":"value"
                 },
                 "4":{ // note: breadth first search

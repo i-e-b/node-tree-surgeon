@@ -136,7 +136,7 @@ describe("Chopping data out of a tree", function() {
 
             var expected = {};
 
-            var result = 
+            var result =
                 tree.compose(
                     tree.chop(filter,
                         tree.decompose(input)));
@@ -227,7 +227,7 @@ describe("Chopping data out of a tree", function() {
                     { "Parent": 0, "Child": 2, "Kind": "matched_keep" }
                 ]
             };
-            
+
             var filter = function(n) { return n.match == "yes"; };
 
             var result = tree.chopAfter(filter, input);

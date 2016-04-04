@@ -4,14 +4,11 @@ var _ = require('lodash');
 
 var tree = require("../tree-surgeon.js");
 
-//chai.config.truncateThreshold = 0;
-
 // clean up objects to make testing easier
 function noFunctions(obj){
     for (var m in obj) if (typeof obj[m] == "function") { delete obj[m]; }
     return obj;
 }
-
 
 describe("Normalising relational structure", function() {
     describe("When chopping nodes then normalising", function(){
@@ -53,7 +50,6 @@ describe("Normalising relational structure", function() {
                     {//keep
                         "id": "G3"
                     }, ,
-                    
                 ],
                 "Relations": [
                     {
@@ -74,7 +70,6 @@ describe("Normalising relational structure", function() {
                         "Kind": "grandchild",
                         "IsArray": true
                     }, ,
-                    
                 ],
                 "RootArray": false
             };

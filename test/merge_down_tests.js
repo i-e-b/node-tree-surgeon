@@ -177,7 +177,7 @@ describe("Merging nodes into children", function() {
 
             expect(result).to.deep.equal(expected);
         });
-        
+
         it("should concatenate arrays being merged", function(){
             var input = {
                 "lose" : {
@@ -368,7 +368,7 @@ describe("Merging nodes into children", function() {
 
             expect(result).to.deep.equal(input);
         });
-        
+
         it("should delete leaf nodes if matched", function(){
             var input = {
                 "keep" : {

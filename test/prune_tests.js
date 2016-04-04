@@ -10,7 +10,7 @@ describe("Tree pruning", function() {
                 "Root":"1",
                 "Nodes":{
                     "1":{
-                        "ID":"1", 
+                        "ID":"1",
                         "simple":"value"
                     },
                     "4":{ // note: breadth first search
@@ -56,7 +56,7 @@ describe("Tree pruning", function() {
                             "hello":"world"
                         }
                     }
-                }               
+                }
             };
             var expected = {
                 "X": {},
@@ -67,7 +67,7 @@ describe("Tree pruning", function() {
                             "hello":"world"
                         }
                     }
-                }               
+                }
             };
 
             var dec = function(n){return {"Skip": (n.Skip === true)};};
@@ -114,7 +114,7 @@ describe("Tree pruning", function() {
                 "Root":"1",
                 "Nodes":{
                     "1":{
-                        "ID":"1", 
+                        "ID":"1",
                     },
                     "2":{
                         "ID":"2"
@@ -159,7 +159,7 @@ describe("Tree pruning", function() {
                             "hello":"world"
                         }
                     }
-                }               
+                }
             };
             var expected = {
                 "X": {
@@ -172,7 +172,7 @@ describe("Tree pruning", function() {
                             "hello":"world"
                         }
                     }
-                }               
+                }
             };
 
             var dec = function(n){return {"Skip": (n.Skip === true)};};
@@ -191,7 +191,7 @@ describe("Tree pruning", function() {
                             "hello":"world"
                         }
                     }
-                }    
+                }
             };
 
             var result = tree.compose(tree.pruneAfter("B", tree.decompose(input)));
@@ -206,7 +206,7 @@ describe("Tree pruning", function() {
                             "hello":"world"
                         }
                     }
-                }    
+                }
             };
 
             var result = tree.compose(tree.pruneAfter("B", tree.decompose(input)));
@@ -253,4 +253,4 @@ describe("Tree pruning", function() {
             expect(composed).to.deep.equal(result);
         });
     });
-}); 
+});

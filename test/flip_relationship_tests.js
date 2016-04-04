@@ -19,7 +19,7 @@ describe("Reversing parents and children in the tree", function() {
                 ]
             }
         };
-        
+
         var expected = {
             a : {
                 c : {
@@ -75,7 +75,7 @@ describe("Reversing parents and children in the tree", function() {
                 c: {"I":"should stay put"}
             }
         };
-        
+
         var expected = {
             a : {
                 b : [{
@@ -124,7 +124,7 @@ describe("Reversing parents and children in the tree", function() {
 
         var expected = {
             a : {
-                c : 
+                c :
                 [
                     {
                         "parent":"a",

@@ -17,7 +17,6 @@ describe("Rendering a relational structure into a new object structure", functio
             },
             "three" : {}
         };
-        
         var expected = {
             "one" : {
                 "x":1,
@@ -53,7 +52,7 @@ describe("Rendering a relational structure into a new object structure", functio
                 }
             }
         };
-        
+
         var expected = {
             "one" : {
                 "x":"y",
@@ -92,7 +91,7 @@ describe("Rendering a relational structure into a new object structure", functio
                 }
             }
         };
-        
+
         var expected = {
             "espaniol":{
                 "uno" : {
@@ -144,7 +143,7 @@ describe("Rendering a relational structure into a new object structure", functio
                 "x":"z"
             }
         };
-        
+
         var expected = {
             "one" : {
                 "two":{}
@@ -173,7 +172,7 @@ describe("Rendering a relational structure into a new object structure", functio
             },
             "four" : {}
         };
-        
+
         var expected = {
             "one" : {
                 "two":{}
@@ -190,7 +189,7 @@ describe("Rendering a relational structure into a new object structure", functio
 
         expect(result).to.deep.equal(expected);
     });
-    /*it("should be able to render and then compose, resulting in unmodified composed output", function(){
+    it("should be able to render and then compose, resulting in unmodified composed output", function(){
         var input = {
             "one" : {
                 "x":"y",
@@ -199,7 +198,7 @@ describe("Rendering a relational structure into a new object structure", functio
                 }
             }
         };
-        
+
         var expectedRendered = {
             "one" : {
                 "two":[
@@ -229,7 +228,7 @@ describe("Rendering a relational structure into a new object structure", functio
                 "two" :{}
             }
         };
-        
+
         var expected_A = {
             "eno" : {
                 "owt":{}
@@ -253,7 +252,7 @@ describe("Rendering a relational structure into a new object structure", functio
 
         expect(result_A).to.deep.equal(expected_A);
         expect(result_B).to.deep.equal(expected_B);
-    });*/
+    });
     it("should handle conflicts between rendered properties and kind properies by concatenating into arrays", function(){
         var input = {
             "one" : {
@@ -263,7 +262,7 @@ describe("Rendering a relational structure into a new object structure", functio
                 }
             }
         };
-        
+
         var expected = {
             "one" : {
                 "x":"y",
@@ -297,7 +296,7 @@ describe("Rendering a relational structure into a new object structure", functio
                 "x":"z"
             }
         };
-        
+
         var expected = {
             "three" : {
                 "x":"z"
@@ -320,7 +319,7 @@ describe("Rendering a relational structure into a new object structure", functio
         var expected = {};
         var renderNode = function(n){return n;};
         var result = tree.render(renderNode, null, tree.decompose(input));
-        
+
         expect(result).to.deep.equal(expected);
     });
     it("handles damaged trees", function(){
@@ -332,7 +331,7 @@ describe("Rendering a relational structure into a new object structure", functio
         var expected = {};
         var renderNode = function(n){return n;};
         var result = tree.render(renderNode, null, relational);
-        
+
         expect(result).to.deep.equal(expected);
     });
 });

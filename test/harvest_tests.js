@@ -4,7 +4,7 @@ var _ = require('lodash');
 var tree = require("../tree-surgeon.js");
 
 describe("Harvesting subtrees", function() {
-    describe("When getting subtrees by kind", function(){    
+    describe("When getting subtrees by kind", function(){
         it("should return an object whose property values are the composed subtrees", function(){
             var sample = {
                 "one": {

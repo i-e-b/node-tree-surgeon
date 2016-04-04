@@ -127,7 +127,7 @@ describe("Chaining of calls", function() {
                         "hello":"world"
                     }
                 }
-            }               
+            }
         };
         var expected = {
             "X": {},
@@ -138,7 +138,7 @@ describe("Chaining of calls", function() {
                         "hello":"world"
                     }
                 }
-            }               
+            }
         };
 
         var dec = function(n){return {"Skip": (n.Skip === true)};};
@@ -197,7 +197,7 @@ describe("Chaining of calls", function() {
         };
 
         var decorator = function(n){return {skip:(n.name == "First" || n.name == "Seventh")};};
-        
+
         var result = tree.decompose(input, decorator).forEachByKind({Kind:'yes', skip:false}, predicate).compose();
 
         expect(result).to.deep.equal(expected);
@@ -229,7 +229,7 @@ describe("Chaining of calls", function() {
 
         var expected = {
             a : {
-                c : 
+                c :
                 [
                     {
                         "parent":"a",

@@ -164,7 +164,8 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
      * @renderKindFunc -- function that takes (kind, path) and returns kind
      **/
     provides.render = function(renderNodeFunc, renderKindFunc, relational) {
-        return renderFromRoot(renderNodeFunc, renderKindFunc, relational.Root, relational);
+        var relClone = _.cloneDeep(relational);
+        return renderFromRoot(renderNodeFunc, renderKindFunc, relClone.Root, relClone);
     };
 
     /** reverseTree -- flip child to parent on a kind */
@@ -789,7 +790,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
     function flip(f2) { // flip the args on a 2-ary function
         return function(a,b){return f2(b,a);};
     }
-    
+
     function join (old, additional) {
         if (additional === null || additional === undefined) return old;
         if (old) {
@@ -798,7 +799,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
             return additional;
         }
     }
-    
+
     function merge (obj1, obj2) {for (var attrname in obj2) { obj1[attrname] = obj2[attrname]; };return obj1;};
 
     function removeNodesByIds(relational, Ids) {
@@ -874,7 +875,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
         }
 
         var parentToChild = _.groupBy(relational.Relations, "Parent");
-        
+
         var result = builder(rootId, [], relational, parentToChild, renderNodeFunc, renderKindFunc) || {};
         if (relational.RootArray) {
             result.length = Object.keys(result).length;
