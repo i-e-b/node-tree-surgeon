@@ -44,8 +44,8 @@ describe("Chopping data out of a tree", function() {
             };
 
             var comparator = function(parent, victim){ return true };
-            var selector = function(dataNode){return dataNode.max == 0;}; 
-            
+            var selector = function(dataNode){return dataNode.max == 0;};
+
             var actual = tree.decompose(input).chopNodesByData("data", "targ", "victim", selector, comparator).compose();
 
             expect(actual).to.deep.equal(expected);
@@ -85,8 +85,8 @@ describe("Chopping data out of a tree", function() {
             };
 
             var comparator = function(parent, victim){ return parent.match == victim.match };
-            var selector = function(dataNode){return dataNode.max == 0;}; 
-            
+            var selector = function(dataNode){return dataNode.max == 0;};
+
             var actual = tree.decompose(input).chopNodesByData("data", "targ", "victim", selector, comparator).compose();
 
             expect(actual).to.deep.equal(expected);
@@ -132,8 +132,8 @@ describe("Chopping data out of a tree", function() {
             };
 
             var comparator = function(parent, victim){ return true };
-            var selector = function(dataNode){return dataNode.max == 0;}; 
-            
+            var selector = function(dataNode){return dataNode.max == 0;};
+
             var actual = tree.decompose(input).chopPathsByData("data", "targ", "victim", selector, comparator).compose();
 
             expect(actual).to.deep.equal(expected);
@@ -167,12 +167,45 @@ describe("Chopping data out of a tree", function() {
             };
 
             var comparator = function(parent, victim){ return parent.match == victim.match };
-            var selector = function(dataNode){return dataNode.max == 0;}; 
-            
+            var selector = function(dataNode){return dataNode.max == 0;};
+
             var actual = tree.decompose(input).chopPathsByData("data", "targ", "victim", selector, comparator).compose();
 
             expect(actual).to.deep.equal(expected);
 
         });
+        it("should remove work where the victim is a leaf node", function(){
+         var input = {
+                "a":{
+                    "par":{
+                        "match":1,
+                        "targ":{
+                            "victim":{},
+                            "other":{"a":1}
+                        },
+                        "data":{
+                            "max":0
+                        }
+                    }
+                }
+            };
+
+            var expected = {
+                "a":{ "par":{
+                        "match":1,
+                        "data":{ "max":0 }
+                    }
+                }
+            };
+
+            var comparator = function(parent, victim){ return true; };
+            var selector = function(dataNode){return dataNode.max == 0;};
+
+            var actual = tree.decompose(input).chopPathsByData("data", "targ", "victim", selector, comparator).compose();
+
+            expect(actual).to.deep.equal(expected);
+
+        });
+
     });
 });

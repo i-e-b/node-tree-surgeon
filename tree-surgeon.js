@@ -63,13 +63,13 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
             relationDecorator = excludedKinds;
             excludedKinds = []
         }
-        
+
         var nodesToDecompose = [];
         var nodes = [];
         var relations = [];
         var exclude = excludedKinds || [];
         var decorator = relationDecorator;
-        
+
         var rootId = idx++;
         var isRootArray = Array.isArray(obj);
         if (obj !== null && obj !== undefined) nodesToDecompose.push([rootId, obj]);
@@ -157,7 +157,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
         return renderFromRoot(null, null, relational.Root, relational);
     };
 
-    /** 
+    /**
      * render -- compose a relational structure into a plain object, changing node contents using a supplied function.
      * If any of the render functions are null or undefined, rendered output will match `compose`
      * @renderNodeFunc -- function that takes (node, path, id) and returns the rendered node
@@ -195,7 +195,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
         var hashFunc = newParentHashFunc || function(){return 1;}; // if no hash, all are considered equal
         var grandparents = {};
         var IDs = {};
-        
+
         var mergeHash = function(rel){
             var hash = hashFunc(relational.Nodes[rel.Child]);
             IDs[hash] = IDs[hash] || rel.Child;
@@ -210,7 +210,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
 
         var toRemove = [];
         var removeRel = function(rel) {toRemove.push(rel.Parent); toRemove.push(rel.Child);};
-        
+
         // build the id tree for the new relationships, and keep track of the old relationships to delete
         _.where(relational.Relations, newChildSpec).forEach(function(rel) {
             var gParent = rel.Parent; var oldParent = rel.Child;
@@ -317,7 +317,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
 
         return relational;
     };
-    
+
     /** removeEmptyNodes -- remove node relations if node contains only null properties */
     provides.removeEmptyNodes = function(relational) {
         var isEmpty = function (x) {
@@ -473,6 +473,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
         return chopNodesAndPathsByData(true, dataKind, targetKind, victimKind, selectorFunc, victimFunc, relational);
     }
 
+    function isDefined (item){return item !== undefined;}
     function chopNodesAndPathsByData(deletePaths, dataKind, targetKind, victimKind, selectorFunc, victimFunc, relational){
         // find the relations that apply:
         var dataMatch = matchFunc((typeof dataKind === "string") ? {Kind:dataKind} : dataKind);
@@ -496,14 +497,17 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
         // group targRels and dataRels where they have the same "Parent" id.
         // reject any that can't be grouped.
         // reject any where `selectorFunc(dataNode)` returns falsy values.
+        var childVictimRelation = function(t){return victRels[t.Child];};
         var toProc = dataRels.map(function(d){
             if (!targRels[d.Parent]) return undefined;
             if (!selectorFunc(relational.Nodes[d.Child])) return undefined;
-            
+
             // get the 'victims' to go with each parent
-            var victimList = [].concat.apply([], targRels[d.Parent].map(function(t){return victRels[t.Child];}));
+            var victimList = [].concat.apply([],
+                targRels[d.Parent].map(childVictimRelation).filter(isDefined)
+            );
             return {data:d, victims: victimList};
-        }).filter(function(e){return e !== undefined});
+        }).filter(isDefined);
 
         // any that are not rejected, run `victimFunc(parentNode, victimNode)` and delete any that return truthy values.
         var toChop = [];
@@ -523,7 +527,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
         removeNodesByIds(relational,toChop);
 
         return relational;
-    }; 
+    };
 
     /** merge up by kind -- remove child nodes by relationship putting data into parent */
     provides.mergeUpByKind = function(kind, relational) {
