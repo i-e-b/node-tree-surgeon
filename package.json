@@ -1,6 +1,6 @@
 {
   "name": "tree-surgeon",
-  "version": "0.0.44",
+  "version": "0.0.45",
   "description": "Tools for editing tree structures using a relational model",
   "main": "tree-surgeon.js",
   "scripts": {

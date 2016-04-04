@@ -1,2 +1,4 @@
 *.jsm
 prep.js
+test
+.travis.yml
