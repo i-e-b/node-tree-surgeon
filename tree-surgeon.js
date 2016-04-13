@@ -164,8 +164,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
      * @renderKindFunc -- function that takes (kind, path) and returns kind
      **/
     provides.render = function(renderNodeFunc, renderKindFunc, relational) {
-        var relClone = _.cloneDeep(relational);
-        return renderFromRoot(renderNodeFunc, renderKindFunc, relClone.Root, relClone);
+        return renderFromRoot(renderNodeFunc, renderKindFunc, relational.Root, relational);
     };
 
     /** reverseTree -- flip child to parent on a kind */
@@ -184,7 +183,6 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
         // quick hack to show the reversal
         relational.Relations[0].Child = 4;
 
-        console.log(JSON.stringify(relational, null, 2));
         return relational;
     }
 
@@ -857,7 +855,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
                 var subtree = join(output[renderedKind],
                     (renderedKind) ? buildRecursiveFast(childNode.Child, subpath, relational, parentToChild) : undefined); // if the kind is removed by renderer, don't build the subtree
                 if (!Array.isArray(relational.Nodes[currentNode]))
-                if (subtree) output[renderedKind] = (childNode.IsArray) ? asArray(subtree) : subtree;
+                    if (subtree) output[renderedKind] = (childNode.IsArray) ? asArray(subtree) : subtree;
             }
         }
         return output;
@@ -885,7 +883,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
         }
     }
 
-    function asArray(element) {return [].concat.apply([], [element]); }
+    function asArray(element) { if (element === undefined) {return undefined;} return [].concat.apply([], [element]); }
 
     function removeChildrenByParentsIds(relational, parentIds) {
         _.forEach(parentIds, function(p){

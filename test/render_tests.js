@@ -189,7 +189,7 @@ describe("Rendering a relational structure into a new object structure", functio
 
         expect(result).to.deep.equal(expected);
     });
-    it("should be able to render and then compose, resulting in unmodified composed output", function(){
+    it("will change the original input, causing a subsequent compose to both alter the rendered output and result in a damaged rendered output", function(){
         var input = {
             "one" : {
                 "x":"y",
@@ -217,12 +217,19 @@ describe("Rendering a relational structure into a new object structure", functio
 
         var decomposed = tree.decompose(input);
         var renderResult = tree.render(renderNode, null, decomposed);
-        var composedResult = tree.compose(decomposed); // should not have changed
-
+        // The render should work
         expect(renderResult).to.deep.equal(expectedRendered);
-        expect(composedResult).to.deep.equal(input);
+
+        // For performance reasons, there are shared references between the relational and the rendered output.
+        // The relational is also mutated. A decompose will have some weird effects.
+        var composedResult = tree.compose(decomposed);
+
+        // And those effects will cause the shared references to go very wrong.
+        // Both the rendered and composed structures will be wrong.
+        expect(renderResult).to.not.deep.equal(expectedRendered);
+        expect(composedResult).to.not.deep.equal(input);
     });
-    it("should be able to render the same relational structure multiple times through different transforms", function(){
+    it("can render the same relational structure multiple times through different transforms ONLY if the relational struture is deep-cloned before the transform", function(){
         var input = {
             "one" : {
                 "two" :{}
@@ -247,8 +254,8 @@ describe("Rendering a relational structure into a new object structure", functio
         var addElementToNode = function(node) {node.x = "x"; return node;};
 
         var relational = tree.decompose(input);
-        var result_A = tree.render(null, reverseKind, relational);
-        var result_B = tree.render(addElementToNode, null, relational);
+        var result_A = tree.render(null, reverseKind, _.cloneDeep(relational));
+        var result_B = tree.render(addElementToNode, null, _.cloneDeep(relational));
 
         expect(result_A).to.deep.equal(expected_A);
         expect(result_B).to.deep.equal(expected_B);
