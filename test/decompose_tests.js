@@ -1,5 +1,4 @@
 var expect = require('chai').expect;
-var _ = require('lodash');
 
 var tree = require("../tree-surgeon.js");
 
@@ -216,7 +215,7 @@ describe("Tree decomposition", function() {
                     "what":"child of the root"
                 }
             };
-            var expected = _.cloneDeep(input);
+            var expected = JSON.parse(JSON.stringify(input));
 
             var result = tree.decompose(input);
 

@@ -18,6 +18,7 @@
     "data"
   ],
   "author": "ieb",
+  "license":"BSD-3-Clause",
   "licenses": [
     {
       "type": "BSD",
@@ -29,14 +30,11 @@
   },
   "homepage": "https://github.com/i-e-b/node-tree-surgeon",
   "devDependencies": {
-    "chai": "^3.2.0",
-    "coveralls": "^2.11.2",
-    "istanbul": "^0.3.2",
-    "mocha": "^1.21.4",
-    "mocha-lcov-reporter": "0.0.1",
-    "metaret":"*"
+    "chai": "3.5.0",
+    "coveralls": "2.11.9",
+    "istanbul": "0.4.3",
+    "mocha": "2.4.5",
+    "mocha-lcov-reporter": "1.2.0"
   },
-  "dependencies": {
-    "lodash": "^2.4.1"
-  }
+  "dependencies": { }
 }

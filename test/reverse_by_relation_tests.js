@@ -1,5 +1,4 @@
 var expect = require('chai').expect;
-var _ = require('lodash');
 
 var tree = require("../tree-surgeon.js");
 

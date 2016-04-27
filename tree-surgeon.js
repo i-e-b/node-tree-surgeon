@@ -1,6 +1,7 @@
 "use strict";
 var global, exports;
-var _ = require('lodash');
+var _ = require('./loredo');
+
 
 // Some helpers for chained API.
 function rebind1(f,end){return (function(a1)                {return f(a1, this);                }).bind(end);}
@@ -211,11 +212,11 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
         var removeRel = function(rel) {toRemove.push(rel.Parent); toRemove.push(rel.Child);};
 
         // build the id tree for the new relationships, and keep track of the old relationships to delete
-        _.where(relational.Relations, newChildSpec).forEach(function(rel) {
+        _.filter(relational.Relations, newChildSpec).forEach(function(rel) {
             var gParent = rel.Parent; var oldParent = rel.Child;
             if (!grandparents[gParent]) grandparents[gParent] = {};
 
-            var oldChildren = _.where(relational.Relations, {Kind:newParentSpec.Kind, Parent:oldParent});
+            var oldChildren = _.filter(relational.Relations, {Kind:newParentSpec.Kind, Parent:oldParent});
             var map = groupNewParentsByHashEquality(oldChildren);
 
             if (map.length !== 1) return; // doesn't match the pattern -- must have exactly one new parent to flip out
@@ -260,7 +261,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
      * @return a reference to the updated relational model
      */
     provides.reverseByRelation = function(relationFilter, groupPredicate, relational) {
-        var relationsToReverse = _.where(relational.Relations,relationFilter);
+        var relationsToReverse = _.filter(relational.Relations,relationFilter);
         var relationGroups = _.groupBy(relationsToReverse, groupPredicate);
 
         var nodesToRemove = [];
@@ -333,6 +334,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
         };
 
         var cycleAgain = true;
+        var emptyNodes = [];
         var remover = function(rel) {
             var dead = emptyNodes.indexOf(rel.Child) !== -1;
             if (dead) cycleAgain = true;
@@ -342,7 +344,6 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
         while (cycleAgain) {
             cycleAgain = false;
 
-            var emptyNodes = [];
             for (var i=0; i < relational.Nodes.length; i++) {
                 if (isEmpty(relational.Nodes[i]) && noChildren(i, relational)) { emptyNodes.push(i); }
             }
@@ -364,7 +365,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
     provides.pruneAfter = function(kind, relational) {
         // remove children of child IDs
         var pred = (typeof kind === "string") ? {Kind:kind} : kind;
-        var parents = _.pluck(_.where(relational.Relations, pred), "Child");
+        var parents = _.pluck(_.filter(relational.Relations, pred), "Child");
         removeChildrenByParentsIds(relational, parents);
         return relational;
     };
@@ -385,7 +386,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
      */
     provides.chop = function(filterFunc, relational) {
         var toRemove = [];
-        _.forEach(relational.Nodes, function(node, id) {
+        relational.Nodes.forEach(function(node, id) {
             if (filterFunc(node, id)) toRemove.push(id);
         });
         removeNodesByIds(relational, toRemove);
@@ -399,7 +400,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
      */
     provides.chopAfter = function(filterFunc, relational) {
         var toRemove = [];
-        _.forEach(relational.Nodes, function(node, id) {
+        relational.Nodes.forEach(function(node, id) {
             if (filterFunc(node, id)) toRemove.push(id);
         });
         removeChildrenByParentsIds(relational, toRemove);
@@ -415,7 +416,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
     provides.chopByKind = function(kind, filterFunc, relational) {
         var toRemove = [];
         var targetIds = pickIdsByKind(kind, relational);
-        _.forEach(targetIds, function(targetId) {
+        targetIds.forEach(function(targetId) {
             if (filterFunc(relational.Nodes[targetId], targetId)) { toRemove.push(targetId); }
         });
         removeNodesByIds(relational, toRemove);
@@ -430,7 +431,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
     provides.chopChildless = function(filterFunc, relational) {
         var toRemove = [];
         var targetIds = pickIdsWithNoChildren(relational);
-        _.forEach(targetIds, function(targetId) {
+        targetIds.forEach(function(targetId) {
             if (filterFunc(relational.Nodes[targetId], targetId)) { toRemove.push(targetId); }
         });
         removeNodesByIds(relational, toRemove);
@@ -585,7 +586,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
         }
 
         var outp = {};
-        _.forEach(targetIds, function(nodeId) { // for each targeted node
+        targetIds.forEach(function(nodeId) { // for each targeted node
 
             var key = nodeId;
             if (idSelector) {
@@ -614,10 +615,10 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
 
     /** pick values of a given property from the given kind */
     provides.reduce = function(kind, prop, relational) {
-        var rels  =_.where(relational.Relations, {Kind:kind});
+        var rels  =_.filter(relational.Relations, {Kind:kind});
         // for each in ids, get parent, populate with child values and chop.
 
-        _.forEach(rels, function(r){
+        rels.forEach(function(r){
             relational.Nodes[r.Parent][kind] = join(relational.Nodes[r.Parent][kind], relational.Nodes[r.Child][prop]);
         });
 
@@ -645,7 +646,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
      */
     provides.forEachByKind = function(kind, actionFunc, relational) {
         var targetIds = pickIdsByKind(kind, relational);
-        _.forEach(targetIds, function(id) {
+        targetIds.forEach(function(id) {
             actionFunc(relational.Nodes[id], id);
         });
         return relational;
@@ -653,12 +654,12 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
 
     /** Given a child ID, find its parent's ID. Returns `null` if not found */
     provides.parentIdOf = function(childId, relational) {
-        return (_.first(_.where(relational.Relations, {Child:childId})) || {Parent:null}).Parent;
+        return ((_.filter(relational.Relations, {Child:childId})[0]) || {Parent:null}).Parent;
     };
 
     /** Given a parent ID, return a list of all child IDs, or empty */
     provides.getChildrenOf = function(parentId, relational) {
-        return _.pluck(_.where(relational.Relations, {Parent:parentId}), 'Child');
+        return _.pluck(_.filter(relational.Relations, {Parent:parentId}), 'Child');
     };
 
     /**
@@ -678,14 +679,14 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
             whereCriteria = _.clone(kind);
             whereCriteria.Parent = parentId;
         }
-        return _.pluck(_.where(relational.Relations, whereCriteria), 'Child' );
+        return _.pluck(_.filter(relational.Relations, whereCriteria), 'Child' );
     };
 
     /** return the Kind strings between root and the given node as an array  */
     provides.getPathOf = function(nodeId, relational) {
         var result = [];
         var rel, id = nodeId;
-        while (rel = _.first(_.where(relational.Relations, {Child: id}))) {
+        while (rel = (_.filter(relational.Relations, {Child: id}))[0]) {
             result.unshift(rel.Kind);
             id = rel.Parent;
         }
@@ -731,12 +732,12 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
     // Return Child ids for a relation kind, or kind-spec
     function pickIdsByKind(kind, relational) {
         var spec = (typeof kind === "string") ? {Kind:kind} : kind;
-        return _.pluck(_.where(relational.Relations, spec), 'Child');
+        return _.pluck(_.filter(relational.Relations, spec), 'Child');
     }
 
     function pickIdsByNodePredicate(predFunc, relational) {
         var ids = [];
-        _.forEach(relational.Nodes, function(node, idx) {
+        relational.Nodes.forEach(function(node, idx) {
             if (idx == relational.Root) return;
             if (predFunc(node, idx)) ids.push(idx);
         });
@@ -744,7 +745,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
     }
     function pickIdsByNodePredicateIncludeRoot(predFunc, relational) {
         var ids = [];
-        _.forEach(relational.Nodes, function(node, idx) {
+        relational.Nodes.forEach(function(node, idx) {
             if (predFunc(node, idx)) ids.push(idx);
         });
         return ids;
@@ -759,9 +760,9 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
     function fuseByNodeIds(ids, pickForParentFunc, pickForChildFunc, relational){
         // TODO: this is now the general case for a lot of things -- tune it!
         var flip_join = flip(join);
-        _.forEach(ids, function(nodeId) { // for each node to merge
+        ids.forEach(function(nodeId) { // for each node to merge
             var parentId = null, childRels = [];
-            _.forEach(relational.Relations, function(rel, idx) { // find rels where id is parent or child
+            relational.Relations.forEach(function(rel, idx) { // find rels where id is parent or child
                 if ( ! rel) return;
                 if (rel.Child == nodeId) {
                     parentId = rel.Parent;
@@ -774,13 +775,13 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
             });
             var forParent = pickForParentFunc(relational.Nodes[nodeId], nodeId);
             if (forParent) _.merge(relational.Nodes[parentId], forParent, join); // merge node up
-            _.forEach(childRels, function(idx) { // connect children to parent
+            childRels.forEach(function(idx) { // connect children to parent
                 relational.Relations[idx].Parent = parentId;
             });
         });
 
         // filter undefined nodes
-        _.remove(relational.Relations, function(r){return _.isUndefined(r);});
+        _.remove(relational.Relations, function(r){return typeof r == 'undefined'});
 
         return relational;
     }
@@ -886,7 +887,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
     function asArray(element) { if (element === undefined) {return undefined;} return [].concat.apply([], [element]); }
 
     function removeChildrenByParentsIds(relational, parentIds) {
-        _.forEach(parentIds, function(p){
+        parentIds.forEach(function(p){
             _.remove(relational.Relations, function(v) {
                 if (v.Parent == p) {
                     delete relational.Nodes[v.Child];

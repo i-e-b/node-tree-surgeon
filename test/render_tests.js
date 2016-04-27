@@ -1,5 +1,4 @@
 var expect = require('chai').expect;
-var _ = require('lodash');
 
 var tree = require("../tree-surgeon.js");
 
@@ -254,8 +253,8 @@ describe("Rendering a relational structure into a new object structure", functio
         var addElementToNode = function(node) {node.x = "x"; return node;};
 
         var relational = tree.decompose(input);
-        var result_A = tree.render(null, reverseKind, _.cloneDeep(relational));
-        var result_B = tree.render(addElementToNode, null, _.cloneDeep(relational));
+        var result_A = tree.render(null, reverseKind, JSON.parse(JSON.stringify(relational)));
+        var result_B = tree.render(addElementToNode, null, JSON.parse(JSON.stringify(relational)));
 
         expect(result_A).to.deep.equal(expected_A);
         expect(result_B).to.deep.equal(expected_B);
