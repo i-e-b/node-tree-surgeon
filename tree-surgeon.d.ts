@@ -11,6 +11,10 @@ declare module "tree-surgeon" {
         [index: string]: any;
     }
 
+    /** Re-wrap a relational structure with the manipulation functions */
+    export function wrap(obj:any):DecomposedTree;
+
+    /** decompose -- Takes a plain object and decomposes sub-objects into separate nodes */
     export function decompose(obj:any):DecomposedTree;
 
     export interface DecomposedTree extends CallBoundObject {
