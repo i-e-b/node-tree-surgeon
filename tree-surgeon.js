@@ -48,6 +48,13 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
         this.reverseTree = rebind1(provides.reverseTree, this);
     };
 
+    /** Re-wrap a relational structure with the manipulation functions */
+    provides.wrap = function(obj) {
+        var ret = new CallBoundObject();
+        ret.Root = obj.Root; ret.Nodes = obj.Nodes; ret.Relations = obj.Relations; ret.RootArray = obj.RootArray;
+        return ret;
+    }
+
     /** decompose -- Takes a plain object and decomposed sub-objects into separate nodes
      *
      * Output structure looks like
@@ -140,9 +147,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
             }
         }
 
-        var ret = new CallBoundObject();
-        ret.Root = rootId; ret.Nodes = nodes; ret.Relations = relations; ret.RootArray = isRootArray;
-        return ret;
+        return provides.wrap({Root: rootId, Nodes: nodes, Relations: relations, RootArray: isRootArray});
     };
 
     /** compose -- Takes a decomposed structure and returns a plain object
