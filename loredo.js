@@ -49,6 +49,7 @@ function forEach (collection, func) {
 function first (collection) {return collection[0];} // could probably do with replacing in code.
 
 function clone (o) {
+    if (typeof o === 'function') return o; // don't clone functions, just pass them through
     var n = {};
     var i, k = Object.keys(o);
     for (i = 0; i < k.length; i++) {n[k[i]] = o[k[i]];}

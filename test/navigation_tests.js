@@ -117,7 +117,7 @@ describe("Navigating relational structure", function(){
         });
     });
 
-    describe("When getting the child IDs of children of s specific Kind given the parent ID", function() {
+    describe("When getting the child IDs of children of a specific Kind given the parent ID", function() {
         it("should give an empty array when passed an ID not in the relational structure", function(){
             var input = {
                 "onlyChild" : {a:1}
@@ -194,6 +194,26 @@ describe("Navigating relational structure", function(){
             var dec = function (n) {return {skip:(n.match == 'no')};};
             var relational = tree.decompose(input, dec);
             var actualIds = tree.getChildrenByKindOf(relational.Root, {Kind:'OnlyThis', skip:false}, relational);
+            var actual = [];
+            actualIds.forEach(function(id) {
+                var node = tree.getNode(id, relational);
+                actual.push(node.name);
+            });
+
+            expect(actual.length).to.equal(1);
+            expect(actual.sort()).to.deep.equal(expected);
+        });
+        it("should accept a predicate function to filter child items",function(){
+            var input = {
+                'NotThis' : { 'name': 'no-one', 'match': 'no' },
+                'OnlyThis': { 'name': 'someone', 'match': 'yes' }
+            };
+            var expected = ['someone'].sort();
+
+            var predicate = function(rel) { return rel.Kind === 'OnlyThis'; };
+
+            var relational = tree.decompose(input);
+            var actualIds = tree.getChildrenByKindOf(relational.Root, predicate, relational);
             var actual = [];
             actualIds.forEach(function(id) {
                 var node = tree.getNode(id, relational);

@@ -680,6 +680,8 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
         var whereCriteria;
         if (typeof kind === "string") {
             whereCriteria = {Parent: parentId, Kind: kind};
+        } else if (typeof kind === "function") {
+            whereCriteria = kind;
         } else {
             whereCriteria = _.clone(kind);
             whereCriteria.Parent = parentId;
