@@ -134,7 +134,7 @@ Assuming
 
 #### Manipulation
 
-- [ ] Normalise -- removes any relationships or nodes that are not reachable from the root, but keeps node and relation indexes consistent.
+- [x] Normalise -- removes any relationships or nodes that are not reachable from the root, but keeps node and relation indexes consistent.
       
       `relational.normalise()`
 - [x] prune -- remove subtrees by relationship kind. Kind can be a string, or a `where` predicate on the relationship (an object with exact value matches)
@@ -172,29 +172,34 @@ Assuming
           
           `relational.chopNodesByIds(ids)`
           - `ids` an array of node ids. All these nodes and their subtrees will be removed.
+
+
 - MergeUp -- remove a relationship and one node by merging data from child to parent. Subtree remains
     - [x] mergeUpByKind -- select merge targets by relationship kind. Kind can be a string or a `where` predicate
     - [x] mergeUpByNode -- select merge targets by applying a predicate to nodes
 - MergeDown -- remove a relationship and one node by merging data from parent to child. Subtree remains
     - [x] mergeDownByKind -- select merge targets by relationship kind. Kind can be a string or a `where` predicate
     - [x] mergeDownByNode -- select merge targets by applying a predicate to nodes
-- [ ] Fuse -- remove a node by merging into it's parent and child (by supplied function)
-    - [ ] fuseAway -- remove a node by connecting it's parents to it's children, losing the data in the selected nodes
-        - [ ] fuseAwayByNode
-        - [ ] fuseAwayByKind
+
+
+- Fuse -- remove a node by merging into it's parent and child (by supplied function)
     - [x] fuseByNode -- remove a node picked by a predicate on that node
     - [x] fuseByKind -- remove a node picked by kind. Kind can be a string or a `where` predicate
-    - [ ] graft -- insert new subtrees
-- [ ] disconnect -- the opposite of Fuse, place a new node between a parent and child
-- [ ] fork -- move some of the values of a node into a new or existing sibling
-- [ ] move -- move some of the values of a node into an existing sibling, or do nothing
 - [x] flipRelationship -- given a parent kind, a child kind, and an equality function for children; swap parents⇔children, grouping children by equality. The new child kind can be a string or a `where` predicate, but the new parent kind can only be a string.
 - [x] reverseByRelation -- 
-- [ ] editPath -- given a path of kinds and a func node→node, replace data at those paths
 - [x] reduce -- reduce objects to a single value from inside them, by kind or node predicate (` {a:[{x:1},{x:2}]} -> {a:[1,2]} `)
 - [x] editByKind -- given a `kind` name and an editor function, change all immediate children of that kind. Kind can be a string or a `where` predicate
 - [x] removeEmptyNodes -- recursively remove nodes which contain only `null` or `undefined`. This can remove entire subtrees that contain only empty children
 
+## Unimplemented
+- [ ] graft -- insert new subtrees
+- [ ] disconnect -- the opposite of Fuse, place a new node between a parent and child
+- [ ] fork -- move some of the values of a node into a new or existing sibling
+- [ ] move -- move some of the values of a node into an existing sibling, or do nothing
+- [ ] editPath -- given a path of kinds and a func node→node, replace data at those paths
+- [ ] fuseAway -- remove a node by connecting it's parents to it's children, losing the data in the selected nodes
+- [ ] fuseAwayByNode
+- [ ] fuseAwayByKind
 
 Note:
 * To run istanbul on Windows, use `istanbul cover C:\Users\[username]\AppData\Roaming\npm\node_modules\mocha\bin\_mocha -- -R spec`
