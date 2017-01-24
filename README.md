@@ -3,7 +3,6 @@ node-tree-surgeon
 [![Build Status](https://travis-ci.org/i-e-b/node-tree-surgeon.svg?branch=master)](https://travis-ci.org/i-e-b/node-tree-surgeon) [![Coverage Status](https://img.shields.io/coveralls/i-e-b/node-tree-surgeon.svg)](https://coveralls.io/r/i-e-b/node-tree-surgeon?branch=master)
 
 Tools for editing tree structures using a relational model.
-Not yet complete, but usable
 
 ### General purpose:
 
@@ -47,29 +46,77 @@ Properties with array values are treated one of two ways:
 
 ### Operations on POJO structure:
 
+Assuming `var tree = require('tree-surgeon');`
+
 #### Input
 
 - [x] decompose -- turn a normal js object tree into the relational structure
+      `tree.decompose(obj, excludedKinds, relationDecorator, useEmptyRelations);`
+      - `obj` The object to be decomposed for relational operations. This should be a simple object, as returned by `JSON.parse`
+      - `excludedKinds` An array of property names. These properties and their sub-trees will not be decomposed
+      - `relationDecorator` A function to read node as they are decomposed and inject data into the relations table. This data can be used in subsequent operations.
+      - `useEmptyRelations` Bool, default false. If `true`, empty arrays will be treated as object nodes with no children.
+      Returns a relational structure.
 
 ### Operations on the relational structure:
 
+Assuming
+```
+    var tree = require('tree-surgeon');
+    var relational = tree.decompose(my_object);
+```
+
 #### Output
 
-- [x] compose -- put a decomposed tree back together how it was. The composed object will contain auto-generated keys if any were created
-- [x] render -- pass each node through a function, and each kind name through a function and compose tree from the results
+- [x] compose -- convert a relational structure back into a plain object. Any manipulations of the relational structure will take effect.
+      `relational.compose()` or `tree.compose(relational)`
+      This is the fastest output function.
+- [x] render -- pass each node through a function, and each kind name through a function and compose tree from the results. Manipulations of the relational structure will take effect, and both property names and object contents can be manipulated during output.
+      `relational.render(renderNodeFunc, renderKindFunc)`
+      - `renderNodeFunc` function that takes (node, path, id) and returns the rendered object contents
+      - `renderKindFunc` function that takes (kind, path) and returns the output property name
 - [x] harvest -- return an object of composed sub-trees by kind, keyed by a parent node value
-- [x] gather -- return an array of sub-trees 
-    - [x] gatherByKind
-    - [x] gatherByNode
+      `relational.harvest(kind, idSelector)`
+      - `kind` the target property names to extract
+      - `idSelector` a function that takes the object nodes and returns a unique new property name
+- [x] gather -- return an array of sub-trees
+    - [x] gatherByKind -- subtrees selected by property name
+          `relational.gatherByKind(kind)`
+          - `kind` the target property names to extract
+    - [x] gatherByNode -- subtrees selected by a function
+          `relational.gatherByNode(selector)`
+          - `selector` function that takes a node and returns `bool`. The subtrees of node that result in `true` will be returned.
 
 #### Navigation
 
 - [x] parentIdOf -- get parent ID from child ID, or `null` if not found
+      `relational.parentIdOf(childId)`
+      - `childId` the ID of a node
+      returns the parent ID, or `null` if this was the root node
 - [x] getChildrenOf -- get an array of node IDs for the given parent ID
+      `relational.getChildrenOf(parentId)`
+      - `parentId` the ID of a node
+      returns an array of all child nodes' IDs. Returns empty array if a leaf node was passed.
 - [x] getChildrenByKindOf - get an array of child node IDs for a given parent where the child is a specified type. Kind can be a string, or a `where` predicate on the relationship (an object with exact value matches)
+      `relational.getChildrenByKindOf(parentId, kind)`
+      - `parentId` the ID of a node
+      - `kind` selector for the children to be included
+         - string: pick children with a matching property name
+         - object: pick children whose relation object matches properties on the selector object
+         - function: given the relation object, pick where the function returns `true`
 - [x] getNode -- return the node data for a given ID
+      `relational.getNode(id)`
+      - `id` the ID of a node
 - [x] getPathOf -- give the `Kind` path for a given node ID
+      `relational.getPathOf(nodeId)`
+      - `nodeId` the ID of a node
 - [x] forEachByKind -- given a `Kind` execute the supplied function for all nodes of that kind. Kind can be a string, or a `where` predicate
+      `relational.forEachByKind(kind, actionFunc)`
+      - `kind` selector for the children to be included
+         - string: pick children with a matching property name
+         - object: pick children whose relation object matches properties on the selector object
+         - function: given the relation object, pick where the function returns `true`
+      - `actionFunc` function of `(node, id)` to execute for each matching node. Any return is ignored. Any changes made to the node data is retained.
 
 #### Manipulation
 

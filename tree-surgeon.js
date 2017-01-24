@@ -676,7 +676,6 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
      * @return an array of Child Id's of a specified Kind
      */
     provides.getChildrenByKindOf = function(parentId, kind, relational) {
-
         var whereCriteria;
         if (typeof kind === "string") {
             whereCriteria = {Parent: parentId, Kind: kind};
