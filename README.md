@@ -51,11 +51,13 @@ Assuming `var tree = require('tree-surgeon');`
 #### Input
 
 - [x] decompose -- turn a normal js object tree into the relational structure
+      
       `tree.decompose(obj, excludedKinds, relationDecorator, useEmptyRelations);`
       - `obj` The object to be decomposed for relational operations. This should be a simple object, as returned by `JSON.parse`
       - `excludedKinds` An array of property names. These properties and their sub-trees will not be decomposed
       - `relationDecorator` A function to read node as they are decomposed and inject data into the relations table. This data can be used in subsequent operations.
       - `useEmptyRelations` Bool, default false. If `true`, empty arrays will be treated as object nodes with no children.
+      
       Returns a relational structure.
 
 ### Operations on the relational structure:
@@ -69,35 +71,44 @@ Assuming
 #### Output
 
 - [x] compose -- convert a relational structure back into a plain object. Any manipulations of the relational structure will take effect.
+      
       `relational.compose()` or `tree.compose(relational)`
+      
       This is the fastest output function.
 - [x] render -- pass each node through a function, and each kind name through a function and compose tree from the results. Manipulations of the relational structure will take effect, and both property names and object contents can be manipulated during output.
+      
       `relational.render(renderNodeFunc, renderKindFunc)`
       - `renderNodeFunc` function that takes (node, path, id) and returns the rendered object contents
       - `renderKindFunc` function that takes (kind, path) and returns the output property name
 - [x] harvest -- return an object of composed sub-trees by kind, keyed by a parent node value
+      
       `relational.harvest(kind, idSelector)`
       - `kind` the target property names to extract
       - `idSelector` a function that takes the object nodes and returns a unique new property name
 - [x] gather -- return an array of sub-trees
     - [x] gatherByKind -- subtrees selected by property name
+          
           `relational.gatherByKind(kind)`
           - `kind` the target property names to extract
     - [x] gatherByNode -- subtrees selected by a function
+          
           `relational.gatherByNode(selector)`
           - `selector` function that takes a node and returns `bool`. The subtrees of node that result in `true` will be returned.
 
 #### Navigation
 
 - [x] parentIdOf -- get parent ID from child ID, or `null` if not found
+      
       `relational.parentIdOf(childId)`
       - `childId` the ID of a node
       returns the parent ID, or `null` if this was the root node
 - [x] getChildrenOf -- get an array of node IDs for the given parent ID
+      
       `relational.getChildrenOf(parentId)`
       - `parentId` the ID of a node
       returns an array of all child nodes' IDs. Returns empty array if a leaf node was passed.
 - [x] getChildrenByKindOf - get an array of child node IDs for a given parent where the child is a specified type. Kind can be a string, or a `where` predicate on the relationship (an object with exact value matches)
+      
       `relational.getChildrenByKindOf(parentId, kind)`
       - `parentId` the ID of a node
       - `kind` selector for the children to be included
@@ -105,12 +116,15 @@ Assuming
          - object: pick children whose relation object matches properties on the selector object
          - function: given the relation object, pick where the function returns `true`
 - [x] getNode -- return the node data for a given ID
+      
       `relational.getNode(id)`
       - `id` the ID of a node
 - [x] getPathOf -- give the `Kind` path for a given node ID
+      
       `relational.getPathOf(nodeId)`
       - `nodeId` the ID of a node
 - [x] forEachByKind -- given a `Kind` execute the supplied function for all nodes of that kind. Kind can be a string, or a `where` predicate
+      
       `relational.forEachByKind(kind, actionFunc)`
       - `kind` selector for the children to be included
          - string: pick children with a matching property name
@@ -121,14 +135,43 @@ Assuming
 #### Manipulation
 
 - [ ] Normalise -- removes any relationships or nodes that are not reachable from the root, but keeps node and relation indexes consistent.
-- [x] Prune -- remove subtrees by relationship kind. Kind can be a string, or a `where` predicate on the relationship (an object with exact value matches)
+      
+      `relational.normalise()`
+- [x] prune -- remove subtrees by relationship kind. Kind can be a string, or a `where` predicate on the relationship (an object with exact value matches)
+      
+      `relational.prune(kind)`
+      - `kind` property name or relation match to remove.
     - [x] pruneAfter -- remove subtrees by relationship kind, but keep the immediate children. Kind can be a string, or a `where` predicate
+          
+          `relational.pruneAfter(kind)`
+          - `kind` property name or relation match. The children of matches will be removed
     - [x] pruneAllBut -- remove subtrees that **don't** match a set of kinds. Supports only array of string kinds.
-- [x] Chop -- remove subtrees by data predicate
+          
+          `relational.pruneAllBut(kind)`
+          - `kind` property name or relation match. All non-matching relations will be removed
+- [x] chop -- remove subtrees by data predicate
+      
+      `relational.chop(filterFunc)`
+      - `filterFunc` function of `(node, id)`. If this returns a truthy value, node will be removed, else node will be kept
+
     - [x] chopAfter -- remove subtrees by data predicate, but keep the matched children
+          
+          `relational.chopAfter(filterFunc)`
+          - `filterFunc` function of `(node, id)`. If this returns a truthy value, all children of the matched node will be removed
+
     - [x] chopByKind -- remove subtrees of a specified 'kind' by data predicate. Kind can be a string, or a `where` predicate
+          
+          `relational.chopByKind(kind, filterFunc)`
+          - `kind` property name or relation match. Matched nodes will be included in the filter
+          - `filterFunc` function of `(node, id)`. If this returns a truthy value, node will be removed, else node will be kept
     - [x] chopChildless -- remove nodes which have no children (ie. leaves) by data predicate
+          
+          `relational.chopChildless(filterFunc)`
+          - `filterFunc` function of `(node, id)`. All leaf nodes will be passed to this function. If this returns a truthy value, node will be removed.
     - [x] chopNodesByIds -- remove nodes and their subtrees by their IDs
+          
+          `relational.chopNodesByIds(ids)`
+          - `ids` an array of node ids. All these nodes and their subtrees will be removed.
 - MergeUp -- remove a relationship and one node by merging data from child to parent. Subtree remains
     - [x] mergeUpByKind -- select merge targets by relationship kind. Kind can be a string or a `where` predicate
     - [x] mergeUpByNode -- select merge targets by applying a predicate to nodes
