@@ -192,7 +192,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
         return relational;
     }
 
-    /** flipRelationship -- make children into parents and parents into children 
+    /** flipRelationship -- make children into parents and parents into children
      * new parents are merged based on equality of the value returned by `newParentHashFunc`
      * if no hash function is provided, all are considered equal
      **/

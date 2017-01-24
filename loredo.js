@@ -1,5 +1,9 @@
 "use strict";
 
+// This file contains minimalistic re-implementations of Lodash
+// functions that were used by earlier versions of tree-surgeon.
+
+
 function coalesce (old, additional) {
     if (additional === null || additional === undefined) return old;
     if (old) {

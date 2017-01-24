@@ -176,17 +176,47 @@ Assuming
 
 - MergeUp -- remove a relationship and one node by merging data from child to parent. Subtree remains
     - [x] mergeUpByKind -- select merge targets by relationship kind. Kind can be a string or a `where` predicate
+          
+          `relational.mergeUpByKind(kind)`
+          - `kind` target property or relation match. Matching nodes will be merged into their parents
     - [x] mergeUpByNode -- select merge targets by applying a predicate to nodes
+          
+          `relational.mergeUpByNode(predFunc)`
+          - `predFunc` function to select nodes. Matching nodes will be merged into their parents
 - MergeDown -- remove a relationship and one node by merging data from parent to child. Subtree remains
     - [x] mergeDownByKind -- select merge targets by relationship kind. Kind can be a string or a `where` predicate
+          
+          `relational.mergeDownByKind(kind)`
+          - `kind` target property or relation match. Matching nodes' data will be copied into their parents, then the matching node removed.
+
     - [x] mergeDownByNode -- select merge targets by applying a predicate to nodes
+          
+          `relational.mergeUpByNode(predFunc)`
+          - `predFunc` function to select nodes. Matching nodes' data will be copied into their parents, then the matching node removed.
 
 
-- Fuse -- remove a node by merging into it's parent and child (by supplied function)
+- Fuse -- remove a node by merging into it's parent and child (by supplied function). This is a generalisation of merge up/down.
     - [x] fuseByNode -- remove a node picked by a predicate on that node
+          
+          `relational.fuseByNode(nodeFunc, pickForParentFunc, pickForChildFunc)`
+          - `nodeFunc` function to pick nodes to fuse
+          - `pickForParentFunc` function that is given node data, and returns the data to copy into the parent node
+          - `pickForChildFunc` function that is given node data, and returns the data to copy into the child node.
     - [x] fuseByKind -- remove a node picked by kind. Kind can be a string or a `where` predicate
+          
+          `relational.fuseByKind(kind, pickForParentFunc, pickForChildFunc)`
+          - `kind` target property or relation match. Matching nodes will be removed, but sub-trees will remain
+          - `pickForParentFunc` function that is given node data, and returns the data to copy into the parent node
+          - `pickForChildFunc` function that is given node data, and returns the data to copy into the child node.
+
 - [x] flipRelationship -- given a parent kind, a child kind, and an equality function for children; swap parents⇔children, grouping children by equality. The new child kind can be a string or a `where` predicate, but the new parent kind can only be a string.
-- [x] reverseByRelation -- 
+      
+      `relational.flipRelationship(newChildKind, newParentKind, newParentHashFunc)`
+      - `newChildKind` property name that is currently the parent node, and should be flipped to being a parent
+      - `newParentKind` property name that is currently the child node, and should be flipped to being a child
+      - `newParentHashFunc` function that takes a node and returns a comparable value (preferable a number)
+
+- [x] reverseByRelation -- make children into parents and parents into children. This is a more complex and powerful version of `flipRelationship`. Have a look in the test cases for examples.
 - [x] reduce -- reduce objects to a single value from inside them, by kind or node predicate (` {a:[{x:1},{x:2}]} -> {a:[1,2]} `)
 - [x] editByKind -- given a `kind` name and an editor function, change all immediate children of that kind. Kind can be a string or a `where` predicate
 - [x] removeEmptyNodes -- recursively remove nodes which contain only `null` or `undefined`. This can remove entire subtrees that contain only empty children
