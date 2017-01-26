@@ -95,19 +95,19 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
             nodes[id] = {};
 
             var nodeType = typeof node;
-            var keys = (node == null || node == undefined || (nodeType !== 'object' && nodeType !== 'function')) ? [] : Object.keys(node);
+            var keys = Object.keys(node);
             var kc = keys.length;
             for (var ki = 0; ki < kc; ki++){
                 var key = keys[ki];
                 var value = node[key];
                 var isArr      = Array.isArray(value);
                 var type       = typeof value;
-                var isObj      = !!value && (type == 'object' || type == 'function');
+                var isObj      = !!value && (type == 'object');
                 var isExcluded = exclude.indexOf(key) >= 0 || ((value instanceof Date));
 
                 if ((!isExcluded) && isArr && (useEmptyRelations || (value.length > 0 && value.every(isNonArrayObject)))) {
                     if (value.length === 0) {
-                        // an empty relation
+                        // empty array child with the 'useEmptyRelations' flag set (an empty relation)
                         var childId = idx++;
                         if (decorator) {
                             relations.push(merge(decorator(null, key, undefined), {"Parent":id, "Child":childId, "Kind":key, "IsArray":true}));
@@ -139,10 +139,9 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
                         relations.push({"Parent":id, "Child":childId, "Kind":key, "IsArray":false});
                     }
 
-                    if (value !== null) nodesToDecompose.push([childId, value]);
-                    else nodes[childId] = [];
+                    nodesToDecompose.push([childId, value]);
                 } else {
-                    // just some value. Add to general output
+                    // just some value (also catches null/undefined). Add to general output
                     nodes[id][key] = value;
                 }
             }
@@ -764,12 +763,10 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
     }
 
     function fuseByNodeIds(ids, pickForParentFunc, pickForChildFunc, relational){
-        // TODO: this is now the general case for a lot of things -- tune it!
         var flip_join = flip(join);
         ids.forEach(function(nodeId) { // for each node to merge
             var parentId = null, childRels = [];
             relational.Relations.forEach(function(rel, idx) { // find rels where id is parent or child
-                if ( ! rel) return;
                 if (rel.Child == nodeId) {
                     parentId = rel.Parent;
                     delete relational.Relations[idx];
@@ -856,13 +853,12 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
         if (output && childNodes) {
             for (var i = 0; i < childNodes.length; i++) {
                 var childNode = childNodes[i];
-                var renderedKind = childNode.Kind;
-                var subpath = path.concat(childNode.Kind); // path is always input path, not rendered
+                var subpath = path.concat(childNode.Kind);
 
-                var subtree = join(output[renderedKind],
-                    (renderedKind) ? buildRecursiveFast(childNode.Child, subpath, relational, parentToChild) : undefined); // if the kind is removed by renderer, don't build the subtree
-                if (!Array.isArray(relational.Nodes[currentNode]))
-                    if (subtree) output[renderedKind] = (childNode.IsArray) ? asArray(subtree) : subtree;
+                var subtree = join(output[childNode.Kind], buildRecursiveFast(childNode.Child, subpath, relational, parentToChild));
+                //if (!Array.isArray(relational.Nodes[currentNode])) {
+                    output[childNode.Kind] = (childNode.IsArray) ? asArray(subtree) : subtree;
+                //}
             }
         }
         return output;
@@ -890,7 +886,7 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
         }
     }
 
-    function asArray(element) { if (element === undefined) {return undefined;} return [].concat.apply([], [element]); }
+    function asArray(element) { return [].concat.apply([], [element]); }
 
     function removeChildrenByParentsIds(relational, parentIds) {
         parentIds.forEach(function(p){
@@ -902,13 +898,5 @@ function rebind5(f,end){return (function(a1, a2, a3, a4, a5){return f(a1, a2, a3
             });
         });
     }
-
-    function queueWorkerSync (queue, doWork) {
-        while(queue.length > 0) {
-            var work = queue.shift();
-            doWork(work);
-        }
-    }
-
 /* istanbul ignore next */ // `this` branch doesn't get followed
 })(global || exports || this);

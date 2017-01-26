@@ -39,6 +39,39 @@ describe("Rendering a relational structure into a new object structure", functio
 
         expect(result).to.deep.equal(expected);
     });
+    it("should be able to render root arrays", function(){
+        var input = [
+            {
+                "x":"y",
+                "two" :[{
+                    "x":"y"
+                }]
+            },
+            {}
+        ];
+        var expected = [
+            {
+                "x":1,
+                "two":[{
+                    "x":1
+                }]
+            },
+            {
+                "z":2
+            }
+        ];
+
+        var renderNode = function(n) {
+            if (n.x) n.x = 1;
+            else n.z = 2;
+            return n;
+        }
+
+        var result = tree.render(renderNode, null, tree.decompose(input));
+
+        expect(result).to.deep.equal(expected);
+    });
+
     it("should be able to render based on path through the hierarchy", function(){
         var input = {
             "one" : {

@@ -332,6 +332,34 @@ describe("Tree decomposition", function() {
             var result = tree.decompose(input, relationDecorator);
             expect(noFunctions(result)).to.deep.equal(expected);
         });
+        it("should decorate empty relations", function(){
+            var input = {
+                thing: []
+            };
+            var relationDecorator = function(node){return {hello:"world"};};
+
+
+            var expected = {
+                "Nodes": [
+                    {},
+                    []
+                ],
+                "Relations": [
+                    {
+                        "Child": 1,
+                        "IsArray": true,
+                        "Kind": "thing",
+                        "Parent": 0,
+                        "hello": "world" // <-- decorator
+                    }
+                ],
+                "Root": 0,
+                "RootArray": false
+            };
+
+            var result = tree.decompose(input, [], relationDecorator, true);
+            expect(noFunctions(result)).to.deep.equal(expected);
+        });
     });
     describe("Decomposing complex structures", function(){
         it("should treat bare nested arrays as simple values and not decompose them", function(){
@@ -369,7 +397,80 @@ describe("Tree decomposition", function() {
             var result = tree.compose(tree.decompose(input));
             expect(noFunctions(result)).to.deep.equal(input);
         });
+        it("should handle functions and null properties defined on objects", function(){
+            var theFunction = function(){return 1;};
+            var input = {
+                "p": {
+                "object":"value",
+                "a-function": theFunction,
+                "nully": null,
+                "nowt": undefined
+                }
+            };
+            var expected = {
+                "Nodes":[
+                        {},
+                        {
+                            "object":"value",
+                            "a-function": theFunction,
+                            "nully": null,
+                            "nowt": undefined
+                        }
+                    ],
+                    "Relations":[
+                        {"Parent":0, "Child":1, "Kind":"p", "IsArray": false},
+                    ],
+                    "Root":0,
+                    "RootArray":false
+            };
+            var result = tree.decompose(input);
+            expect(noFunctions(result)).to.deep.equal(expected);
 
+            var recomposed = tree.compose(result);
+            expect(recomposed).to.deep.equal(input);
+        });
+        it("should handle null or undefined root object as if they were empty objects",function(){
+            var expected = {
+                "Nodes":[],
+                "Relations":[ ],
+                "Root":0,
+                "RootArray":false
+            };
+
+            var result = tree.decompose(null);
+            expect(noFunctions(result)).to.deep.equal(expected);
+        });
     });
+    describe("When decomposing using 'emptyRelations' setting", function(){
+        it("should re-compose an empty array", function(){
+            var input = {
+                "thing": []
+            };
+            var expected = {
+                "thing": []
+            };
 
+            var result = tree.decompose(input, [], null, /* useEmptyRelations:*/true ).compose();
+            expect(result).to.deep.equal(expected);
+
+        });
+        it("should remove null or undefined items from object arrays", function() {
+            var input = {
+                "thing": [
+                    {a:1},
+                    null,
+                    {a:2}
+                ]
+            };
+            var expected = {
+                "thing": [
+                    {a:1},
+                    {a:2}
+                ]
+            };
+
+            var result = tree.decompose(input, [], null, /* useEmptyRelations:*/true ).compose();
+            expect(result).to.deep.equal(expected);
+        });
+    });
 });

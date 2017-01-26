@@ -250,5 +250,6 @@ module.exports = {
     remove : remove,
     find : find,
     some : some,
-    indexBy : indexBy
+    indexBy : indexBy,
+    coalesce : coalesce
 };

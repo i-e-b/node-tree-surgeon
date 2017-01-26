@@ -88,4 +88,74 @@ describe("Tree composition from relational model", function() {
 
         expect(result).to.deep.equal(input);
     });
+    it("should handle chains of arrays", function(){
+        var input = [ {a:[{"a":"b"}], b:[{"c":["d"]}]} ];
+        var result = tree.decompose(input).compose();
+
+        expect(result).to.deep.equal(input);
+    });
+    it("should handle deep arrays", function(){
+        var input = [[[[{"a":"b"}]]]];
+        var result = tree.decompose(input).compose();
+
+        expect(result).to.deep.equal(input);
+    });
+    it("should handle merged objects", function(){
+        var relational = {
+            "Nodes":[
+                {},
+                { a:1 },
+                { a:2 },
+                { a:3 },
+                { a:4 }
+            ],
+            "Relations":[
+                {"Parent":0, "Child":1, "Kind":"p", "IsArray": false},
+                {"Parent":0, "Child":2, "Kind":"p", "IsArray": false},
+                {"Parent":0, "Child":3, "Kind":"p", "IsArray": false},
+                {"Parent":0, "Child":4, "Kind":"p", "IsArray": false},
+            ],
+            "Root":0,
+            "RootArray":false
+        };
+        var expected = {
+            "p": [
+                { "a": 1 },
+                { "a": 2 },
+                { "a": 3 },
+                { "a": 4 }
+            ]
+        };
+        var result = tree.compose(relational);
+
+        expect(result).to.deep.equal(expected);
+    });
+    it("should handle merged arrays", function(){
+        var relational = {
+            "Nodes":[
+                {},
+                [1],
+                [2],
+                [3],
+                [4]
+            ],
+            "Relations":[
+                {"Parent":0, "Child":1, "Kind":"a", "IsArray": false},
+                {"Parent":0, "Child":2, "Kind":"a", "IsArray": true},
+                {"Parent":0, "Child":3, "Kind":"a", "IsArray": true},
+                {"Parent":0, "Child":4, "Kind":"a", "IsArray": true},
+                {"Parent":0, "Child":5, "Kind":"a", "IsArray": true},
+            ],
+            "Root":0,
+            "RootArray":false
+        };
+        var expected = {
+            a:[1,2,3,4]
+        };
+        var result = tree.compose(relational);
+
+        expect(result).to.deep.equal(expected);
+    });
+
+
 });

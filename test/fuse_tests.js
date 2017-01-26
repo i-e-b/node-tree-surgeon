@@ -334,6 +334,5 @@ describe("Fusing nodes into parents and children", function() {
 
             expect(result).to.deep.equal(expected);
         });
-
     });
 });
