@@ -46,12 +46,6 @@ function pluck (collection, propName) {
     return r;
 }
 
-function forEach (collection, func) {
-    return collection.forEach(func); // should be replaced in main codebase
-}
-
-function first (collection) {return collection[0];} // could probably do with replacing in code.
-
 function clone (o) {
     if (typeof o === 'function') return o; // don't clone functions, just pass them through
     var n = {};
@@ -86,16 +80,16 @@ function difference (a,b) {
 }
 
 function merge(dst, src, join){
-    return mergeDESC(dst,src,join||coalesce,[],[]);
+    mergeDESC(dst,src,join||coalesce,[],[]);
 }
 
 function isPlainObject(obj) {
   if (typeof obj == 'object' && obj !== null) {
-    if (typeof Object.getPrototypeOf == 'function') {
+    //if (typeof Object.getPrototypeOf == 'function') {  // comment in if you need to run ES5
       var proto = Object.getPrototypeOf(obj);
       return proto === Object.prototype || proto === null;
-    }
-    return Object.prototype.toString.call(obj) == '[object Object]';
+    //}
+    //return Object.prototype.toString.call(obj) == '[object Object]';
   }
   return false;
 }
@@ -251,5 +245,6 @@ module.exports = {
     find : find,
     some : some,
     indexBy : indexBy,
-    coalesce : coalesce
+    coalesce : coalesce,
+    isPlainObject : isPlainObject
 };
