@@ -79,10 +79,6 @@ function difference (a,b) {
     return n;
 }
 
-function merge(dst, src, join){
-    mergeDESC(dst,src,join||coalesce,[],[]);
-}
-
 function isPlainObject(obj) {
   if (typeof obj == 'object' && obj !== null) {
     //if (typeof Object.getPrototypeOf == 'function') {  // comment in if you need to run ES5
@@ -94,6 +90,9 @@ function isPlainObject(obj) {
   return false;
 }
 
+function merge(dst, src, join){
+    mergeDESC(dst,src,join||coalesce,[],[]);
+}
 function mergeDESC (dst, src, join, stackA, stackB) {
     var i,k = Object.keys(src);
     for (i = 0; i < k.length; i++) {
@@ -101,7 +100,7 @@ function mergeDESC (dst, src, join, stackA, stackB) {
     }
 }
 
-function mergeREC(dst, source, key, join, stackA, stackB) {
+function mergeREC(dst, source, key, join) {
     var found,
         isArr,
         result = source,
@@ -110,42 +109,22 @@ function mergeREC(dst, source, key, join, stackA, stackB) {
     isArr = Array.isArray(source);
 
     if (source && ((isArr) || isPlainObject(source))) {
-        // avoid merging previously merged cyclic sources
-        var stackLength = stackA.length;
-        while (stackLength--) {
-            if (found = (stackA[stackLength] == source)) {
-                value = stackB[stackLength];
-                break;
-            }
+        var isShallow;
+        result = join(value, source);
+        if (isShallow = (typeof result != 'undefined')) {
+            value = result;
+        } else {
+            value = isArr ? ([]) : ({});
         }
-        if (!found) {
-            var isShallow;
-            result = join(value, source);
-            if ((isShallow = typeof result != 'undefined')) {
-                value = result;
-            }
-            if (!isShallow) {
-                value = isArr
-                ? (Array.isArray(value) ? value : [])
-                : (isPlainObject(value) ? value : {});
-            }
-            // add `source` and associated `value` to the stack of traversed objects
-            stackA.push(source);
-            stackB.push(value);
 
-            // recursively merge objects and arrays (susceptible to call stack limits)
-            if (!isShallow) {
-                mergeDESC(value, source, join, stackA, stackB);
-            }
+        // recursively merge objects and arrays (susceptible to call stack limits)
+        if (!isShallow) {
+            mergeDESC(value, source, join);
         }
     } else {
         result = join(value, source);
-        if (typeof result == 'undefined') {
-            result = source;
-        }
-        if (typeof result != 'undefined') {
-            value = result;
-        }
+        if (typeof result == 'undefined') { result = source; }
+        value = result;
     }
     dst[key] = value;
 }

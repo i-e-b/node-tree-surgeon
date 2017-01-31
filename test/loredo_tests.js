@@ -181,6 +181,301 @@ describe("Merging objects", function(){
         _.merge(dst, src);
         expect(dst).to.deep.equal(expected);
     });
-    it("should use a combination function if one is supplied",function(){});
-    it("should handle circular references",function(){});
+    it("should use a combination function if one is supplied",function(){
+        var dst = {
+            a:1,
+            b:2
+        };
+        var src = {
+            b:3,
+            c:4
+        };
+
+        var cmb = function(a,b) {
+            return (a) ? (a+"+"+b) : (b);
+        };
+
+        var expected = {
+            "a": 1,
+            "b": "2+3",
+            "c": 4
+        };
+
+        _.merge(dst, src, cmb);
+
+        expect(dst).to.deep.equal(expected);
+    });
+    it("should handle circular references",function(){
+        var v = [ [0,1], [2,3]];
+        var src = {
+            a: {},
+            b: {
+                v: v,
+                b: {
+                    v: v
+                }
+            }
+        };
+        src.a.s = src;
+        src.b.a = src.a;
+        src.b.b = src.b;
+
+
+        var dst = {
+            a: {},
+            b: {
+                v:v
+            }
+        };
+
+        _.merge(dst, src);
+        expect(dst.a[1].s.b.v[0][0]).to.equal(0);
+    });
+    it("should handle when the join function returns undefined by making a shallow copy", function(){
+        var dst = {
+            a:1,
+            b:2,
+            c:3
+        };
+
+        var src = {
+            a:2,
+            b:3,
+            c:4,
+
+            w:{x:"x", y:"y", z:"z"},
+            u:[[1],{a:2},3,null]
+        };
+
+        var expected = {
+            a:2,
+            b:3,
+            c:4,
+            w:{x:"x", y:"y", z:"z"},
+            u:[[1],{a:2},3,null]
+        }
+
+        var excludeJoin = function(x,y){
+            return undefined;
+        };
+
+        _.merge(dst, src, excludeJoin);
+        expect(dst).to.deep.equal(expected);
+    });
+    it("should survive crazy circular cross-references",function(){
+        var a = {a:1};
+        var b = [a];
+        var c = [null, undefined, {a:null}];
+
+        var dst = {
+            x:[a,b],
+            y:{c:c}
+        };
+        var src = {
+            x:[a,b],
+            y:{c:c}
+        };
+
+        a.s = src;
+        a.d = dst;
+        dst.d = dst;
+        src.d = dst;
+        dst.s = src;
+        src.s = src;
+
+        _.merge(dst, src);
+        // simply not erroring should be good enough here
+    });
+});
+
+describe("Removing array elements by predicates", function(){
+    it("should remove elements where the named property is truthy",function(){
+        var input = [
+            {i:1, gone:true},
+            {i:2, gone:false},
+            {i:3, gone:true}
+        ];
+        var expected = [{i:2, gone:false}];
+
+        var result = _.remove(input, "gone");
+        expect(result).to.be.deep.equal(expected);
+    });
+    it("should remove elements where a predicate function returns true", function(){
+        var input = [
+            {i:1, gone:true},
+            {i:2, gone:false},
+            {i:3, gone:true}
+        ];
+        var expected = [{i:1, gone:true}];
+
+        var result = _.remove(input, function(e){return e.i != 1;});
+        expect(result).to.be.deep.equal(expected);
+    });
+    it("should remove elements by property match", function(){
+        var input = [
+            {i:1, a:true, b:false},
+            {i:2, a:false, b:true},
+            {i:3, a:true, b:true}
+        ];
+        var expected = [
+            {i:1, a:true, b:false},
+            {i:2, a:false, b:true},
+        ];
+
+        var result = _.remove(input, {a:true, b:true});
+        expect(result).to.deep.equal(expected);
+    });
+    it("should remove all elements if the predicate always matches", function(){
+        var input = [
+            {i:1, a:true, b:false},
+            {i:2, a:false, b:true},
+            {i:3, a:true, b:true}
+        ];
+        var expected = [];
+
+        var result = _.remove(input, function(){return true;});
+        expect(result).to.deep.equal(expected);
+    });
+
+});
+
+describe("Finding elements in an array",function(){
+    it("should return the first element that has a truthy value for the named property", function(){
+        var input = [
+            {i:1, a:false},
+            {i:2, a:true},
+            {i:3, a:true}
+        ];
+        var expected = {i:2, a:true};
+
+        var result = _.find(input, "a");
+        expect(result).to.deep.equal(expected);
+    });
+    it("should return the first element that where a predicate function returns true", function(){
+        var input = [
+            {i:1, a:false},
+            {i:2, a:true},
+            {i:3, a:true}
+        ];
+        var expected = {i:1, a:false};
+
+        var result = _.find(input, function(){return true;});
+        expect(result).to.deep.equal(expected);
+    });
+    it("should return undefined where a predicate function never returns true", function(){
+        var input = [
+            {i:1, a:false},
+            {i:2, a:true},
+            {i:3, a:true}
+        ];
+        var expected = undefined;
+
+        var result = _.find(input, function(){return false;});
+        expect(result).to.deep.equal(expected);
+    });
+    it("should return the first element by property match",function(){
+        var input = [
+            {i:1, a:false},
+            {i:2, a:true},
+            {i:3, a:true, b:true}
+        ];
+        var expected = {i:3, a:true, b:true};
+
+        var result = _.find(input, {a:true, b:true});
+        expect(result).to.deep.equal(expected);
+    });
+});
+
+describe("Checking for any matches with 'some'",function(){
+    var input = [
+        {maybe:false, always:true, never:false},
+        {maybe:true,  always:true, never:false},
+    ];
+    it("should return true for a named propery match", function(){
+        expect(_.some(input, "maybe")).to.be.true;
+        expect(_.some(input, "always")).to.be.true;
+    });
+    it("should return false where there are no named property matches",function(){
+        expect(_.some(input, "never")).to.be.false;
+    });
+    it("should be able to match by predicate function",function(){
+        expect(_.some(input, function(n){return n.never})).to.be.false;
+        expect(_.some(input, function(n){return n.maybe})).to.be.true;
+        expect(_.some(input, function(n){return n.always})).to.be.true;
+    });
+    it("should be able to match by property matches",function(){
+        expect(_.some(input, {maybe:true, never:false})).to.be.true;
+        expect(_.some(input, {maybe:false, always:true})).to.be.true;
+        expect(_.some(input, {maybe:false, always:false})).to.be.false;
+    });
+});
+
+describe("Indexing collections", function(){
+    var input = [
+        {a:1, s:"one"},
+        {a:2, s:"one"},
+        {a:3, s:"two"},
+        {a:4, s:"two"},
+    ];
+    it("should create an indexed object by a given property name",function(){
+        var expected = {
+            "1": {
+                "a": 1,
+                "s": "one",
+            },
+            "2": {
+                "a": 2,
+                "s": "one",
+            },
+            "3": {
+                "a": 3,
+                "s": "two",
+            },
+            "4": {
+                "a": 4,
+                "s": "two",
+            }
+        };
+        var result = _.indexBy(input, "a");
+
+        expect(result).to.deep.equal(expected);
+    });
+    it("should create an indexed object by a selector function",function(){
+        var expected = {
+            "x1": {
+                "a": 1,
+                "s": "one",
+            },
+            "x2": {
+                "a": 2,
+                "s": "one",
+            },
+            "x3": {
+                "a": 3,
+                "s": "two",
+            },
+            "x4": {
+                "a": 4,
+                "s": "two",
+            }
+        };
+        var result = _.indexBy(input, function(n){return "x"+n.a});
+
+        expect(result).to.deep.equal(expected);
+    });
+    it("should not merge when the index is not unique",function(){
+        var expected = {
+            "one": {
+                "a": 2,
+                "s": "one",
+            },
+            "two": {
+                "a": 4,
+                "s": "two",
+            }
+        };
+        var result = _.indexBy(input, "s");
+
+        expect(result).to.deep.equal(expected);
+    });
 });

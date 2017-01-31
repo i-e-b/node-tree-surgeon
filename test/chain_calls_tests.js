@@ -20,7 +20,7 @@ describe("Chaining of calls", function() {
                 "what":"child of the root"
             }
         };
- 
+
         var result = tree.decompose(original).compose();
 
         expect(result).to.deep.equal(original);
@@ -36,7 +36,7 @@ describe("Chaining of calls", function() {
             },
             "three" : {}
         };
-        
+
         var expected = {
             "uno" : {
                 "x":1,
