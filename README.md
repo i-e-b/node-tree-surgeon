@@ -1,6 +1,6 @@
 node-tree-surgeon
 =================
-[![Build Status](https://travis-ci.org/i-e-b/node-tree-surgeon.svg?branch=master)](https://travis-ci.org/i-e-b/node-tree-surgeon) [![![Coverage Status](https://coveralls.io/repos/github/i-e-b/node-tree-surgeon/badge.svg?branch=master)](https://coveralls.io/github/i-e-b/node-tree-surgeon?branch=master)
+[![Build Status](https://travis-ci.org/i-e-b/node-tree-surgeon.svg?branch=master)](https://travis-ci.org/i-e-b/node-tree-surgeon) [![Coverage Status](https://coveralls.io/repos/github/i-e-b/node-tree-surgeon/badge.svg?branch=master)](https://coveralls.io/github/i-e-b/node-tree-surgeon?branch=master)
 
 Tools for editing tree structures using a relational model.
 
